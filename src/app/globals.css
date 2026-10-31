@@ -1,0 +1,130 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --background: #ffffff;
+  --foreground: #1e293b;
+  --strong: #4f46e5;
+  --sub: #60a5fa;
+  --meta: #9ca3af;
+  --muted: #475569;
+  --surface: #f3f4f6;
+  --thumb: #f2f4f7;
+  --footer: #f1f5f9;
+  --line: #e5e7eb;
+  --detail-title: #111827;
+  --detail-desc: #374151;
+  --list-number: #6b7280;
+  --list-bullet: #d1d5db;
+  --rule: #e5e7eb;
+  --code-bg: #ddd;
+  --code-border: #bcbec0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f172a;
+    --foreground: #e2e8f0;
+    --strong: #818cf8;
+    --sub: #60a5fa;
+    --meta: #94a3b8;
+    --muted: #94a3b8;
+    --surface: #1e293b;
+    --thumb: #1e293b;
+    --footer: #111827;
+    --line: #1f2937;
+    --detail-title: #f1f5f9;
+    --detail-desc: #cbd5e1;
+    --list-number: #94a3b8;
+    --list-bullet: #475569;
+    --rule: #334155;
+    --code-bg: #1e293b;
+    --code-border: #334155;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-strong: var(--strong);
+  --color-sub: var(--sub);
+  --color-meta: var(--meta);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-thumb: var(--thumb);
+  --color-footer: var(--footer);
+  --color-line: var(--line);
+  --color-detail-desc: var(--detail-desc);
+  --font-sans: var(--font-kakao), "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  word-break: keep-all;
+}
+
+/* 본문 마크다운 — tech.kakao.com 의 .preview 스타일 (html 14px 기준 rem 을 px 로 환산) */
+.post-body {
+  max-width: 768px;
+  margin: 0 auto;
+  overflow-wrap: break-word;
+  word-break: normal;
+  color: var(--detail-desc);
+}
+.post-body em { font-style: italic; }
+.post-body p { color: var(--detail-desc); margin: 21px 0 14px; font-size: 16px; line-height: 1.75; }
+.post-body h2, .post-body h3, .post-body h4, .post-body h5, .post-body h6 { margin: 28px 0 14px; }
+.post-body h2, .post-body h3 { color: var(--detail-title); font-weight: 700; line-height: 32px; }
+.post-body h2 { font-size: 24px; }
+.post-body h3 { font-size: 20px; }
+.post-body h4 { color: var(--detail-title); font-size: 16px; font-weight: 700; line-height: 24px; }
+.post-body h5, .post-body h6 { color: var(--detail-desc); font-size: 16px; font-weight: 400; line-height: 24px; }
+.post-body blockquote {
+  color: var(--detail-title); border-left: 4px solid var(--rule); margin: 14px 0;
+  padding-left: 16px; font-size: 16px; font-style: italic; font-weight: 400; line-height: 1.75;
+}
+.post-body blockquote > :first-child { margin-top: 0; }
+.post-body blockquote > :last-child { margin-bottom: 0; }
+.post-body ol, .post-body ul { color: var(--detail-desc); margin: 14px 0; padding-left: 32px; font-size: 16px; line-height: 1.75; }
+.post-body li { margin: 7px 0; }
+.post-body li > :first-child { margin-top: 0; }
+.post-body li > :last-child { margin-bottom: 0; }
+.post-body ol > li { list-style-type: decimal; }
+.post-body ol > li::marker { color: var(--list-number); }
+.post-body ul > li { list-style-type: disc; }
+.post-body ul > li::marker { color: var(--list-bullet); }
+.post-body hr { border: 0; border-top: 1px solid var(--rule); margin: 14px 0; }
+.post-body table { width: 100%; color: var(--detail-desc); line-height: 24px; display: block; overflow-x: auto; margin: 21px 0; border-collapse: collapse; }
+.post-body table th { color: var(--detail-title); border-bottom: 1px solid #d1d5db; padding: 4px 8px 12px; font-weight: 700; text-align: left; }
+.post-body table td { word-break: break-all; border-bottom: 1px solid var(--rule); min-width: 60px; padding: 8px; }
+.post-body img, .post-body video, .post-body iframe { max-width: 100%; height: auto; margin: 0 auto; display: block; }
+.post-body a { word-break: break-all; font-weight: 700; text-decoration: underline; }
+.post-body strong { font-weight: 700; color: var(--detail-title); }
+.post-body pre {
+  color: #c9d1d9; box-sizing: border-box; white-space: pre; tab-size: 4;
+  background: #161b22 !important; border-radius: 6px; margin: 21px 0; padding: 1em;
+  font-size: 13px; line-height: 1.5; overflow: auto;
+  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+}
+.post-body pre code { font: inherit; background: none; border: none; padding: 0; border-radius: 0; color: inherit; white-space: pre; }
+.post-body code {
+  white-space: break-spaces; background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: 20px; padding: 0.2em 0.4em; font: 85% Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+}
+.post-body pre code span { white-space: pre; }
+
+/* 관리자 에디터 */
+.editor-body p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--meta);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.editor-body table { display: table; table-layout: fixed; }
+.editor-body th, .editor-body td { border: 1px solid var(--rule); position: relative; vertical-align: top; }
+.editor-body .selectedCell::after { content: ""; position: absolute; inset: 0; background: rgba(96, 165, 250, 0.25); pointer-events: none; }
+.editor-body pre { background: #161b22; }

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "BE",
+    "children": [
+      "Nest.js"
+    ]
+  },
+  {
+    "name": "FE",
+    "children": [
+      "React",
+      "Next.js",
+      "HTML CSS",
+      "Javascript",
+      "Trouble Shoot"
+    ]
+  },
+  {
+    "name": "AI",
+    "children": [
+      "Python",
+      "LLM",
+      "머신러닝",
+      "데이터 분석",
+      "딥러닝"
+    ]
+  },
+  {
+    "name": "리뷰",
+    "children": []
+  },
+  {
+    "name": "자격증 공부",
+    "children": [
+      "정보처리기사 필기"
+    ]
+  }
+]
