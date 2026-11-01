@@ -240,11 +240,21 @@ export default function PostEditor({
         date: String(f.get("date") ?? ""),
         html: rendered,
       });
+      window.history.pushState(null, "");
       setStatus("");
     } catch (e) {
       setStatus(e instanceof Error ? e.message : "미리보기 실패");
     }
   };
+
+  // 미리보기는 페이지가 아니라 오버레이이므로, 뒤로가기가 에디터를 떠나지 않고 미리보기만 닫게 한다
+  useEffect(() => {
+    if (!preview) return;
+    const close = () => setPreview(null);
+    window.addEventListener("popstate", close);
+    return () => window.removeEventListener("popstate", close);
+  }, [preview]);
+
   const onThumbFile = async (file?: File) => {
     if (!file) return;
     try {
@@ -378,13 +388,14 @@ export default function PostEditor({
         </div>
       </div>
       {preview && (
-        <div className="fixed inset-0 z-40 overflow-y-auto bg-background">
+        // 사이트 헤더(z-50)에 닫기 버튼이 가려지지 않도록 헤더보다 위에 둔다
+        <div className="fixed inset-0 z-[60] overflow-y-auto bg-background">
           <div className="sticky top-0 z-10 flex items-center border-b border-line bg-background/95 px-5 py-3 text-sm backdrop-blur">
             <span className="font-semibold">미리보기</span>
             <span className="ml-3 text-muted">저장되지 않은 현재 내용입니다.</span>
             <button
               type="button"
-              onClick={() => setPreview(null)}
+              onClick={() => window.history.back()}
               className="ml-auto rounded-full border border-line px-4 py-1.5 text-muted hover:text-foreground"
             >
               닫기
