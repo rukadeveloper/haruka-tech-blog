@@ -13,7 +13,7 @@ import {
   splitCategory,
   writeCategories,
 } from "@/lib/categories";
-import { POSTS_DIR, POSTS_TAG, listPostMetas, readPostSource } from "@/lib/posts";
+import { POSTS_DIR, POSTS_TAG, listPostMetas, readPostSource, renderHtml } from "@/lib/posts";
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]*$/i;
@@ -28,32 +28,38 @@ export async function logout() {
 
 /* ---------- 글 ---------- */
 
-export async function savePost(_prev: string | null, formData: FormData) {
+/** error: 저장 실패 사유. slug/savedAt: 임시저장 성공 시 (에디터에 남아 같은 글을 계속 갱신) */
+export type SaveState = { error?: string; slug?: string; savedAt?: string } | null;
+
+/** intent=draft 는 비공개로 저장하고 에디터에 남고, 그 외(발행)는 저장 후 목록으로 이동 */
+export async function savePost(_prev: SaveState, formData: FormData): Promise<SaveState> {
   await requireAdmin();
 
+  const isDraft = str(formData, "intent") === "draft";
   const originalSlug = str(formData, "originalSlug");
   const title = str(formData, "title");
-  if (!title) return "제목을 입력하세요.";
+  if (!title) return { error: "제목을 입력하세요." };
 
   let slug = str(formData, "slug");
   if (!slug) slug = originalSlug || String(Date.now());
-  if (!SLUG_RE.test(slug)) return "슬러그는 영문/숫자/-/_ 만 사용할 수 있습니다.";
-  if (slug !== originalSlug && fs.existsSync(postFile(slug))) return "이미 존재하는 슬러그입니다.";
+  if (!SLUG_RE.test(slug)) return { error: "슬러그는 영문/숫자/-/_ 만 사용할 수 있습니다." };
+  if (slug !== originalSlug && fs.existsSync(postFile(slug))) return { error: "이미 존재하는 슬러그입니다." };
 
   const category = str(formData, "category");
   if (category && !flattenCategories(readCategories()).includes(category)) {
-    return "존재하지 않는 카테고리입니다.";
+    return { error: "존재하지 않는 카테고리입니다." };
   }
 
   const tags = str(formData, "tags").split(",").map((t) => t.trim()).filter(Boolean);
   const data = {
     title,
-    date: str(formData, "date"),
+    date: str(formData, "date") || new Date().toISOString().slice(0, 10),
     category,
     description: str(formData, "description"),
     tags,
     thumbnail: str(formData, "thumbnail"),
     format: "html",
+    ...(isDraft ? { draft: true } : {}),
   };
   const content = String(formData.get("content") ?? "");
 
@@ -64,7 +70,14 @@ export async function savePost(_prev: string | null, formData: FormData) {
   }
 
   updateTag(POSTS_TAG);
+  if (isDraft) return { slug, savedAt: new Date().toISOString() };
   redirect("/admin");
+}
+
+/** 에디터의 저장 전 내용을 실제 글과 같은 방식(코드 하이라이팅 포함)으로 렌더링 */
+export async function previewHtml(html: string) {
+  await requireAdmin();
+  return renderHtml(html);
 }
 
 export async function deletePost(formData: FormData) {
@@ -142,9 +155,9 @@ export async function renameCategory(formData: FormData) {
 
   for (const meta of listPostMetas()) {
     if (meta.category === category || meta.category.startsWith(category + "/")) {
-      const { meta: { slug, ...m }, content, format } = readPostSource(meta.slug);
+      const { meta: { slug, draft, ...m }, content, format } = readPostSource(meta.slug);
       const updated = next + m.category.slice(category.length);
-      fs.writeFileSync(postFile(slug), matter.stringify(content, { ...m, category: updated, ...(format === "html" ? { format } : {}) }));
+      fs.writeFileSync(postFile(slug), matter.stringify(content, { ...m, category: updated, ...(format === "html" ? { format } : {}), ...(draft ? { draft } : {}) }));
     }
   }
   writeCategories(cats);

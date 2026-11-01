@@ -23,6 +23,8 @@ export type PostMeta = {
   description: string;
   tags: string[];
   thumbnail: string;
+  /** true 면 공개 화면에서 숨기고 관리자에서만 보인다 (티스토리 임시저장 등) */
+  draft: boolean;
 };
 
 /** markdown: 기존 가져온 글 / html: 에디터(WYSIWYG)로 저장한 글 */
@@ -44,6 +46,7 @@ export function readPostSource(slug: string): PostSource {
       description: data.description ?? "",
       tags: data.tags ?? [],
       thumbnail: data.thumbnail ?? "",
+      draft: data.draft === true,
     },
   };
 }
@@ -64,7 +67,7 @@ export function listPostMetas(): PostMeta[] {
 export async function getAllPosts(): Promise<PostMeta[]> {
   "use cache";
   cacheTag(POSTS_TAG);
-  return listPostMetas();
+  return listPostMetas().filter((p) => !p.draft);
 }
 
 export async function getCategories(): Promise<Category[]> {
@@ -81,6 +84,7 @@ export async function getPost(slug: string) {
   "use cache";
   cacheTag(POSTS_TAG);
   const { meta, content, format } = readPostSource(slug);
+  if (meta.draft) throw new Error("draft");
   const html = format === "html" ? await renderHtml(content) : await renderMarkdown(content);
   return { meta, html };
 }

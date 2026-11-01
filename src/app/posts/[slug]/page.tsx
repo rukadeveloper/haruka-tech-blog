@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { categoryHref } from "@/lib/categories";
 import Comments from "@/components/Comments";
+import PostArticleBody from "@/components/PostArticleBody";
 import { getAllPosts, getPost } from "@/lib/posts";
 
 export async function generateStaticParams() {
@@ -33,23 +33,11 @@ async function Article({ params }: { params: PageProps<"/posts/[slug]">["params"
   const next = i > 0 ? all[i - 1] : undefined; // 더 최근 글
   return (
     <article className="pt-12 pb-24 sm:pt-20">
-      <div className="mx-auto max-w-[800px] text-center">
-        <div className="text-sm text-[#94a3b8]">
-          {post.meta.category && (
-            <Link href={categoryHref(post.meta.category)} className="hover:underline">
-              {post.meta.category.split("/").join(" / ")}
-            </Link>
-          )}
-        </div>
-        <h1 className="pt-2 text-[2.5rem] leading-tight font-bold">{post.meta.title}</h1>
-        <div className="pt-3 text-sm text-meta">
-          <time>{post.meta.date.replaceAll("-", ".")}</time>
-        </div>
-      </div>
-
-      <div
-        className="post-body mt-12"
-        dangerouslySetInnerHTML={{ __html: post.html }}
+      <PostArticleBody
+        category={post.meta.category}
+        title={post.meta.title}
+        date={post.meta.date}
+        html={post.html}
       />
 
       <div className="mx-auto mt-16 max-w-[768px]">

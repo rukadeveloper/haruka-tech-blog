@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
-import { savePost } from "../actions";
+import PostArticleBody from "@/components/PostArticleBody";
+import { previewHtml, savePost } from "../actions";
 import { ResizableImage } from "./ResizableImage";
 
 export type PostFormValues = {
@@ -17,6 +18,7 @@ export type PostFormValues = {
   description: string;
   tags: string;
   thumbnail: string;
+  draft: boolean;
   html: string;
 };
 
@@ -131,10 +133,19 @@ export default function PostEditor({
   isEdit: boolean;
   legacyMarkdown: boolean;
 }) {
-  const [error, action, pending] = useActionState(savePost, null);
+  const [saved, action, pending] = useActionState(savePost, null);
+  const error = saved?.error;
+  // 임시저장하면 서버가 슬러그를 정해 주므로, 새 글도 이후 저장은 같은 글을 갱신한다
+  const currentSlug = saved?.slug ?? (isEdit ? initial.slug : "");
+  // 발행된 글을 임시저장으로 되돌려 비공개로 만들지는 않는다
+  const canDraft = !isEdit || initial.draft;
+  const dirtyRef = useRef(false);
+  const intentRef = useRef<HTMLInputElement>(null);
   const [html, setHtml] = useState(initial.html);
   const [chars, setChars] = useState(0);
   const [status, setStatus] = useState("");
+  const [preview, setPreview] = useState<{ title: string; category: string; date: string; html: string } | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const editorRef = useRef<Editor | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const thumbRef = useRef<HTMLInputElement>(null);
@@ -185,6 +196,7 @@ export default function PostEditor({
       },
     },
     onUpdate: ({ editor }) => {
+      dirtyRef.current = true;
       setHtml(editor.getHTML());
       setChars(editor.getText().length);
     },
@@ -193,6 +205,46 @@ export default function PostEditor({
       setChars(editor.getText().length);
     },
   });
+  const saveDraft = () => {
+    const form = formRef.current;
+    if (!form || !intentRef.current || !form.elements.namedItem("title")) return;
+    dirtyRef.current = false;
+    intentRef.current.value = "draft";
+    form.requestSubmit();
+    intentRef.current.value = "publish";
+  };
+
+  // 새 글을 처음 임시저장하면 주소를 수정 화면으로 바꿔 새로고침해도 이어서 쓸 수 있게 한다
+  useEffect(() => {
+    if (!isEdit && saved?.slug) window.history.replaceState(null, "", `/admin/posts/${saved.slug}/edit`);
+  }, [isEdit, saved?.slug, saved?.savedAt]);
+
+  // 30초마다 변경이 있으면 자동 임시저장 (제목이 있을 때만)
+  useEffect(() => {
+    if (!canDraft) return;
+    const t = setInterval(() => {
+      const title = formRef.current?.elements.namedItem("title") as HTMLInputElement | null;
+      if (dirtyRef.current && !pending && title?.value.trim()) saveDraft();
+    }, 30000);
+    return () => clearInterval(t);
+  });
+
+  const openPreview = async () => {
+    const f = new FormData(formRef.current!);
+    try {
+      setStatus("미리보기 생성 중…");
+      const rendered = await previewHtml(html);
+      setPreview({
+        title: String(f.get("title") ?? ""),
+        category: String(f.get("category") ?? ""),
+        date: String(f.get("date") ?? ""),
+        html: rendered,
+      });
+      setStatus("");
+    } catch (e) {
+      setStatus(e instanceof Error ? e.message : "미리보기 실패");
+    }
+  };
   const onThumbFile = async (file?: File) => {
     if (!file) return;
     try {
@@ -204,8 +256,9 @@ export default function PostEditor({
   };
 
   return (
-    <form action={action} className="pb-28">
-      <input type="hidden" name="originalSlug" value={isEdit ? initial.slug : ""} />
+    <form ref={formRef} action={action} onChange={() => (dirtyRef.current = true)} className="pb-28">
+      <input type="hidden" name="originalSlug" value={currentSlug} />
+      <input ref={intentRef} type="hidden" name="intent" defaultValue="publish" />
       <input type="hidden" name="content" value={html} />
 
       <div className="mx-auto max-w-[768px]">
@@ -291,7 +344,29 @@ export default function PostEditor({
           <span className="text-meta">글자수 {chars.toLocaleString()}</span>
           {status && <span className="text-muted">{status}</span>}
           {error && <span className="text-red-500">{error}</span>}
-          <Link href="/admin" className="ml-auto text-muted hover:text-foreground">
+          {!error && !pending && saved?.savedAt && (
+            <span className="text-muted">
+              임시저장됨 {new Date(saved.savedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={openPreview}
+            className="ml-auto rounded-full border border-line px-4 py-2 text-muted hover:text-foreground"
+          >
+            미리보기
+          </button>
+          {canDraft && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={saveDraft}
+              className="rounded-full border border-line px-4 py-2 text-muted hover:text-foreground disabled:opacity-50"
+            >
+              임시저장
+            </button>
+          )}
+          <Link href="/admin" className="text-muted hover:text-foreground">
             취소
           </Link>
           <button
@@ -302,6 +377,24 @@ export default function PostEditor({
           </button>
         </div>
       </div>
+      {preview && (
+        <div className="fixed inset-0 z-40 overflow-y-auto bg-background">
+          <div className="sticky top-0 z-10 flex items-center border-b border-line bg-background/95 px-5 py-3 text-sm backdrop-blur">
+            <span className="font-semibold">미리보기</span>
+            <span className="ml-3 text-muted">저장되지 않은 현재 내용입니다.</span>
+            <button
+              type="button"
+              onClick={() => setPreview(null)}
+              className="ml-auto rounded-full border border-line px-4 py-1.5 text-muted hover:text-foreground"
+            >
+              닫기
+            </button>
+          </div>
+          <article className="mx-auto max-w-[800px] px-5 pt-12 pb-24">
+            <PostArticleBody {...preview} />
+          </article>
+        </div>
+      )}
     </form>
   );
 }

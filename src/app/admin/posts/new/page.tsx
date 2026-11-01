@@ -17,6 +17,7 @@ export default async function NewPost() {
         description: "",
         tags: "",
         thumbnail: "",
+        draft: false,
         html: "",
       }}
     />

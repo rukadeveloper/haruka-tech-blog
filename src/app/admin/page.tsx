@@ -27,11 +27,13 @@ export default async function AdminHome() {
           {posts.map((p) => (
             <tr key={p.slug} className="border-b border-black/5 dark:border-white/5">
               <td className="py-2 pr-2">
-                <Link href={`/posts/${p.slug}`} className="hover:underline">{p.title}</Link>
+                {p.draft && <span className="mr-2 rounded bg-surface px-1.5 py-0.5 text-xs text-muted">임시저장</span>}
+                <Link href={p.draft ? `/admin/posts/${p.slug}/edit` : `/posts/${p.slug}`} className="hover:underline">{p.title}</Link>
               </td>
               <td className="pr-2 opacity-70">{p.category || "-"}</td>
               <td className="pr-2 whitespace-nowrap opacity-70">{p.date}</td>
               <td className="whitespace-nowrap text-right">
+                <Link href={`/admin/posts/${p.slug}/preview`} className="mr-3 hover:underline">미리보기</Link>
                 <Link href={`/admin/posts/${p.slug}/edit`} className="mr-3 hover:underline">수정</Link>
                 <form action={deletePost} className="inline">
                   <input type="hidden" name="slug" value={p.slug} />
