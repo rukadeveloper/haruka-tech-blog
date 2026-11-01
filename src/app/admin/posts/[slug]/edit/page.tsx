@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { flattenCategories, readCategories } from "@/lib/categories";
-import { markdownToEditorHtml, readPostSource } from "@/lib/posts";
+import { flattenCategories, loadCategories } from "@/lib/categories";
+import { loadPostSource, markdownToEditorHtml } from "@/lib/posts";
 import PostEditor from "../../../editor/PostEditor";
 
 export default async function EditPost({ params }: PageProps<"/admin/posts/[slug]/edit">) {
@@ -9,7 +9,7 @@ export default async function EditPost({ params }: PageProps<"/admin/posts/[slug
   const { slug } = await params;
   let post;
   try {
-    post = readPostSource(slug);
+    post = await loadPostSource(slug);
   } catch {
     notFound();
   }
@@ -19,7 +19,7 @@ export default async function EditPost({ params }: PageProps<"/admin/posts/[slug
     <PostEditor
       isEdit
       legacyMarkdown={format !== "html"}
-      categories={flattenCategories(readCategories())}
+      categories={flattenCategories(await loadCategories())}
       initial={{ ...meta, tags: meta.tags.join(", "), html }}
     />
   );

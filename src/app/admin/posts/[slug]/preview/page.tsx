@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { readPostSource, renderHtml, renderMarkdown } from "@/lib/posts";
+import { loadPostSource, renderHtml, renderMarkdown } from "@/lib/posts";
 import PostArticleBody from "@/components/PostArticleBody";
 
 /** 저장된 글(초안 포함)을 공개 화면과 같은 모양으로 미리보기 — 관리자 전용 */
@@ -10,7 +10,7 @@ export default async function PreviewPost({ params }: PageProps<"/admin/posts/[s
   const { slug } = await params;
   let post;
   try {
-    post = readPostSource(slug);
+    post = await loadPostSource(slug);
   } catch {
     notFound();
   }

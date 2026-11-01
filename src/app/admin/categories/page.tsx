@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
-import { readCategories } from "@/lib/categories";
-import { listPostMetas, inCategory } from "@/lib/posts";
+import { loadCategories } from "@/lib/categories";
+import { loadPostMetas, inCategory } from "@/lib/posts";
 import { addCategory, deleteCategory, renameCategory } from "../actions";
 
 const input = "rounded border border-black/20 bg-transparent px-2 py-1 text-sm dark:border-white/20";
@@ -25,8 +25,8 @@ function Row({ path, label, count, sub }: { path: string; label: string; count: 
 
 export default async function CategoriesPage() {
   await requireAdmin();
-  const categories = readCategories();
-  const posts = listPostMetas();
+  const categories = await loadCategories();
+  const posts = await loadPostMetas();
   const count = (c: string) => posts.filter((p) => inCategory(p, c)).length;
 
   return (

@@ -29,7 +29,7 @@ async function uploadImage(file: File): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
   const res = await fetch("/admin/upload", { method: "POST", body: fd });
-  const json = await res.json();
+  const json = await res.json().catch(() => ({})); // 플랫폼 오류 응답은 JSON 이 아니다
   if (!res.ok) throw new Error(json.error ?? "업로드 실패");
   return json.url as string;
 }
@@ -219,13 +219,13 @@ export default function PostEditor({
     if (!isEdit && saved?.slug) window.history.replaceState(null, "", `/admin/posts/${saved.slug}/edit`);
   }, [isEdit, saved?.slug, saved?.savedAt]);
 
-  // 30초마다 변경이 있으면 자동 임시저장 (제목이 있을 때만)
+  // 3분마다 변경이 있으면 자동 임시저장 (제목이 있을 때만). 저장마다 커밋이 하나 생기므로 너무 잦지 않게 한다
   useEffect(() => {
     if (!canDraft) return;
     const t = setInterval(() => {
       const title = formRef.current?.elements.namedItem("title") as HTMLInputElement | null;
       if (dirtyRef.current && !pending && title?.value.trim()) saveDraft();
-    }, 30000);
+    }, 180000);
     return () => clearInterval(t);
   });
 

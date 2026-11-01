@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { listPostMetas } from "@/lib/posts";
+import { loadPostMetas } from "@/lib/posts";
 import { deletePost } from "./actions";
 
 export default async function AdminHome() {
   await requireAdmin();
-  const posts = listPostMetas();
+  const posts = await loadPostMetas();
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">

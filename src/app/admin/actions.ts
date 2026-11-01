@@ -1,23 +1,22 @@
 "use server";
 
-import fs from "node:fs";
-import path from "node:path";
 import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import matter from "gray-matter";
 import { requireAdmin } from "@/lib/auth";
 import { clearUserSession } from "@/lib/session";
 import {
+  CATEGORIES_PATH,
   flattenCategories,
-  readCategories,
+  loadCategories,
   splitCategory,
-  writeCategories,
+  stringifyCategories,
 } from "@/lib/categories";
-import { POSTS_DIR, POSTS_TAG, listPostMetas, readPostSource, renderHtml } from "@/lib/posts";
+import { commitContent, readContent } from "@/lib/content-store";
+import { POSTS_TAG, loadPostMetas, loadPostSource, postPath, renderHtml } from "@/lib/posts";
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]*$/i;
-const postFile = (slug: string) => path.join(POSTS_DIR, `${slug}.md`);
 
 /* ---------- 인증 ---------- */
 
@@ -43,10 +42,10 @@ export async function savePost(_prev: SaveState, formData: FormData): Promise<Sa
   let slug = str(formData, "slug");
   if (!slug) slug = originalSlug || String(Date.now());
   if (!SLUG_RE.test(slug)) return { error: "슬러그는 영문/숫자/-/_ 만 사용할 수 있습니다." };
-  if (slug !== originalSlug && fs.existsSync(postFile(slug))) return { error: "이미 존재하는 슬러그입니다." };
+  if (slug !== originalSlug && (await readContent(postPath(slug))) !== null) return { error: "이미 존재하는 슬러그입니다." };
 
   const category = str(formData, "category");
-  if (category && !flattenCategories(readCategories()).includes(category)) {
+  if (category && !flattenCategories(await loadCategories()).includes(category)) {
     return { error: "존재하지 않는 카테고리입니다." };
   }
 
@@ -63,10 +62,16 @@ export async function savePost(_prev: SaveState, formData: FormData): Promise<Sa
   };
   const content = String(formData.get("content") ?? "");
 
-  fs.mkdirSync(POSTS_DIR, { recursive: true });
-  fs.writeFileSync(postFile(slug), matter.stringify(content, data));
-  if (originalSlug && originalSlug !== slug && SLUG_RE.test(originalSlug)) {
-    fs.rmSync(postFile(originalSlug), { force: true });
+  try {
+    await commitContent({
+      message: `${isDraft ? "Save draft" : "Publish post"} ${slug}`,
+      put: { [postPath(slug)]: matter.stringify(content, data) },
+      remove: originalSlug && originalSlug !== slug && SLUG_RE.test(originalSlug) ? [postPath(originalSlug)] : [],
+      deploy: !isDraft,
+    });
+  } catch (e) {
+    console.error(e);
+    return { error: "저장에 실패했습니다. 잠시 후 다시 시도하세요." };
   }
 
   updateTag(POSTS_TAG);
@@ -84,7 +89,7 @@ export async function deletePost(formData: FormData) {
   await requireAdmin();
   const slug = str(formData, "slug");
   if (!SLUG_RE.test(slug)) throw new Error("잘못된 슬러그입니다.");
-  fs.rmSync(postFile(slug), { force: true });
+  await commitContent({ message: `Delete post ${slug}`, remove: [postPath(slug)] });
   updateTag(POSTS_TAG);
   redirect("/admin");
 }
@@ -98,7 +103,7 @@ export async function addCategory(formData: FormData) {
   const parent = str(formData, "parent");
   if (!name || name.includes("/")) throw new Error("카테고리 이름이 올바르지 않습니다.");
 
-  const cats = readCategories();
+  const cats = await loadCategories();
   if (!parent) {
     if (cats.some((c) => c.name === name)) throw new Error("이미 존재하는 카테고리입니다.");
     cats.push({ name, children: [] });
@@ -108,7 +113,7 @@ export async function addCategory(formData: FormData) {
     if (p.children.includes(name)) throw new Error("이미 존재하는 카테고리입니다.");
     p.children.push(name);
   }
-  writeCategories(cats);
+  await commitContent({ message: `Add category ${name}`, put: { [CATEGORIES_PATH]: stringifyCategories(cats) } });
   updateTag(POSTS_TAG);
   redirect("/admin/categories");
 }
@@ -118,16 +123,16 @@ export async function deleteCategory(formData: FormData) {
   await requireAdmin();
   const category = str(formData, "category");
   const [top, sub] = splitCategory(category);
-  const inUse = listPostMetas().some(
+  const inUse = (await loadPostMetas()).some(
     (p) => p.category === category || p.category.startsWith(category + "/")
   );
   if (inUse) throw new Error("글이 있는 카테고리는 삭제할 수 없습니다. 글을 먼저 이동하세요.");
 
-  let cats = readCategories();
+  let cats = await loadCategories();
   cats = sub
     ? cats.map((c) => (c.name === top ? { ...c, children: c.children.filter((s) => s !== sub) } : c))
     : cats.filter((c) => c.name !== top);
-  writeCategories(cats);
+  await commitContent({ message: `Delete category ${category}`, put: { [CATEGORIES_PATH]: stringifyCategories(cats) } });
   updateTag(POSTS_TAG);
   redirect("/admin/categories");
 }
@@ -140,7 +145,7 @@ export async function renameCategory(formData: FormData) {
   if (!newName || newName.includes("/")) throw new Error("카테고리 이름이 올바르지 않습니다.");
   const [top, sub] = splitCategory(category);
 
-  const cats = readCategories();
+  const cats = await loadCategories();
   const t = cats.find((c) => c.name === top);
   if (!t) throw new Error("카테고리를 찾을 수 없습니다.");
   if (sub) {
@@ -153,14 +158,15 @@ export async function renameCategory(formData: FormData) {
   }
   const next = sub ? `${top}/${newName}` : newName;
 
-  for (const meta of listPostMetas()) {
+  const put: Record<string, string> = { [CATEGORIES_PATH]: stringifyCategories(cats) };
+  for (const meta of await loadPostMetas()) {
     if (meta.category === category || meta.category.startsWith(category + "/")) {
-      const { meta: { slug, draft, ...m }, content, format } = readPostSource(meta.slug);
+      const { meta: { slug, draft, ...m }, content, format } = await loadPostSource(meta.slug);
       const updated = next + m.category.slice(category.length);
-      fs.writeFileSync(postFile(slug), matter.stringify(content, { ...m, category: updated, ...(format === "html" ? { format } : {}), ...(draft ? { draft } : {}) }));
+      put[postPath(slug)] = matter.stringify(content, { ...m, category: updated, ...(format === "html" ? { format } : {}), ...(draft ? { draft } : {}) });
     }
   }
-  writeCategories(cats);
+  await commitContent({ message: `Rename category ${category} to ${next}`, put });
   updateTag(POSTS_TAG);
   redirect("/admin/categories");
 }
