@@ -10,4 +10,4 @@ thumbnail: /images/posts/draft-114/1.webp
 format: html
 draft: true
 ---
-<p></p><p></p>
+<img src="https://raw.githubusercontent.com/rukadeveloper/haruka-tech-blog/main/public/images/uploads/1793521035069.png" width="295" data-align="left" style="display: block; height: auto; max-width: 100%; margin: 0px auto 0px 0px;"><h3><strong>파이토치(Pytorch)</strong></h3><p></p><p></p>
