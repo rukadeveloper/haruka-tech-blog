@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/auth";
-import { flattenCategories, readCategories } from "@/lib/categories";
+import { flattenCategories, loadCategories } from "@/lib/categories";
 import PostEditor from "../../editor/PostEditor";
 
 export default async function NewPost() {
@@ -8,7 +8,7 @@ export default async function NewPost() {
     <PostEditor
       isEdit={false}
       legacyMarkdown={false}
-      categories={flattenCategories(readCategories())}
+      categories={flattenCategories(await loadCategories())}
       initial={{
         slug: "",
         title: "",

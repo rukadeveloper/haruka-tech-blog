@@ -52,7 +52,13 @@ export async function addComment(_prev: CommentState, formData: FormData): Promi
     body,
     createdAt: new Date().toISOString(),
   });
-  writeComments(slug, comments);
+  try {
+    writeComments(slug, comments);
+  } catch (e) {
+    // Vercel 에서는 파일을 쓸 수 없다
+    console.error(e);
+    return { error: "지금은 댓글을 저장할 수 없습니다." };
+  }
   revalidatePath(`/posts/${slug}`);
   return { ok: Date.now() };
 }

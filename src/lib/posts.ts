@@ -11,9 +11,12 @@ import rehypeRaw from "rehype-raw";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeStringify from "rehype-stringify";
 import { readCategories, type Category } from "./categories";
+import { readContent, readContentDir } from "./content-store";
 
 export const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 export const POSTS_TAG = "posts";
+/** 저장소 루트 기준 글 파일 경로 */
+export const postPath = (slug: string) => `content/posts/${slug}.md`;
 
 export type PostMeta = {
   slug: string;
@@ -31,9 +34,7 @@ export type PostMeta = {
 export type PostFormat = "markdown" | "html";
 export type PostSource = { meta: PostMeta; content: string; format: PostFormat };
 
-/** 파일 시스템에서 직접 읽기 (관리자 화면 / 캐시 함수 내부용) */
-export function readPostSource(slug: string): PostSource {
-  const raw = fs.readFileSync(path.join(POSTS_DIR, `${slug}.md`), "utf8");
+function parsePost(slug: string, raw: string): PostSource {
   const { data, content } = matter(raw);
   return {
     content,
@@ -51,17 +52,39 @@ export function readPostSource(slug: string): PostSource {
   };
 }
 
+/** 파일 시스템에서 직접 읽기 (캐시 함수 내부용) */
+export function readPostSource(slug: string): PostSource {
+  return parsePost(slug, fs.readFileSync(path.join(POSTS_DIR, `${slug}.md`), "utf8"));
+}
+
+/** 관리자 화면용: 재배포 전에도 최신 내용을 보도록 저장소에서 읽는다 */
+export async function loadPostSource(slug: string): Promise<PostSource> {
+  const raw = await readContent(postPath(slug));
+  if (raw === null) throw new Error(`post not found: ${slug}`);
+  return parsePost(slug, raw);
+}
+
+const byNewest = (a: PostMeta, b: PostMeta) =>
+  a.date === b.date
+    ? b.slug.localeCompare(a.slug, undefined, { numeric: true })
+    : a.date < b.date ? 1 : -1;
+
 export function listPostMetas(): PostMeta[] {
   if (!fs.existsSync(POSTS_DIR)) return [];
   return fs
     .readdirSync(POSTS_DIR)
     .filter((f) => f.endsWith(".md"))
     .map((f) => readPostSource(f.replace(/\.md$/, "")).meta)
-    .sort((a, b) =>
-      a.date === b.date
-        ? b.slug.localeCompare(a.slug, undefined, { numeric: true })
-        : a.date < b.date ? 1 : -1
-    );
+    .sort(byNewest);
+}
+
+/** 관리자 화면용 전체 글 목록 (임시저장 포함) */
+export async function loadPostMetas(): Promise<PostMeta[]> {
+  const files = await readContentDir("content/posts");
+  return Object.entries(files)
+    .filter(([name]) => name.endsWith(".md"))
+    .map(([name, raw]) => parsePost(name.replace(/\.md$/, ""), raw).meta)
+    .sort(byNewest);
 }
 
 export async function getAllPosts(): Promise<PostMeta[]> {
