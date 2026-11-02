@@ -255,6 +255,16 @@ export default function PostEditor({
     return () => window.removeEventListener("popstate", close);
   }, [preview]);
 
+  // 오버레이 자체 스크롤바와 페이지 스크롤바가 겹쳐 보이지 않도록 미리보기 동안 페이지 스크롤을 잠근다
+  useEffect(() => {
+    if (!preview) return;
+    const prev = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = prev;
+    };
+  }, [preview]);
+
   const onThumbFile = async (file?: File) => {
     if (!file) return;
     try {
