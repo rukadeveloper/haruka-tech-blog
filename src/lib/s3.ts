@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const env = (name: string) => {
   const v = process.env[name];
@@ -7,25 +7,27 @@ const env = (name: string) => {
 };
 
 let client: S3Client | undefined;
-
-/** S3 에 파일을 올리고 브라우저용 주소를 돌려준다. */
-export async function uploadToS3(key: string, body: Buffer, contentType: string): Promise<string> {
-  const bucket = env("AWS_S3_BUCKET");
-  const region = env("AWS_REGION");
-  client ??= new S3Client({
-    region,
+const s3 = () =>
+  (client ??= new S3Client({
+    region: env("AWS_REGION"),
     credentials: { accessKeyId: env("AWS_ACCESS_KEY_ID"), secretAccessKey: env("AWS_SECRET_ACCESS_KEY") },
-  });
-  await client.send(
+  }));
+
+/** 버킷은 비공개로 두고 /media/<key> 로 서버가 대신 내려준다. */
+export const mediaUrl = (key: string) => `/media/${key}`;
+
+export async function uploadToS3(key: string, body: Buffer, contentType: string): Promise<void> {
+  await s3().send(
     new PutObjectCommand({
-      Bucket: bucket,
+      Bucket: env("AWS_S3_BUCKET"),
       Key: key,
       Body: body,
       ContentType: contentType,
       CacheControl: "public, max-age=31536000, immutable",
     }),
   );
-  // CloudFront 등 커스텀 도메인을 쓰면 AWS_S3_PUBLIC_URL 로 지정
-  const base = (process.env.AWS_S3_PUBLIC_URL ?? `https://${bucket}.s3.${region}.amazonaws.com`).replace(/\/$/, "");
-  return `${base}/${key}`;
+}
+
+export async function getFromS3(key: string) {
+  return s3().send(new GetObjectCommand({ Bucket: env("AWS_S3_BUCKET"), Key: key }));
 }

@@ -1,5 +1,5 @@
 import { isAdmin } from "@/lib/auth";
-import { uploadToS3 } from "@/lib/s3";
+import { mediaUrl, uploadToS3 } from "@/lib/s3";
 
 const ALLOWED = new Set(["png", "jpg", "jpeg", "gif", "webp"]);
 const MAX_BYTES = 4 * 1024 * 1024; // Vercel 함수의 요청 본문 한도(4.5MB)보다 작게
@@ -16,8 +16,8 @@ export async function POST(request: Request) {
 
   const key = `images/uploads/${Date.now()}.${ext}`;
   try {
-    const url = await uploadToS3(key, Buffer.from(await file.arrayBuffer()), file.type || `image/${ext}`);
-    return Response.json({ url });
+    await uploadToS3(key, Buffer.from(await file.arrayBuffer()), file.type || `image/${ext}`);
+    return Response.json({ url: mediaUrl(key) });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "업로드에 실패했습니다." }, { status: 500 });
