@@ -22,7 +22,7 @@ export default async function LoginPage() {
             </button>
           </form>
         </>
-      ) : isGithubConfigured() ? (
+      ) : (await isGithubConfigured()) ? (
         <a
           href={`/api/auth/github/login?returnTo=${encodeURIComponent("/admin")}`}
           className="flex items-center justify-center gap-2 rounded-md bg-[#24292f] px-4 py-3 text-[15px] font-medium text-white hover:bg-black"

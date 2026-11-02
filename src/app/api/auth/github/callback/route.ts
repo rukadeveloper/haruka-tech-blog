@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { isGithubConfigured, setUserSession } from "@/lib/session";
+import { githubApp, isGithubConfigured, setUserSession } from "@/lib/session";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -26,7 +26,8 @@ export async function GET(request: Request) {
   };
 
   const code = url.searchParams.get("code");
-  if (!isGithubConfigured() || !code || !state || url.searchParams.get("state") !== state) {
+  const app = githubApp(url.host);
+  if (!app || !(await isGithubConfigured(url.host)) || !code || !state || url.searchParams.get("state") !== state) {
     return back("error");
   }
 
@@ -35,8 +36,8 @@ export async function GET(request: Request) {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({
-        client_id: process.env.GITHUB_CLIENT_ID,
-        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        client_id: app.id,
+        client_secret: app.secret,
         code,
         redirect_uri: `${url.origin}/api/auth/github/callback`,
       }),

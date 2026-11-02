@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { nowMs } from "./clock";
 
 /** 방문자(깃허브 로그인) 세션. 관리자 세션(auth.ts)과는 별개의 쿠키를 쓴다. */
@@ -23,8 +23,30 @@ const safeEqual = (a: string, b: string) => {
   return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
 };
 
-export const isGithubConfigured = () =>
-  Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET && secret());
+type GithubApp = { id: string; secret: string };
+
+/**
+ * OAuth App 은 콜백 URL 을 하나만 등록할 수 있어 도메인마다 앱이 따로 필요하다.
+ * GITHUB_OAUTH_APPS='{"www.haruka.life":{"id":"...","secret":"..."}}' 에 호스트별 키를 두고,
+ * 없는 호스트는 GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET 을 쓴다.
+ */
+export function githubApp(host: string): GithubApp | null {
+  try {
+    const apps = JSON.parse(process.env.GITHUB_OAUTH_APPS || "{}");
+    const app = apps[host];
+    if (app?.id && app?.secret) return { id: app.id, secret: app.secret };
+  } catch {
+    /* 잘못된 JSON 은 기본 키로 대체 */
+  }
+  const { GITHUB_CLIENT_ID: id, GITHUB_CLIENT_SECRET: secret } = process.env;
+  return id && secret ? { id, secret } : null;
+}
+
+/** host 를 생략하면 현재 요청의 호스트 기준. */
+export async function isGithubConfigured(host?: string) {
+  host ??= (await headers()).get("host") ?? "";
+  return Boolean(githubApp(host) && secret());
+}
 
 export async function setUserSession(user: SessionUser) {
   const payload = Buffer.from(JSON.stringify({ ...user, exp: Date.now() + MAX_AGE * 1000 })).toString("base64url");

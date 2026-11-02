@@ -64,7 +64,7 @@ export default async function Comments({ slug }: { slug: string }) {
   const all = readComments(slug);
   const roots = all.filter((c) => !c.parentId);
   const repliesOf = (id: string) => all.filter((c) => c.parentId === id);
-  const configured = isGithubConfigured();
+  const configured = await isGithubConfigured();
 
   return (
     <section className="mx-auto mt-20 max-w-[768px]" aria-label="댓글">
