@@ -15,4 +15,4 @@ x.item()</code></pre><img src="/media/images/uploads/1793618100435.png" data-ali
 print(x)
 print(x.item())
 print(x.dtype)</code></pre><img src="/media/images/uploads/1793618617471.png" data-align="left" style="display: block; height: auto; max-width: 100%; margin: 0px auto 0px 0px;"><p>torch.device()를 통해 CPU 혹은 CUDA로 장치를 바꿀 수 있습니다.</p><pre><code>torch.device('cpu')
-torch.device('cuda')</code></pre><p>여기서 CUDA 변환이 가능한 상황이라면, cuda로 아니라면 cpu로 DEVICE를 변경하겠습니다.</p><pre><code>DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')</code></pre><p></p>
+torch.device('cuda')</code></pre><p>여기서 CUDA 변환이 가능한 상황이라면, cuda로 아니라면 cpu로 DEVICE를 변경하겠습니다.</p><p>CUDA가 가능하도록 Mac 환경이 아니라면, Google Colab에서 실행하시기 바랍니다.</p><pre><code>DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')</code></pre><img src="/media/images/uploads/1793619080280.png" data-align="left" style="display: block; height: auto; max-width: 100%; margin: 0px auto 0px 0px;"><p>위에 CPU에 만들어진 텐서 객체 x를 device 변수를 통해 GPU 메모리 상에 올려놓겠습니다.</p><blockquote><p>torch.ones_like(x)는 x와 동일한 shape이되, 요소를 1로 꽉꽉 채우는 상황을 의미합니다.</p></blockquote><pre><code>y = torch.ones_like(x)</code></pre><p></p>
