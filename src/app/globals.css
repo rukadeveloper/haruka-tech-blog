@@ -19,6 +19,13 @@
   --rule: #e5e7eb;
   --code-bg: #ddd;
   --code-border: #bcbec0;
+  --toc-accent: #f0506e;
+  --toc-bg: #ffffff;
+  --toc-border: #cfd4d3;
+  --toc-row-border: #d4cfcf;
+  --toc-text: #514040;
+  --toc-tint: rgba(246, 86, 96, 0.03);
+  --toc-active: rgba(240, 80, 110, 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,6 +47,12 @@
     --rule: #334155;
     --code-bg: #1e293b;
     --code-border: #334155;
+    --toc-bg: #111827;
+    --toc-border: #334155;
+    --toc-row-border: #263244;
+    --toc-text: #cbd5e1;
+    --toc-tint: rgba(246, 86, 96, 0.08);
+    --toc-active: rgba(240, 80, 110, 0.18);
   }
 }
 
@@ -128,3 +141,62 @@ body {
 .editor-body th, .editor-body td { border: 1px solid var(--rule); position: relative; vertical-align: top; }
 .editor-body .selectedCell::after { content: ""; position: absolute; inset: 0; background: rgba(96, 165, 250, 0.25); pointer-events: none; }
 .editor-body pre { background: #161b22; }
+
+/* 목차 — inpa.tistory.com 스타일: 흰 박스 + 코랄 헤더 바 + 계층 번호 */
+.post-body h2, .post-body h3 { scroll-margin-top: 88px; }
+
+.toc-box, .toc-panel {
+  background: var(--toc-bg);
+  border: 1px solid var(--toc-border);
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.13);
+  overflow: hidden;
+}
+.toc-box { margin-bottom: 50px; }
+.toc-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; padding: 12px 16.8px;
+  background: var(--toc-accent); color: #fff;
+  font-size: 16px; line-height: 19.2px; font-weight: 700;
+}
+.toc-list { margin: 0; padding: 0; list-style: none; }
+.toc-list li { margin: 0; }
+.toc-list a {
+  display: block; padding: 12.8px 19.2px;
+  border-bottom: 1px solid var(--toc-row-border);
+  color: var(--toc-text); font-size: 15.2px; line-height: 22.8px;
+  text-decoration: none; word-break: keep-all;
+  transition: background-color 0.15s, color 0.15s;
+}
+.toc-list li:last-child a { border-bottom: 0; }
+.toc-list li[data-depth="0"] a { background: var(--toc-tint); }
+.toc-list li[data-depth="1"] a { padding-left: 48px; }
+.toc-list a:hover { color: var(--toc-accent); }
+.toc-list a[data-active="true"] { background: var(--toc-active); color: var(--toc-accent); font-weight: 700; }
+.toc-num { margin-right: 10px; color: var(--toc-accent); font-variant-numeric: tabular-nums; }
+
+/* 스크롤하면 나타나는 우측 고정 목차 */
+.toc-float {
+  position: fixed; top: 112px; right: 12px; z-index: 40;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+  opacity: 0; pointer-events: none; transform: translateX(8px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.toc-float[data-show="true"] { opacity: 1; pointer-events: auto; transform: none; }
+.toc-float-btn {
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--toc-border); border-radius: 8px;
+  background: var(--toc-bg); color: var(--toc-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); cursor: pointer;
+}
+.toc-float-btn:hover { color: var(--toc-accent); }
+.toc-panel {
+  width: min(300px, calc(100vw - 24px)); max-height: calc(100vh - 180px); overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  opacity: 0; visibility: hidden; transform: translateX(16px);
+  transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+}
+.toc-panel[data-open="true"] { opacity: 1; visibility: visible; transform: none; }
+.toc-panel .toc-list a { padding-top: 10px; padding-bottom: 10px; font-size: 14px; line-height: 21px; }
+.toc-panel .toc-list li[data-depth="1"] a { padding-left: 36px; }
+.toc-backdrop { position: fixed; inset: 0; z-index: 30; }

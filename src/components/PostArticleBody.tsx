@@ -1,4 +1,6 @@
 import Link from "next/link";
+import PostToc from "@/components/PostToc";
+import { buildToc } from "@/lib/toc";
 
 // lib/categories 는 node:fs 를 쓰므로 클라이언트(에디터 미리보기)에서 못 가져온다 — categoryHref 와 같은 규칙
 const categoryHref = (c: string) => "/category/" + c.split("/").map(encodeURIComponent).join("/");
@@ -15,6 +17,8 @@ export default function PostArticleBody({
   date: string;
   html: string;
 }) {
+  // h2·h3 에 id 를 붙이고 목차 항목을 만든다 (제목이 2개 미만이면 목차를 숨김)
+  const { html: body, items } = buildToc(html);
   return (
     <>
       <div className="mx-auto max-w-[800px] text-center">
@@ -31,7 +35,13 @@ export default function PostArticleBody({
         </div>
       </div>
 
-      <div className="post-body mt-12" dangerouslySetInnerHTML={{ __html: html }} />
+      {items.length > 0 && (
+        <div className="mx-auto mt-12 max-w-[768px]">
+          <PostToc items={items} />
+        </div>
+      )}
+
+      <div className={`post-body ${items.length > 0 ? "" : "mt-12"}`} dangerouslySetInnerHTML={{ __html: body }} />
     </>
   );
 }
