@@ -82,7 +82,9 @@ body {
 /* 본문 마크다운 — tech.kakao.com 의 .preview 스타일 (html 14px 기준 rem 을 px 로 환산) */
 .post-body {
   max-width: 768px;
-  margin: 0 auto;
+  /* margin 단축 속성은 Tailwind 의 mt-* 를 덮어쓴다 (레이어 밖 CSS 가 우선) — 좌우만 지정 */
+  margin-left: auto;
+  margin-right: auto;
   overflow-wrap: break-word;
   word-break: normal;
   color: var(--detail-desc);
