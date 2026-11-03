@@ -37,12 +37,12 @@ export default function PostArticleBody({
       </div>
 
       {items.length > 0 && (
-        <div className="mx-auto mt-12 max-w-[768px]">
+        <div className="mx-auto mt-20 max-w-[768px]">
           <PostToc items={items} />
         </div>
       )}
 
-      <div className={`post-body ${items.length > 0 ? "" : "mt-12"}`} dangerouslySetInnerHTML={{ __html: markImagesPending(body) }} />
+      <div className={`post-body ${items.length > 0 ? "" : "mt-20"}`} dangerouslySetInnerHTML={{ __html: markImagesPending(body) }} />
     </>
   );
 }
