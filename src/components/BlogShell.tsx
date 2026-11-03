@@ -43,8 +43,8 @@ export default async function BlogShell({
         </p>
       </section>
 
-      <div className="mb-14 space-y-3">
-        <ul className="flex flex-wrap justify-center gap-2">
+      <div className="mb-16 space-y-6">
+        <ul className="flex flex-wrap justify-center gap-3">
           <li>
             <Link href="/" className={chip(category === "")}>
               전체 {all.length}
@@ -59,7 +59,7 @@ export default async function BlogShell({
           ))}
         </ul>
         {subs.length > 0 && (
-          <ul className="flex flex-wrap justify-center gap-x-5 gap-y-1 text-[15px]">
+          <ul className="flex flex-wrap justify-center gap-x-7 gap-y-3 text-[15px]">
             {subs.map((s) => {
               const full = `${top}/${s}`;
               return (

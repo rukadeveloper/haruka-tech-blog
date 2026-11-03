@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import BlogShell from "@/components/BlogShell";
+import BlogSkeleton from "@/components/BlogSkeleton";
 import { flattenCategories } from "@/lib/categories";
 import { getCategories } from "@/lib/posts";
 
@@ -28,7 +29,7 @@ async function Content({ props }: { props: PageProps<"/category/[...path]"> }) {
 
 export default function CategoryPage(props: PageProps<"/category/[...path]">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<BlogSkeleton />}>
       <Content props={props} />
     </Suspense>
   );

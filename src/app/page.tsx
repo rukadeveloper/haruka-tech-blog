@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import BlogShell from "@/components/BlogShell";
+import BlogSkeleton from "@/components/BlogSkeleton";
 
 async function Content({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
   const { page } = await searchParams;
@@ -8,7 +9,7 @@ async function Content({ searchParams }: { searchParams: PageProps<"/">["searchP
 
 export default function Home(props: PageProps<"/">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<BlogSkeleton />}>
       <Content searchParams={props.searchParams} />
     </Suspense>
   );
