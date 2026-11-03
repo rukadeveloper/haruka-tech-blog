@@ -4,7 +4,7 @@ date: '2026-10-12'
 category: AI/딥러닝
 description: ''
 tags: []
-thumbnail: /images/posts/draft-114/1.webp
+thumbnail: /images/posts/draft-114/thumbnail.png
 format: html
 draft: true
 ---
