@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { loadPostMetas } from "@/lib/posts";
 import { deletePost } from "./actions";
+import ConfirmDeleteButton from "./ConfirmDeleteButton";
 
 export default async function AdminHome() {
   await requireAdmin();
@@ -37,7 +38,7 @@ export default async function AdminHome() {
                 <Link href={`/admin/posts/${p.slug}/edit`} className="mr-3 hover:underline">수정</Link>
                 <form action={deletePost} className="inline">
                   <input type="hidden" name="slug" value={p.slug} />
-                  <button className="text-red-500 hover:underline">삭제</button>
+                  <ConfirmDeleteButton target={p.title} />
                 </form>
               </td>
             </tr>

@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import { loadCategories } from "@/lib/categories";
 import { loadPostMetas, inCategory } from "@/lib/posts";
 import { addCategory, deleteCategory, renameCategory } from "../actions";
+import ConfirmDeleteButton from "../ConfirmDeleteButton";
 
 const input = "rounded border border-black/20 bg-transparent px-2 py-1 text-sm dark:border-white/20";
 
@@ -17,7 +18,7 @@ function Row({ path, label, count, sub }: { path: string; label: string; count: 
       </form>
       <form action={deleteCategory}>
         <input type="hidden" name="category" value={path} />
-        <button className="text-sm text-red-500 hover:underline">삭제</button>
+        <ConfirmDeleteButton target={label} className="text-sm text-red-500 hover:underline" />
       </form>
     </li>
   );
