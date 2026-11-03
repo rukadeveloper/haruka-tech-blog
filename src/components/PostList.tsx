@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PostMeta } from "@/lib/posts";
+import ThumbImage from "./ThumbImage";
 
 export default function PostList({ posts }: { posts: PostMeta[] }) {
   if (posts.length === 0) {
@@ -10,13 +11,10 @@ export default function PostList({ posts }: { posts: PostMeta[] }) {
       {posts.map((p) => (
         <li key={p.slug}>
           <Link href={`/posts/${p.slug}`} className="group flex h-full flex-col">
-            <div className="aspect-[16/10] overflow-hidden rounded-md bg-thumb">
+            <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-thumb">
               {p.thumbnail ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <ThumbImage
                   src={p.thumbnail}
-                  alt=""
-                  loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               ) : (

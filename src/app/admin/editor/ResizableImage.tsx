@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import Image from "@tiptap/extension-image";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
+import Spinner from "@/components/Spinner";
 
 type Align = "left" | "center" | "right";
 
@@ -16,6 +17,12 @@ const MIN_WIDTH = 40;
 
 function ImageView({ node, updateAttributes, selected, deleteNode }: NodeViewProps) {
   const imgRef = useRef<HTMLImageElement>(null);
+  const [loaded, setLoaded] = useState(false);
+  // 이미 받아진(캐시) 이미지는 onLoad 가 오지 않을 수 있어 연결 시점에 확인한다
+  const bindImg = useCallback((img: HTMLImageElement | null) => {
+    imgRef.current = img;
+    if (img?.complete) setLoaded(true);
+  }, []);
   const align = (node.attrs.align as Align) ?? "center";
   const width = node.attrs.width as number | null;
 
@@ -77,13 +84,20 @@ function ImageView({ node, updateAttributes, selected, deleteNode }: NodeViewPro
             </button>
           </div>
         )}
+        {!loaded && (
+          <span className="absolute inset-0 grid min-h-[140px] min-w-[200px] place-items-center rounded bg-thumb">
+            <Spinner />
+          </span>
+        )}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          ref={imgRef}
+          ref={bindImg}
+          onLoad={() => setLoaded(true)}
+          onError={() => setLoaded(true)}
           src={node.attrs.src}
           alt={node.attrs.alt ?? ""}
           draggable={false}
-          style={{ width: width ? `${width}px` : undefined, maxWidth: "100%", height: "auto", display: "block" }}
+          style={{ width: width ? `${width}px` : undefined, maxWidth: "100%", height: "auto", display: "block", minHeight: loaded ? undefined : 140 }}
           className={selected ? "outline-2 outline-offset-2 outline-blue-500" : ""}
         />
         {selected && (

@@ -9,6 +9,7 @@ import remarkRehype from "remark-rehype";
 import rehypeParse from "rehype-parse";
 import rehypeRaw from "rehype-raw";
 import rehypePrettyCode from "rehype-pretty-code";
+import { prettyCodeOptions } from "./highlight";
 import rehypeStringify from "rehype-stringify";
 import { readCategories, type Category } from "./categories";
 import { readContent, readContentDir } from "./content-store";
@@ -118,7 +119,7 @@ export async function renderMarkdown(content: string) {
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(rehypePrettyCode, { theme: "github-dark", keepBackground: true })
+    .use(rehypePrettyCode, prettyCodeOptions)
     .use(rehypeStringify)
     .process(content);
   return String(file);
@@ -128,7 +129,7 @@ export async function renderMarkdown(content: string) {
 export async function renderHtml(content: string) {
   const file = await unified()
     .use(rehypeParse, { fragment: true })
-    .use(rehypePrettyCode, { theme: "github-dark", keepBackground: true })
+    .use(rehypePrettyCode, prettyCodeOptions)
     .use(rehypeStringify)
     .process(content);
   return String(file);

@@ -7,6 +7,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
 import PostArticleBody from "@/components/PostArticleBody";
+import Spinner from "@/components/Spinner";
+import { CODE_LANGUAGES } from "@/lib/code-languages";
 import { previewHtml, savePost } from "../actions";
 import { ResizableImage } from "./ResizableImage";
 
@@ -75,10 +77,15 @@ function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => v
     if (url === "") c().unsetLink().run();
     else c().extendMarkRange("link").setLink({ href: url }).run();
   };
-  const toggleCodeBlock = () => {
-    if (editor.isActive("codeBlock")) return void c().toggleCodeBlock().run();
-    const language = window.prompt("코드 언어 (예: javascript, tsx, python — 비워도 됩니다)", "") ?? "";
-    c().toggleCodeBlock({ language: language.trim() }).run();
+  // 코드 블록: 언어를 골라 삽입하고, 코드 블록 안에서는 언어 변경·해제
+  const codeActive = editor.isActive("codeBlock");
+  const codeLang = (editor.getAttributes("codeBlock").language as string | null | undefined) ?? "";
+  const knownLang = CODE_LANGUAGES.some((l) => l.value === codeLang);
+  const onCodeLanguage = (value: string) => {
+    if (!value) return;
+    if (value === "__off") return void c().toggleCodeBlock().run();
+    if (codeActive) c().updateAttributes("codeBlock", { language: value }).run();
+    else c().toggleCodeBlock({ language: value }).run();
   };
   const inTable = editor.isActive("table");
 
@@ -100,7 +107,24 @@ function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => v
       <Btn label="❝" title="인용구" active={editor.isActive("blockquote")} onClick={() => c().toggleBlockquote().run()} />
       <Btn label="―" title="구분선" onClick={() => c().setHorizontalRule().run()} />
       <Sep />
-      <Btn label="{ }" title="코드 블록" active={editor.isActive("codeBlock")} onClick={toggleCodeBlock} />
+      <select
+        title="코드 블록 — 언어를 골라 삽입 (코드 안에서는 언어 변경)"
+        aria-label="코드 블록 언어"
+        value={codeActive ? codeLang || "plaintext" : ""}
+        onChange={(e) => onCodeLanguage(e.target.value)}
+        className={`h-8 rounded border px-1.5 text-sm ${codeActive ? "border-foreground bg-foreground text-background" : "border-line bg-background"}`}
+      >
+        <option value="" disabled>
+          {"{ }"} 코드 블록
+        </option>
+        {codeActive && !knownLang && codeLang && <option value={codeLang}>{codeLang}</option>}
+        {CODE_LANGUAGES.map((l) => (
+          <option key={l.value} value={l.value}>
+            {l.label}
+          </option>
+        ))}
+        {codeActive && <option value="__off">코드 블록 해제</option>}
+      </select>
       <Btn label="`c`" title="인라인 코드" active={editor.isActive("code")} onClick={() => c().toggleCode().run()} />
       <Sep />
       <Btn label="🖼 사진" title="이미지 업로드" onClick={onPickImage} />
@@ -362,7 +386,12 @@ export default function PostEditor({
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-background/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-3 text-sm">
           <span className="text-meta">글자수 {chars.toLocaleString()}</span>
-          {status && <span className="text-muted">{status}</span>}
+          {status && (
+            <span className="inline-flex items-center gap-2 text-muted">
+              {status.endsWith("중…") && <Spinner className="h-4 w-4 border-2" />}
+              {status}
+            </span>
+          )}
           {error && <span className="text-red-500">{error}</span>}
           {!error && !pending && saved?.savedAt && (
             <span className="text-muted">
