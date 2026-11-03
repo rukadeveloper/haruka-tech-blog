@@ -34,4 +34,4 @@ from torchvision import datasets</code></pre><p>나중에 Dataset을 DataLoader�
   transforms.Resize((28, 28)),
   transforms.ToTensor(),
   transforms.Normalize(mean=(0.5,), std=(0.5,))
-])</code></pre><p></p>
+])</code></pre><p>먼저 입력 데이터를 28 x 28으로 바꿉니다. (혹시라도 다른 사이즈의 이미지가 들어와도 동일한 h,w 값으로 바꿉니다)</p><p>두번째로, ToTensor()가 많은 일을 합니다.</p><ul><li><p>입력값이 주어졌을 때 이것을 PytorchTensor로 변환하는 역할을 합니다.(torch.FloatTensor)</p></li><li><p>일반적으로, (h,w,c)인 이미지를 (c,h,w)로 변환합니다.</p></li><li><p>값 범위를 스케일링하여, 0 ~ 255까지의 정수를 0 ~ 1의 실수값으로 변환합니다.</p></li></ul><p>마지막으로, Normalize()를 통해 평균값을 0.5 , 표준편차를 0.5로 주어 전처리 결과를 [-1,1] 사이로 만듭니다.</p><p>이것은 이미지를 다루는 신경망에서 평균이 0에 가까워지면 ReLU 같은 활성화 함수에서 학습 효율이 높아집니다.</p>
