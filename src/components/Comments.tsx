@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { readComments, type Comment } from "@/lib/comments";
 import { getUser, isGithubConfigured, type SessionUser } from "@/lib/session";
@@ -60,8 +61,10 @@ function Item({
 }
 
 export default async function Comments({ slug }: { slug: string }) {
+  // 요청 시점에만 실행 (빌드·검증 렌더에서 DB 조회가 중간에 끊겨 오류가 나지 않도록)
+  await connection();
   const [user, admin] = await Promise.all([getUser(), isAdmin()]);
-  const all = readComments(slug);
+  const all = await readComments(slug);
   const roots = all.filter((c) => !c.parentId);
   const repliesOf = (id: string) => all.filter((c) => c.parentId === id);
   const configured = await isGithubConfigured();

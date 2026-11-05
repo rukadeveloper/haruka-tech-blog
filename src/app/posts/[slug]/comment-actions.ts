@@ -1,12 +1,10 @@
 "use server";
 
 import crypto from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { isAdmin } from "@/lib/auth";
-import { SLUG_RE, readComments, writeComments } from "@/lib/comments";
-import { POSTS_DIR } from "@/lib/posts";
+import { SLUG_RE, insertComment, readComments, removeComment } from "@/lib/comments";
+import { postExists } from "@/lib/posts";
 import { clearUserSession, getUser } from "@/lib/session";
 
 const MAX_LEN = 2000;
@@ -19,7 +17,7 @@ export async function addComment(_prev: CommentState, formData: FormData): Promi
   if (!user) return { error: "GitHub 로그인이 필요합니다." };
 
   const slug = String(formData.get("slug") ?? "");
-  if (!SLUG_RE.test(slug) || !fs.existsSync(path.join(POSTS_DIR, `${slug}.md`))) {
+  if (!SLUG_RE.test(slug) || !(await postExists(slug))) {
     return { error: "존재하지 않는 글입니다." };
   }
 
@@ -27,7 +25,7 @@ export async function addComment(_prev: CommentState, formData: FormData): Promi
   if (!body) return { error: "내용을 입력하세요." };
   if (body.length > MAX_LEN) return { error: `${MAX_LEN}자 이내로 작성하세요.` };
 
-  const comments = readComments(slug);
+  const comments = await readComments(slug);
 
   // 답글은 한 단계만: 부모가 답글이면 그 부모의 부모에 붙인다
   let parentId = String(formData.get("parentId") ?? "") || null;
@@ -42,7 +40,7 @@ export async function addComment(_prev: CommentState, formData: FormData): Promi
     return { error: "잠시 후 다시 작성해 주세요." };
   }
 
-  comments.push({
+  const comment = {
     id: crypto.randomUUID(),
     parentId,
     authorId: user.id,
@@ -51,11 +49,10 @@ export async function addComment(_prev: CommentState, formData: FormData): Promi
     avatar: user.avatar,
     body,
     createdAt: new Date().toISOString(),
-  });
+  };
   try {
-    writeComments(slug, comments);
+    await insertComment(slug, comment);
   } catch (e) {
-    // Vercel 에서는 파일을 쓸 수 없다
     console.error(e);
     return { error: "지금은 댓글을 저장할 수 없습니다." };
   }
@@ -70,12 +67,11 @@ export async function deleteComment(formData: FormData) {
   const admin = await isAdmin();
   if (!user && !admin) return;
 
-  const comments = readComments(slug);
-  const target = comments.find((c) => c.id === id);
+  const target = (await readComments(slug)).find((c) => c.id === id);
   if (!target || !(admin || target.authorId === user?.id)) return;
 
-  // 원댓글을 지우면 달린 답글도 함께 삭제
-  writeComments(slug, comments.filter((c) => c.id !== id && c.parentId !== id));
+  // 원댓글을 지우면 달린 답글도 함께 삭제 (DB 외래키 CASCADE)
+  await removeComment(id);
   revalidatePath(`/posts/${slug}`);
 }
 

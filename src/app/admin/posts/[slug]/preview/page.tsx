@@ -4,6 +4,9 @@ import { requireAdmin } from "@/lib/auth";
 import { loadPostSource, renderHtml, renderMarkdown } from "@/lib/posts";
 import PostArticleBody from "@/components/PostArticleBody";
 
+// 로그인 확인과 DB 조회로 요청마다 렌더링하는 화면이라 즉시 이동(instant) 검증에서 제외
+export const instant = false;
+
 /** 저장된 글(초안 포함)을 공개 화면과 같은 모양으로 미리보기 — 관리자 전용 */
 export default async function PreviewPost({ params }: PageProps<"/admin/posts/[slug]/preview">) {
   await requireAdmin();

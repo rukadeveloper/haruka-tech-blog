@@ -2,18 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
-import matter from "gray-matter";
 import { requireAdmin } from "@/lib/auth";
 import { clearUserSession } from "@/lib/session";
-import {
-  CATEGORIES_PATH,
-  flattenCategories,
-  loadCategories,
-  splitCategory,
-  stringifyCategories,
-} from "@/lib/categories";
-import { commitContent, readContent } from "@/lib/content-store";
-import { POSTS_TAG, loadPostMetas, loadPostSource, postPath, renderHtml } from "@/lib/posts";
+import { flattenCategories, loadCategories, saveCategories, splitCategory } from "@/lib/categories";
+import { db, unwrap } from "@/lib/db";
+import { POSTS_TAG, loadPostMetas, postExists, renderHtml } from "@/lib/posts";
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]*$/i;
@@ -42,7 +35,7 @@ export async function savePost(_prev: SaveState, formData: FormData): Promise<Sa
   let slug = str(formData, "slug");
   if (!slug) slug = originalSlug || String(Date.now());
   if (!SLUG_RE.test(slug)) return { error: "슬러그는 영문/숫자/-/_ 만 사용할 수 있습니다." };
-  if (slug !== originalSlug && (await readContent(postPath(slug))) !== null) return { error: "이미 존재하는 슬러그입니다." };
+  if (slug !== originalSlug && (await postExists(slug))) return { error: "이미 존재하는 슬러그입니다." };
 
   const category = str(formData, "category");
   if (category && !flattenCategories(await loadCategories()).includes(category)) {
@@ -50,7 +43,8 @@ export async function savePost(_prev: SaveState, formData: FormData): Promise<Sa
   }
 
   const tags = str(formData, "tags").split(",").map((t) => t.trim()).filter(Boolean);
-  const data = {
+  const row = {
+    slug,
     title,
     date: str(formData, "date") || new Date().toISOString().slice(0, 10),
     category,
@@ -58,17 +52,17 @@ export async function savePost(_prev: SaveState, formData: FormData): Promise<Sa
     tags,
     thumbnail: str(formData, "thumbnail"),
     format: "html",
-    ...(isDraft ? { draft: true } : {}),
+    draft: isDraft,
+    body: String(formData.get("content") ?? ""),
+    updated_at: new Date().toISOString(),
   };
-  const content = String(formData.get("content") ?? "");
 
   try {
-    await commitContent({
-      message: `${isDraft ? "Save draft" : "Publish post"} ${slug}`,
-      put: { [postPath(slug)]: matter.stringify(content, data) },
-      remove: originalSlug && originalSlug !== slug && SLUG_RE.test(originalSlug) ? [postPath(originalSlug)] : [],
-      deploy: !isDraft,
-    });
+    // 슬러그를 바꾸면 댓글이 따라오도록 기존 행의 키를 먼저 바꾼다 (comments 는 ON UPDATE CASCADE)
+    if (originalSlug && originalSlug !== slug && SLUG_RE.test(originalSlug)) {
+      unwrap(await db().from("posts").update({ slug }).eq("slug", originalSlug));
+    }
+    unwrap(await db().from("posts").upsert(row));
   } catch (e) {
     console.error(e);
     return { error: "저장에 실패했습니다. 잠시 후 다시 시도하세요." };
@@ -89,7 +83,7 @@ export async function deletePost(formData: FormData) {
   await requireAdmin();
   const slug = str(formData, "slug");
   if (!SLUG_RE.test(slug)) throw new Error("잘못된 슬러그입니다.");
-  await commitContent({ message: `Delete post ${slug}`, remove: [postPath(slug)] });
+  unwrap(await db().from("posts").delete().eq("slug", slug));
   updateTag(POSTS_TAG);
   redirect("/admin");
 }
@@ -113,7 +107,7 @@ export async function addCategory(formData: FormData) {
     if (p.children.includes(name)) throw new Error("이미 존재하는 카테고리입니다.");
     p.children.push(name);
   }
-  await commitContent({ message: `Add category ${name}`, put: { [CATEGORIES_PATH]: stringifyCategories(cats) } });
+  await saveCategories(cats);
   updateTag(POSTS_TAG);
   redirect("/admin/categories");
 }
@@ -132,12 +126,12 @@ export async function deleteCategory(formData: FormData) {
   cats = sub
     ? cats.map((c) => (c.name === top ? { ...c, children: c.children.filter((s) => s !== sub) } : c))
     : cats.filter((c) => c.name !== top);
-  await commitContent({ message: `Delete category ${category}`, put: { [CATEGORIES_PATH]: stringifyCategories(cats) } });
+  await saveCategories(cats);
   updateTag(POSTS_TAG);
   redirect("/admin/categories");
 }
 
-/** 이름 변경 + 해당 카테고리를 쓰는 글들의 frontmatter 도 함께 갱신 */
+/** 이름 변경 + 해당 카테고리를 쓰는 글들의 카테고리도 함께 갱신 */
 export async function renameCategory(formData: FormData) {
   await requireAdmin();
   const category = str(formData, "category");
@@ -158,15 +152,13 @@ export async function renameCategory(formData: FormData) {
   }
   const next = sub ? `${top}/${newName}` : newName;
 
-  const put: Record<string, string> = { [CATEGORIES_PATH]: stringifyCategories(cats) };
+  await saveCategories(cats);
   for (const meta of await loadPostMetas()) {
     if (meta.category === category || meta.category.startsWith(category + "/")) {
-      const { meta: { slug, draft, ...m }, content, format } = await loadPostSource(meta.slug);
-      const updated = next + m.category.slice(category.length);
-      put[postPath(slug)] = matter.stringify(content, { ...m, category: updated, ...(format === "html" ? { format } : {}), ...(draft ? { draft } : {}) });
+      const updated = next + meta.category.slice(category.length);
+      unwrap(await db().from("posts").update({ category: updated }).eq("slug", meta.slug));
     }
   }
-  await commitContent({ message: `Rename category ${category} to ${next}`, put });
   updateTag(POSTS_TAG);
   redirect("/admin/categories");
 }

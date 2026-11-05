@@ -1,24 +1,32 @@
-import fs from "node:fs";
-import path from "node:path";
-import { readContent } from "./content-store";
+import { db, unwrap } from "./db";
 
 export type Category = { name: string; children: string[] };
 
-/** 저장소 루트 기준 경로 */
-export const CATEGORIES_PATH = "content/categories.json";
-const CATEGORIES_FILE = path.join(process.cwd(), CATEGORIES_PATH);
-
-export function readCategories(): Category[] {
-  if (!fs.existsSync(CATEGORIES_FILE)) return [];
-  return JSON.parse(fs.readFileSync(CATEGORIES_FILE, "utf8"));
-}
-
-/** 관리자 화면용: 재배포 전에도 최신 내용을 보도록 저장소에서 읽는다 */
+/** DB 에는 경로("FE", "FE/Next.js")와 순서만 저장하고, 화면용 트리는 읽을 때 만든다 */
 export async function loadCategories(): Promise<Category[]> {
-  return JSON.parse((await readContent(CATEGORIES_PATH)) ?? "[]");
+  const rows = unwrap(await db().from("categories").select("path").order("position")) as { path: string }[];
+  const tree: Category[] = [];
+  for (const { path } of rows) {
+    const [top, sub] = splitCategory(path);
+    let node = tree.find((c) => c.name === top);
+    if (!node) tree.push((node = { name: top, children: [] }));
+    if (sub) node.children.push(sub);
+  }
+  return tree;
 }
 
-export const stringifyCategories = (categories: Category[]) => JSON.stringify(categories, null, 2) + "\n";
+/** 카테고리 트리 전체를 저장한다 (없어진 항목은 지운다) */
+export async function saveCategories(categories: Category[]) {
+  const rows = categories.flatMap((c, i) => [
+    { path: c.name, position: i * 1000 },
+    ...c.children.map((s, j) => ({ path: `${c.name}/${s}`, position: i * 1000 + j + 1 })),
+  ]);
+  const existing = unwrap(await db().from("categories").select("path")) as { path: string }[];
+  if (rows.length) unwrap(await db().from("categories").upsert(rows));
+  const keep = new Set(rows.map((r) => r.path));
+  const stale = existing.map((r) => r.path).filter((p) => !keep.has(p));
+  if (stale.length) unwrap(await db().from("categories").delete().in("path", stale));
+}
 
 /** "FE/Next.js" -> ["FE", "Next.js"] */
 export const splitCategory = (c: string) => c.split("/").filter(Boolean);

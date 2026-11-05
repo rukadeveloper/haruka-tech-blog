@@ -1,5 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
+import { db, unwrap } from "./db";
 
 export type Comment = {
   id: string;
@@ -12,24 +11,53 @@ export type Comment = {
   createdAt: string; // ISO
 };
 
-const DIR = path.join(process.cwd(), "content", "comments");
 export const SLUG_RE = /^[a-z0-9][a-z0-9_-]*$/i;
-const file = (slug: string) => path.join(DIR, `${slug}.json`);
 
-export function readComments(slug: string): Comment[] {
-  if (!SLUG_RE.test(slug) || !fs.existsSync(file(slug))) return [];
-  try {
-    return JSON.parse(fs.readFileSync(file(slug), "utf8"));
-  } catch {
-    return [];
-  }
+type Row = {
+  id: string;
+  parent_id: string | null;
+  author_id: number;
+  login: string;
+  name: string;
+  avatar: string;
+  body: string;
+  created_at: string;
+};
+
+const toComment = (r: Row): Comment => ({
+  id: r.id,
+  parentId: r.parent_id,
+  authorId: Number(r.author_id),
+  login: r.login,
+  name: r.name,
+  avatar: r.avatar,
+  body: r.body,
+  createdAt: new Date(r.created_at).toISOString(),
+});
+
+export async function readComments(slug: string): Promise<Comment[]> {
+  if (!SLUG_RE.test(slug)) return [];
+  const rows = unwrap(await db().from("comments").select("*").eq("post_slug", slug).order("created_at")) as Row[];
+  return rows.map(toComment);
 }
 
-/** 임시 파일에 쓰고 교체해서, 쓰는 도중 읽혀 깨지는 일을 막는다 */
-export function writeComments(slug: string, comments: Comment[]) {
-  if (!SLUG_RE.test(slug)) throw new Error("invalid slug");
-  fs.mkdirSync(DIR, { recursive: true });
-  const tmp = `${file(slug)}.${process.pid}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(comments, null, 2) + "\n");
-  fs.renameSync(tmp, file(slug));
+export async function insertComment(slug: string, c: Comment) {
+  unwrap(
+    await db().from("comments").insert({
+      id: c.id,
+      post_slug: slug,
+      parent_id: c.parentId,
+      author_id: c.authorId,
+      login: c.login,
+      name: c.name,
+      avatar: c.avatar,
+      body: c.body,
+      created_at: c.createdAt,
+    }),
+  );
+}
+
+/** 답글은 parent_id 외래키(ON DELETE CASCADE)로 함께 지워진다 */
+export async function removeComment(id: string) {
+  unwrap(await db().from("comments").delete().eq("id", id));
 }

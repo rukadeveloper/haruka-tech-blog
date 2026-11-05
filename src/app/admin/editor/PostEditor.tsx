@@ -25,7 +25,7 @@ export type PostFormValues = {
 };
 
 const field =
-  "w-full rounded border border-line bg-transparent px-3 py-2 text-sm";
+  "w-full rounded-xl border border-line bg-background px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-meta focus:border-strong";
 
 async function uploadImage(file: File): Promise<string> {
   const fd = new FormData();
@@ -57,8 +57,8 @@ function Btn({
       // 에디터 선택(포커스)이 풀리지 않도록
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
-      className={`h-8 min-w-8 rounded px-2 text-sm disabled:opacity-30 ${
-        active ? "bg-foreground text-background" : "hover:bg-surface"
+      className={`h-8 min-w-8 rounded-lg px-2 text-sm transition-colors disabled:opacity-30 ${
+        active ? "bg-strong/15 font-semibold text-strong" : "text-muted hover:bg-surface hover:text-foreground"
       }`}
     >
       {label}
@@ -90,7 +90,7 @@ function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => v
   const inTable = editor.isActive("table");
 
   return (
-    <div className="sticky top-14 z-20 flex flex-wrap items-center gap-0.5 border-y border-line bg-background px-1 py-1.5">
+    <div className="sticky top-14 z-20 flex flex-wrap items-center gap-0.5 border-y border-line bg-background/95 px-3 py-2 backdrop-blur">
       <Btn label="H2" title="제목 1" active={editor.isActive("heading", { level: 2 })} onClick={() => c().toggleHeading({ level: 2 }).run()} />
       <Btn label="H3" title="제목 2" active={editor.isActive("heading", { level: 3 })} onClick={() => c().toggleHeading({ level: 3 }).run()} />
       <Btn label="H4" title="제목 3" active={editor.isActive("heading", { level: 4 })} onClick={() => c().toggleHeading({ level: 4 }).run()} />
@@ -112,7 +112,7 @@ function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => v
         aria-label="코드 블록 언어"
         value={codeActive ? codeLang || "plaintext" : ""}
         onChange={(e) => onCodeLanguage(e.target.value)}
-        className={`h-8 rounded border px-1.5 text-sm ${codeActive ? "border-foreground bg-foreground text-background" : "border-line bg-background"}`}
+        className={`h-8 rounded-lg border px-1.5 text-sm outline-none ${codeActive ? "border-strong bg-strong/15 font-semibold text-strong" : "border-line bg-background text-muted"}`}
       >
         <option value="" disabled>
           {"{ }"} 코드 블록
@@ -243,7 +243,7 @@ export default function PostEditor({
     if (!isEdit && saved?.slug) window.history.replaceState(null, "", `/admin/posts/${saved.slug}/edit`);
   }, [isEdit, saved?.slug, saved?.savedAt]);
 
-  // 3분마다 변경이 있으면 자동 임시저장 (제목이 있을 때만). 저장마다 커밋이 하나 생기므로 너무 잦지 않게 한다
+  // 3분마다 변경이 있으면 자동 임시저장 (제목이 있을 때만). 저장 요청이 너무 잦지 않게 한다
   useEffect(() => {
     if (!canDraft) return;
     const t = setInterval(() => {
@@ -306,7 +306,7 @@ export default function PostEditor({
       <input type="hidden" name="content" value={html} />
 
       <div className="mx-auto max-w-[768px]">
-        <select name="category" defaultValue={initial.category} className="mb-4 rounded border border-line bg-transparent px-3 py-2 text-sm">
+        <select name="category" defaultValue={initial.category} className="mb-5 rounded-full border border-line bg-surface px-4 py-2 text-sm font-medium outline-none transition-colors focus:border-strong">
           <option value="">카테고리 없음</option>
           {categories.map((c) => (
             <option key={c} value={c}>
@@ -320,7 +320,7 @@ export default function PostEditor({
           defaultValue={initial.title}
           required
           placeholder="제목을 입력하세요"
-          className="mb-4 w-full border-b border-line bg-transparent pb-3 text-3xl font-bold outline-none placeholder:text-meta"
+          className="mb-4 w-full border-b border-line bg-transparent pb-3 text-3xl font-bold tracking-tight outline-none transition-colors placeholder:text-meta focus:border-strong sm:text-4xl"
         />
       </div>
 
@@ -339,14 +339,14 @@ export default function PostEditor({
 
       <div className="mx-auto max-w-[768px]">
         {legacyMarkdown && (
-          <p className="mt-4 rounded bg-surface px-3 py-2 text-xs text-muted">
+          <p className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-700 dark:text-amber-300">
             티스토리에서 가져온 마크다운 글입니다. 저장하면 에디터(HTML) 형식으로 변환됩니다.
           </p>
         )}
         <EditorContent editor={editor} />
 
-        <details className="mt-8 rounded border border-line p-4">
-          <summary className="cursor-pointer text-sm font-semibold">발행 설정 (슬러그 · 날짜 · 요약 · 태그 · 썸네일)</summary>
+        <details className="mt-8 rounded-2xl border border-line bg-surface/40 p-5">
+          <summary className="cursor-pointer select-none text-sm font-semibold hover:text-strong">발행 설정 (슬러그 · 날짜 · 요약 · 태그 · 썸네일)</summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="block space-y-1">
               <span className="text-sm font-medium">슬러그 (URL)</span>
@@ -371,7 +371,7 @@ export default function PostEditor({
                 <button
                   type="button"
                   onClick={() => thumbFileRef.current?.click()}
-                  className="whitespace-nowrap rounded border border-line px-3 py-2 text-sm"
+                  className="whitespace-nowrap rounded-xl border border-line bg-background px-3.5 py-2 text-sm text-muted transition-colors hover:text-foreground"
                 >
                   업로드
                 </button>
@@ -420,7 +420,7 @@ export default function PostEditor({
           </Link>
           <button
             disabled={pending}
-            className="rounded-full bg-strong px-6 py-2 font-semibold text-white disabled:opacity-50"
+            className="rounded-full bg-strong px-6 py-2 font-semibold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {pending ? "저장 중…" : "완료"}
           </button>

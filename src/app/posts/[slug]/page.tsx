@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import Comments from "@/components/Comments";
+import PostAdminActions from "@/components/PostAdminActions";
 import PostArticleBody from "@/components/PostArticleBody";
 import { getAllPosts, getPost } from "@/lib/posts";
 
@@ -33,6 +34,9 @@ async function Article({ params }: { params: PageProps<"/posts/[slug]">["params"
   const next = i > 0 ? all[i - 1] : undefined; // 더 최근 글
   return (
     <article className="pt-12 pb-24 sm:pt-20">
+      <Suspense fallback={null}>
+        <PostAdminActions slug={slug} title={post.meta.title} />
+      </Suspense>
       <PostArticleBody
         category={post.meta.category}
         title={post.meta.title}

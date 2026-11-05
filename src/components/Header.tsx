@@ -10,6 +10,7 @@ export default function Header() {
         <nav className="flex items-center gap-6 text-[15px] font-medium">
           <Link href="/" className="hover:text-strong">Blog</Link>
           <Link href="/about" className="hover:text-strong">About</Link>
+          <Link href="/guestbook" className="hover:text-strong">방명록</Link>
           <Link href="/admin" className="text-meta hover:text-foreground">Admin</Link>
         </nav>
       </div>
