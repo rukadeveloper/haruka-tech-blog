@@ -11,6 +11,8 @@ import Spinner from "@/components/Spinner";
 import { CODE_LANGUAGES } from "@/lib/code-languages";
 import { previewHtml, savePost } from "../actions";
 import { ResizableImage } from "./ResizableImage";
+import { FileTree } from "./FileTree";
+import { FILE_TREE_SAMPLE } from "@/lib/file-tree";
 
 export type PostFormValues = {
   slug: string;
@@ -128,6 +130,7 @@ function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => v
       <Btn label="`c`" title="인라인 코드" active={editor.isActive("code")} onClick={() => c().toggleCode().run()} />
       <Sep />
       <Btn label="🖼 사진" title="이미지 업로드" onClick={onPickImage} />
+      <Btn label="🗂 파일 트리" title="파일 트리 삽입 — 들여쓰기로 폴더 구조를 적으면 트리로 그려집니다" onClick={() => c().insertContent({ type: "fileTree", attrs: { tree: FILE_TREE_SAMPLE } }).run()} />
       <Btn label="▦ 표" title="표 삽입" onClick={() => c().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} />
       {inTable && (
         <>
@@ -195,6 +198,7 @@ export default function PostEditor({
     extensions: [
       StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
       ResizableImage,
+      FileTree,
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,

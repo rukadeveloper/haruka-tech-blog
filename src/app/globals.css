@@ -285,3 +285,24 @@ body {
   background: var(--thumb) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='20' fill='none' stroke='%23cbd5e1' stroke-width='5'/%3E%3Ccircle cx='25' cy='25' r='20' fill='none' stroke='%234f46e5' stroke-width='5' stroke-linecap='round' stroke-dasharray='31 126'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 25 25' to='360 25 25' dur='0.9s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/svg%3E") center / 44px no-repeat;
   color: transparent; font-size: 0;
 }
+
+/* 파일 트리 — lib/file-tree.ts 가 만든 중첩 ul 을 폴더/파일 트리로 그린다 (공개 글·미리보기·에디터 공통) */
+.post-body .file-tree {
+  margin: 21px 0; padding: 14px 18px; overflow-x: auto;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  font-family: "JetBrains Mono", "Fira Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  font-size: 14px; line-height: 1.6; color: var(--detail-desc);
+}
+.post-body .file-tree ul { margin: 0; padding: 0; list-style: none; font-size: inherit; line-height: inherit; }
+.post-body .file-tree li { position: relative; margin: 0; padding: 2px 0; list-style: none; white-space: nowrap; }
+.post-body .file-tree li::marker { content: ""; }
+/* 하위 항목: 왼쪽 세로선 + 항목마다 가로 가지 */
+.post-body .file-tree ul ul { margin-left: 9px; padding-left: 18px; border-left: 1px solid var(--rule); }
+.post-body .file-tree ul ul > li::before {
+  content: ""; position: absolute; left: -18px; top: 0.95em; width: 12px; border-top: 1px solid var(--rule);
+}
+.post-body .file-tree .ft-name::before { content: "📄"; margin-right: 6px; }
+.post-body .file-tree .ft-dir > .ft-name { font-weight: 700; color: var(--detail-title); }
+.post-body .file-tree .ft-dir > .ft-name::before { content: "📁"; }
+.post-body .file-tree .ft-comment { margin-left: 14px; color: var(--meta); font-size: 13px; }
+.post-body .file-tree .ft-comment::before { content: "# "; }

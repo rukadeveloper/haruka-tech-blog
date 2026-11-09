@@ -8,6 +8,8 @@ import rehypeRaw from "rehype-raw";
 import rehypePrettyCode from "rehype-pretty-code";
 import { prettyCodeOptions } from "./highlight";
 import rehypeStringify from "rehype-stringify";
+import type { Root } from "hast";
+import { renderFileTreeHtml } from "./file-tree";
 import { loadCategories, type Category } from "./categories";
 import { db, unwrap } from "./db";
 
@@ -124,12 +126,31 @@ export async function renderMarkdown(content: string) {
   return String(file);
 }
 
-/** 에디터가 저장한 HTML 본문 — 코드 하이라이팅만 입힌다 */
+/** <div data-file-tree="…"> (에디터의 파일 트리 블록)를 트리 HTML 로 바꾼다 */
+function rehypeFileTree() {
+  return (tree: Root) => {
+    type Parent = { children?: unknown[] };
+    const walk = (parent: Parent) => {
+      parent.children = parent.children?.map((child) => {
+        const el = child as { type: string; tagName?: string; properties?: Record<string, unknown> } & Parent;
+        if (el.type === "element" && el.tagName === "div" && el.properties && "dataFileTree" in el.properties) {
+          return { type: "raw", value: renderFileTreeHtml(String(el.properties.dataFileTree ?? "")) };
+        }
+        walk(el);
+        return child;
+      });
+    };
+    walk(tree as Parent);
+  };
+}
+
+/** 에디터가 저장한 HTML 본문 — 파일 트리를 그리고 코드 하이라이팅을 입힌다 */
 export async function renderHtml(content: string) {
   const file = await unified()
     .use(rehypeParse, { fragment: true })
+    .use(rehypeFileTree)
     .use(rehypePrettyCode, prettyCodeOptions)
-    .use(rehypeStringify)
+    .use(rehypeStringify, { allowDangerousHtml: true })
     .process(content);
   return String(file);
 }
