@@ -11,15 +11,11 @@ import rehypeStringify from "rehype-stringify";
 import type { Root } from "hast";
 import { renderFileTreeHtml } from "./file-tree";
 import { loadCategories, type Category } from "./categories";
+import { LIFE, TAGS } from "./cache";
 import { db, unwrap } from "./db";
 
-export const POSTS_TAG = "posts";
-/**
- * 공개 화면 캐시 수명. 관리자 화면에서 저장·삭제하면 POSTS_TAG 로 바로 무효화되고,
- * 화면 밖(스크립트, Supabase 대시보드)에서 DB 를 바꾼 경우에도 revalidate 안에는 최신 내용으로 갱신된다.
- * revalidate: 이 시간이 지난 뒤 첫 요청이 오면 백그라운드에서 새로 만든다 / expire: 이 시간이 지나면 새로 만들 때까지 기다린다
- */
-const POSTS_CACHE = { stale: 60, revalidate: 300, expire: 3600 };
+/** 글·카테고리 캐시 태그 (수명과 무효화 규칙은 lib/cache.ts) */
+export const POSTS_TAG = TAGS.posts;
 
 export type PostMeta = {
   slug: string;
@@ -89,14 +85,14 @@ export async function loadPostMetas(): Promise<PostMeta[]> {
 export async function getAllPosts(): Promise<PostMeta[]> {
   "use cache";
   cacheTag(POSTS_TAG);
-  cacheLife(POSTS_CACHE);
+  cacheLife(LIFE.posts);
   return (await loadPostMetas()).filter((p) => !p.draft);
 }
 
 export async function getCategories(): Promise<Category[]> {
   "use cache";
   cacheTag(POSTS_TAG);
-  cacheLife(POSTS_CACHE);
+  cacheLife(LIFE.posts);
   return loadCategories();
 }
 
@@ -107,7 +103,7 @@ export const inCategory = (post: PostMeta, category: string) =>
 export async function getPost(slug: string) {
   "use cache";
   cacheTag(POSTS_TAG);
-  cacheLife(POSTS_CACHE);
+  cacheLife(LIFE.posts);
   const { meta, content, format } = await loadPostSource(slug);
   if (meta.draft) throw new Error("draft");
   const html = format === "html" ? await renderHtml(content) : await renderMarkdown(content);

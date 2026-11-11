@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { isAdmin } from "@/lib/auth";
-import { readComments, type Comment } from "@/lib/comments";
+import { getComments, type Comment } from "@/lib/comments";
 import { formatDateTime } from "@/lib/format";
 import { getUser, isGithubConfigured, type SessionUser } from "@/lib/session";
 import { deleteComment, githubLogout } from "@/app/posts/[slug]/comment-actions";
@@ -56,7 +56,7 @@ function Item({
 export default async function Comments({ slug }: { slug: string }) {
   // 로그인 상태에 따라 달라지는 화면이라 요청 시점에만 렌더링한다
   await connection();
-  const [user, admin, all, configured] = await Promise.all([getUser(), isAdmin(), readComments(slug), isGithubConfigured()]);
+  const [user, admin, all, configured] = await Promise.all([getUser(), isAdmin(), getComments(slug), isGithubConfigured()]);
   const roots = all.filter((c) => !c.parentId);
   const repliesOf = (id: string) => all.filter((c) => c.parentId === id);
 

@@ -1,3 +1,5 @@
+import { cacheLife, cacheTag } from "next/cache";
+import { LIFE, TAGS } from "./cache";
 import { db, unwrap } from "./db";
 
 export type Comment = {
@@ -35,6 +37,15 @@ const toComment = (r: Row): Comment => ({
   createdAt: new Date(r.created_at).toISOString(),
 });
 
+/** 공개 화면용: 글별 태그로 캐시한다. 댓글을 쓰거나 지우는 액션이 태그를 비운다 */
+export async function getComments(slug: string): Promise<Comment[]> {
+  "use cache";
+  cacheTag(TAGS.comments(slug));
+  cacheLife(LIFE.comments);
+  return readComments(slug);
+}
+
+/** 캐시 없이 DB 에서 바로 읽는다 (액션의 검증용) */
 export async function readComments(slug: string): Promise<Comment[]> {
   if (!SLUG_RE.test(slug)) return [];
   const rows = unwrap(await db().from("comments").select("*").eq("post_slug", slug).order("created_at")) as Row[];

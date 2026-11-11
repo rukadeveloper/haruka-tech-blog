@@ -1,8 +1,9 @@
 "use server";
 
 import crypto from "node:crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { isAdmin } from "@/lib/auth";
+import { TAGS } from "@/lib/cache";
 import { GUESTBOOK_MAX_LEN, getEntry, insertEntry, latestEntryOf, removeEntry } from "@/lib/guestbook";
 import { clearUserSession, getUser } from "@/lib/session";
 
@@ -36,7 +37,7 @@ export async function addEntry(_prev: GuestbookState, formData: FormData): Promi
     console.error(e);
     return { error: "지금은 방명록을 저장할 수 없습니다." };
   }
-  revalidatePath("/guestbook");
+  updateTag(TAGS.guestbook);
   return { ok: Date.now() };
 }
 
@@ -48,7 +49,7 @@ export async function deleteEntry(formData: FormData) {
   const target = await getEntry(id);
   if (!target || !(admin || target.authorId === user?.id)) return;
   await removeEntry(id);
-  revalidatePath("/guestbook");
+  updateTag(TAGS.guestbook);
 }
 
 export async function guestbookLogout() {

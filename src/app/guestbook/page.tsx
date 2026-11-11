@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { formatDateTime } from "@/lib/format";
-import { readGuestbook, type GuestbookEntry } from "@/lib/guestbook";
+import { getGuestbook, type GuestbookEntry } from "@/lib/guestbook";
 import { getUser, isGithubConfigured } from "@/lib/session";
 import GuestbookForm from "@/components/GuestbookForm";
 import Card from "@/components/ui/common/Card";
@@ -46,9 +46,9 @@ async function GuestbookContent() {
   await connection();
   const [user, admin, configured] = await Promise.all([getUser(), isAdmin(), isGithubConfigured()]);
 
-  let data: Awaited<ReturnType<typeof readGuestbook>> | null = null;
+  let data: Awaited<ReturnType<typeof getGuestbook>> | null = null;
   try {
-    data = await readGuestbook();
+    data = await getGuestbook();
   } catch (error) {
     console.error(error);
   }

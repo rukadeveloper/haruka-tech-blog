@@ -1,9 +1,9 @@
 import crypto from "node:crypto";
 import { revalidateTag } from "next/cache";
-import { POSTS_TAG } from "@/lib/posts";
+import { TAGS } from "@/lib/cache";
 
 /**
- * 관리자 화면 밖에서 글·카테고리·썸네일을 바꾼 뒤(스크립트, Supabase 대시보드) 공개 화면 캐시를 바로 비운다.
+ * 관리자 화면 밖에서 글·카테고리·썸네일·방명록을 바꾼 뒤(스크립트, Supabase 대시보드) 공개 화면 캐시를 바로 비운다.
  * POST /api/revalidate  헤더 Authorization: Bearer <REVALIDATE_SECRET>
  * REVALIDATE_SECRET 이 없으면 비활성화된다.
  */
@@ -19,6 +19,7 @@ export async function POST(request: Request) {
   }
 
   // 'max': 오래된 캐시를 즉시 비우지 않고 다음 요청 때 새로 만든다 (stale-while-revalidate)
-  revalidateTag(POSTS_TAG, "max");
+  revalidateTag(TAGS.posts, "max");
+  revalidateTag(TAGS.guestbook, "max");
   return Response.json({ revalidated: true, at: new Date().toISOString() });
 }
