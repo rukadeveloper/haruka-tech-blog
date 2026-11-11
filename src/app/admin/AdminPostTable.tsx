@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { deletePost } from "./actions";
-import ConfirmDeleteButton from "./ConfirmDeleteButton";
+import ConfirmDeleteButton from "@/components/ui/common/ConfirmDeleteButton";
 
 export type AdminPost = { slug: string; title: string; category: string; date: string; draft: boolean };
 

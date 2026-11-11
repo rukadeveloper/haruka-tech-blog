@@ -8,7 +8,7 @@ export default function ReplyToggle({ slug, parentId }: { slug: string; parentId
   const close = useCallback(() => setOpen(false), []);
   return (
     <div>
-      <button type="button" onClick={() => setOpen((v) => !v)} className="text-sm text-meta hover:text-foreground">
+      <button type="button" onClick={() => setOpen((v) => !v)} className="text-sm font-medium text-meta hover:text-foreground">
         {open ? "취소" : "답글"}
       </button>
       {open && (

@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import Comments from "@/components/Comments";
 import PostAdminActions from "@/components/PostAdminActions";
-import PostArticleBody from "@/components/PostArticleBody";
+import { buttonClass } from "@/components/ui/common/Button";
+import PostArticleBody from "@/components/ui/post/PostArticleBody";
 import { getAllPosts, getPost } from "@/lib/posts";
 
 export async function generateStaticParams() {
@@ -33,7 +34,7 @@ async function Article({ params }: { params: PageProps<"/posts/[slug]">["params"
   const prev = i >= 0 ? all[i + 1] : undefined; // 더 오래된 글
   const next = i > 0 ? all[i - 1] : undefined; // 더 최근 글
   return (
-    <article className="pt-12 pb-24 sm:pt-20">
+    <article className="pt-8 pb-20 sm:pt-14 sm:pb-24">
       <Suspense fallback={null}>
         <PostAdminActions slug={slug} title={post.meta.title} />
       </Suspense>
@@ -44,29 +45,27 @@ async function Article({ params }: { params: PageProps<"/posts/[slug]">["params"
         html={post.html}
       />
 
-      <div className="mx-auto mt-16 max-w-[768px]">
-        <div className="text-center">
-          <Link
-            href="/"
-            className="inline-block rounded-md bg-surface px-5 py-2 text-sm font-medium hover:text-strong"
-          >
-            ← Back to Blog
+      {/* 이전·다음 글: 모바일은 위아래, sm 부터 좌우 */}
+      <nav aria-label="이전·다음 글" className="container-prose mt-14 grid gap-3 sm:mt-20 sm:grid-cols-2">
+        {prev ? (
+          <Link href={`/posts/${prev.slug}`} className="card group p-4 transition-colors hover:border-strong">
+            <span className="text-caption">← 이전 글</span>
+            <div className="text-body-sm mt-1 line-clamp-2 font-semibold group-hover:text-strong">{prev.title}</div>
           </Link>
-        </div>
-        <div className="mt-10 flex justify-between gap-4 rounded-[5px] border border-[#a3a3a3] bg-surface p-2.5">
-          {prev ? (
-            <Link href={`/posts/${prev.slug}`} className="flex-1 text-left">
-              <span className="text-xs text-meta">이전 글</span>
-              <div className="line-clamp-2 text-sm font-medium">{prev.title}</div>
-            </Link>
-          ) : <span className="flex-1" />}
-          {next ? (
-            <Link href={`/posts/${next.slug}`} className="flex-1 border-l border-[#a3a3a3] pl-5 text-right">
-              <span className="text-xs text-meta">다음 글</span>
-              <div className="line-clamp-2 text-sm font-medium">{next.title}</div>
-            </Link>
-          ) : <span className="flex-1" />}
-        </div>
+        ) : (
+          <span className="hidden sm:block" />
+        )}
+        {next && (
+          <Link href={`/posts/${next.slug}`} className="card group p-4 transition-colors hover:border-strong sm:text-right">
+            <span className="text-caption">다음 글 →</span>
+            <div className="text-body-sm mt-1 line-clamp-2 font-semibold group-hover:text-strong">{next.title}</div>
+          </Link>
+        )}
+      </nav>
+      <div className="container-prose mt-6 text-center">
+        <Link href="/" className={buttonClass({ variant: "secondary" })}>
+          목록으로
+        </Link>
       </div>
 
       <Suspense fallback={null}>

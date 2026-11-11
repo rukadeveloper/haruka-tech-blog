@@ -43,14 +43,14 @@ export default function ConfirmDeleteButton({ target, description, className }: 
         ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
-        className={className ?? "text-red-500 hover:underline"}
+        className={className ?? "btn btn-sm btn-danger"}
       >
         삭제
       </button>
       {open &&
         createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-4 backdrop-blur-sm sm:items-center"
             onClick={() => setOpen(false)}
           >
             <div
@@ -58,9 +58,9 @@ export default function ConfirmDeleteButton({ target, description, className }: 
               aria-modal="true"
               aria-labelledby="confirm-delete-title"
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl bg-background p-6 text-foreground shadow-2xl ring-1 ring-black/10 dark:ring-white/10"
+              className="w-full max-w-sm rounded-3xl border border-line bg-elevated p-6 text-foreground shadow-pop"
             >
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-danger-soft text-danger">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <path d="M3 6h18" />
                   <path d="M8 6V4h8v2" />
@@ -71,7 +71,7 @@ export default function ConfirmDeleteButton({ target, description, className }: 
               <h2 id="confirm-delete-title" className="text-center text-lg font-bold">
                 정말 삭제할까요?
               </h2>
-              <p className="mt-2 text-center text-sm opacity-80">
+              <p className="mt-2 text-center text-sm text-muted">
                 <span className="font-semibold break-words">“{target}”</span>
                 <br />
                 {description ?? "삭제하면 되돌릴 수 없습니다."}
@@ -81,14 +81,14 @@ export default function ConfirmDeleteButton({ target, description, className }: 
                   ref={cancelRef}
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="flex-1 rounded-lg bg-surface px-4 py-2 text-sm font-medium hover:opacity-80"
+                  className="btn btn-secondary flex-1"
                 >
                   취소
                 </button>
                 <button
                   type="button"
                   onClick={confirm}
-                  className="flex-1 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
+                  className="btn btn-danger-solid flex-1"
                 >
                   삭제
                 </button>

@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import Image from "@tiptap/extension-image";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
-import Spinner from "@/components/Spinner";
+import Spinner from "@/components/ui/common/Spinner";
 
 type Align = "left" | "center" | "right";
 

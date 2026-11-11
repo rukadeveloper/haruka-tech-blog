@@ -2,7 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import { loadCategories } from "@/lib/categories";
 import { loadPostMetas, inCategory } from "@/lib/posts";
 import { addCategory, deleteCategory } from "../actions";
-import ConfirmDeleteButton from "../ConfirmDeleteButton";
+import ConfirmDeleteButton from "@/components/ui/common/ConfirmDeleteButton";
 import RenameCategory from "./RenameCategory";
 
 // 로그인 확인과 DB 조회로 요청마다 렌더링하는 화면이라 즉시 이동(instant) 검증에서 제외

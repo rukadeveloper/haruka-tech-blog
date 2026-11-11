@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { addComment } from "@/app/posts/[slug]/comment-actions";
+import Button from "@/components/ui/common/Button";
 
 export default function CommentForm({
   slug,
@@ -35,16 +36,15 @@ export default function CommentForm({
         maxLength={2000}
         rows={parentId ? 2 : 3}
         placeholder={placeholder}
-        className="w-full resize-y rounded-md border border-line bg-transparent px-3 py-2 text-[15px] leading-relaxed outline-none focus:border-strong"
+        className="field resize-y"
       />
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-red-500">{state?.error}</span>
-        <button
-          disabled={pending}
-          className="rounded-md bg-foreground px-4 py-1.5 text-sm font-medium text-background disabled:opacity-50"
-        >
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm text-danger" role="status">
+          {state?.error}
+        </span>
+        <Button variant="primary" size="sm" disabled={pending}>
           {pending ? "등록 중…" : "등록"}
-        </button>
+        </Button>
       </div>
     </form>
   );

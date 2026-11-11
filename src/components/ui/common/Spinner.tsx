@@ -4,7 +4,7 @@ export default function Spinner({ className = "h-8 w-8" }: { className?: string 
     <span
       role="status"
       aria-label="불러오는 중"
-      className={`inline-block animate-spin rounded-full border-[3px] border-line border-t-strong ${className}`}
+      className={`inline-block animate-spin rounded-full border-[3px] border-surface-hover border-t-strong ${className}`}
     />
   );
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { loadPostSource, renderHtml, renderMarkdown } from "@/lib/posts";
-import PostArticleBody from "@/components/PostArticleBody";
+import PostArticleBody from "@/components/ui/post/PostArticleBody";
 
 // 로그인 확인과 DB 조회로 요청마다 렌더링하는 화면이라 즉시 이동(instant) 검증에서 제외
 export const instant = false;

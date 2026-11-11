@@ -1,0 +1,96 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import ThemeToggle from "@/components/ui/common/ThemeToggle";
+
+const LINKS = [
+  { href: "/", label: "Blog", active: (p: string) => p === "/" || p.startsWith("/posts") || p.startsWith("/category") },
+  { href: "/about", label: "About", active: (p: string) => p.startsWith("/about") },
+  { href: "/guestbook", label: "방명록", active: (p: string) => p.startsWith("/guestbook") },
+];
+
+type Props = {
+  /** 허용된 IP 에서만 서버가 넘겨주는 관리자 링크 (없으면 null) */
+  adminLink: React.ReactNode;
+  pathname: string;
+};
+
+function Nav({ adminLink, pathname }: Props) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const links = (className: string) =>
+    LINKS.map(({ href, label, active }) => (
+      <Link
+        key={href}
+        href={href}
+        aria-current={active(pathname) ? "page" : undefined}
+        onClick={() => setOpen(false)}
+        className={className}
+      >
+        {label}
+      </Link>
+    ));
+
+  return (
+    <>
+      {/* sm 이상: 가로 메뉴 */}
+      <nav aria-label="주 메뉴" className="hidden items-center gap-6 text-[15px] sm:flex">
+        {links("nav-link")}
+        {adminLink}
+      </nav>
+      <div className="ml-auto flex items-center sm:ml-3">
+        <ThemeToggle />
+        <button
+          type="button"
+          className="icon-btn sm:hidden"
+          aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+            {open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
+      </div>
+
+      {/* 모바일: 헤더 아래로 펼쳐지는 메뉴 */}
+      {open && (
+        <>
+          <div className="fixed inset-0 top-14 z-40 bg-black/30 sm:hidden" onClick={() => setOpen(false)} aria-hidden />
+          <nav
+            id="mobile-menu"
+            aria-label="주 메뉴"
+            onClick={() => setOpen(false)}
+            className="absolute inset-x-0 top-14 z-50 flex flex-col border-b border-line bg-background px-3 py-2 shadow-card sm:hidden"
+          >
+            {links("nav-link flex h-12 items-center rounded-xl px-3 text-base hover:bg-surface")}
+            {adminLink && <div className="flex h-12 items-center rounded-xl px-3 text-base hover:bg-surface">{adminLink}</div>}
+          </nav>
+        </>
+      )}
+    </>
+  );
+}
+
+function NavWithPathname(props: Omit<Props, "pathname">) {
+  return <Nav {...props} pathname={usePathname()} />;
+}
+
+/** 헤더 메뉴. 현재 경로는 요청 시점에 정해지므로 Suspense 로 감싸고, 그 전에는 강조 없이 그린다 */
+export default function HeaderNav(props: Omit<Props, "pathname">) {
+  return (
+    <Suspense fallback={<Nav {...props} pathname="" />}>
+      <NavWithPathname {...props} />
+    </Suspense>
+  );
+}

@@ -1,4 +1,4 @@
-const bar = "animate-pulse rounded-md bg-surface";
+import { POST_GRID } from "./PostList";
 
 /**
  * 목록 화면(BlogShell) 로딩 자리표시자.
@@ -6,28 +6,25 @@ const bar = "animate-pulse rounded-md bg-surface";
  */
 export default function BlogSkeleton() {
   return (
-    <div className="pb-24" aria-busy="true" aria-label="글 목록을 불러오는 중">
-      <section className="flex flex-col items-center pt-12 pb-10 sm:pt-20">
-        <div className={`${bar} h-10 w-40 sm:h-[60px] sm:w-64`} />
-        <div className={`${bar} mt-5 h-6 w-72 max-w-full sm:h-7 sm:w-[28rem]`} />
+    <div className="pb-20 sm:pb-24" aria-busy="true" aria-label="글 목록을 불러오는 중">
+      <section className="pt-10 pb-7 sm:pt-16 sm:pb-10">
+        <div className="skeleton h-9 w-28 sm:h-[52px] sm:w-40 lg:h-[62px]" />
+        <div className="skeleton mt-2 h-7 w-72 max-w-full sm:mt-3 sm:w-[28rem]" />
       </section>
 
-      <div className="mb-16">
-        <ul className="flex flex-wrap justify-center gap-3">
-          {Array.from({ length: 5 }, (_, i) => (
-            <li key={i} className={`${bar} h-[34px] w-20 !rounded-full`} />
-          ))}
-        </ul>
-      </div>
+      <ul className="scroll-row mb-8 sm:mx-0 sm:mb-12 sm:px-0">
+        {Array.from({ length: 5 }, (_, i) => (
+          <li key={i} className="skeleton h-9 w-20 shrink-0 !rounded-full" />
+        ))}
+      </ul>
 
-      <ul className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-12 lg:gap-y-16">
+      <ul className={POST_GRID}>
         {Array.from({ length: 9 }, (_, i) => (
-          <li key={i} className="flex h-full flex-col">
-            <div className="aspect-[16/10] animate-pulse rounded-md bg-thumb" />
-            <div className={`${bar} mt-5 h-5 w-24`} />
-            <div className={`${bar} mt-2 h-7 w-full`} />
-            <div className={`${bar} mt-2 h-5 w-5/6`} />
-            <div className={`${bar} mt-3 h-5 w-20`} />
+          <li key={i} className="flex flex-col">
+            <div className="skeleton aspect-[16/9] !rounded-2xl" />
+            <div className="skeleton mt-4 h-[22px] w-28" />
+            <div className="skeleton mt-2 h-7 w-full" />
+            <div className="skeleton mt-1.5 h-6 w-5/6" />
           </li>
         ))}
       </ul>
