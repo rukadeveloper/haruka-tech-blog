@@ -12,12 +12,13 @@ const LINKS = [
 ];
 
 type Props = {
-  /** 허용된 IP 에서만 서버가 넘겨주는 관리자 링크 (없으면 null) */
+  /** 허용 IP 에서만 내용이 그려지는 관리자 링크 (components/AdminLink) — 가로 메뉴용 / 모바일 메뉴용 */
   adminLink: React.ReactNode;
+  adminLinkMobile: React.ReactNode;
   pathname: string;
 };
 
-function Nav({ adminLink, pathname }: Props) {
+function Nav({ adminLink, adminLinkMobile, pathname }: Props) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -74,7 +75,7 @@ function Nav({ adminLink, pathname }: Props) {
             className="absolute inset-x-0 top-14 z-50 flex flex-col border-b border-line bg-background px-3 py-2 shadow-card sm:hidden"
           >
             {links("nav-link flex h-12 items-center rounded-xl px-3 text-base hover:bg-surface")}
-            {adminLink && <div className="flex h-12 items-center rounded-xl px-3 text-base hover:bg-surface">{adminLink}</div>}
+            {adminLinkMobile}
           </nav>
         </>
       )}

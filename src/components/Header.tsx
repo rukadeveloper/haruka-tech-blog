@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import AdminLink from "./AdminLink";
 import HeaderNav from "./HeaderNav";
 
 export default function Header() {
@@ -10,9 +12,14 @@ export default function Header() {
         </Link>
         <HeaderNav
           adminLink={
-            <Link href="/admin" className="nav-link">
-              Admin
-            </Link>
+            <Suspense fallback={null}>
+              <AdminLink className="nav-link" />
+            </Suspense>
+          }
+          adminLinkMobile={
+            <Suspense fallback={null}>
+              <AdminLink className="nav-link flex h-12 items-center rounded-xl px-3 text-base hover:bg-surface" />
+            </Suspense>
           }
         />
       </div>
