@@ -43,7 +43,7 @@ const TOPICS: { name: string; summary: string; items: string[] }[] = [
 
 const STACK = [
   ["프레임워크", "Next.js 16 (App Router) · React 19 · TypeScript"],
-  ["스타일", "Tailwind CSS v4 · Kakao Big Sans"],
+  ["스타일", "Tailwind CSS v4 · Pretendard"],
   ["콘텐츠", "파일 기반 글 저장(Markdown / HTML) · 코드 하이라이팅(shiki)"],
   ["관리자", "WYSIWYG 에디터(Tiptap) · 이미지 크기·정렬 조절 · 카테고리 관리 · GitHub 계정 인증"],
   ["댓글", "GitHub OAuth 로그인 기반 댓글과 답글"],

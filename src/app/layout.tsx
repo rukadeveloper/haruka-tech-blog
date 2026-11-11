@@ -4,15 +4,12 @@ import localFont from "next/font/local";
 import Header from "@/components/Header";
 import "./globals.css";
 
-// tech.kakao.com 과 동일한 Kakao Big Sans
-const kakaoBig = localFont({
-  variable: "--font-kakao",
+// Pretendard 가변 글꼴 (45–920) — 굵기를 하나의 파일로 모두 쓴다
+const pretendard = localFont({
+  variable: "--font-pretendard",
   display: "swap",
-  src: [
-    { path: "./fonts/KakaoBig-Regular.woff2", weight: "400" },
-    { path: "./fonts/KakaoBig-Bold.woff2", weight: "700" },
-    { path: "./fonts/KakaoBig-ExtraBold.woff2", weight: "800" },
-  ],
+  src: "./fonts/PretendardVariable.woff2",
+  weight: "45 920",
 });
 
 const geistMono = Geist_Mono({
@@ -29,7 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
-      className={`${kakaoBig.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${pretendard.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Header />
