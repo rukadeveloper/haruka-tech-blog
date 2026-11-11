@@ -38,7 +38,12 @@ export default function PostArticleBody({
         </div>
       )}
 
-      <div className={`post-body ${items.length > 0 ? "" : "mt-8"}`} dangerouslySetInnerHTML={{ __html: markImagesPending(body) }} />
+      {/* 이미지가 하이드레이션 전에 로드되면 인라인 onload 가 data-pending 을 먼저 지운다 — 의도된 차이라 경고를 끈다 */}
+      <div
+        suppressHydrationWarning
+        className={`post-body ${items.length > 0 ? "" : "mt-8"}`}
+        dangerouslySetInnerHTML={{ __html: markImagesPending(body) }}
+      />
     </>
   );
 }

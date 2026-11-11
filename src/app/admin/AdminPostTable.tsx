@@ -9,8 +9,7 @@ export type AdminPost = { slug: string; title: string; category: string; date: s
 
 type Filter = "all" | "published" | "draft";
 
-const ghost =
-  "rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface hover:text-foreground";
+const ghost = "btn btn-sm btn-ghost";
 
 /** 글 목록: 상태 탭 + 검색 + 행 단위 작업 버튼 */
 export default function AdminPostTable({ posts }: { posts: AdminPost[] }) {
@@ -38,7 +37,7 @@ export default function AdminPostTable({ posts }: { posts: AdminPost[] }) {
   ];
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-line bg-background">
+    <section className="card overflow-hidden">
       <div className="flex flex-col gap-3 border-b border-line p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
         <div className="flex gap-1 rounded-xl bg-surface p-1" role="tablist" aria-label="글 상태">
           {tabs.map((t) => (
@@ -47,8 +46,8 @@ export default function AdminPostTable({ posts }: { posts: AdminPost[] }) {
               role="tab"
               aria-selected={filter === t.id}
               onClick={() => setFilter(t.id)}
-              className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                filter === t.id ? "bg-background font-semibold text-foreground shadow-sm" : "text-muted hover:text-foreground"
+              className={`h-9 flex-1 rounded-lg px-3 text-sm whitespace-nowrap transition-colors sm:flex-none ${
+                filter === t.id ? "bg-elevated font-semibold text-foreground shadow-card" : "text-muted hover:text-foreground"
               }`}
             >
               {t.label} <span className="ml-0.5 text-xs text-meta">{counts[t.id]}</span>
@@ -61,7 +60,7 @@ export default function AdminPostTable({ posts }: { posts: AdminPost[] }) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="제목·카테고리 검색"
           aria-label="글 검색"
-          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2 text-sm outline-none transition-colors placeholder:text-meta focus:border-strong sm:w-64"
+          className="field sm:w-64"
         />
       </div>
 
@@ -70,32 +69,31 @@ export default function AdminPostTable({ posts }: { posts: AdminPost[] }) {
       ) : (
         <ul className="divide-y divide-line">
           {visible.map((p) => (
-            <li key={p.slug} className="flex flex-col gap-2 px-4 py-3.5 transition-colors hover:bg-surface/60 sm:flex-row sm:items-center sm:gap-4">
+            <li key={p.slug} className="flex flex-col gap-1 px-4 py-3.5 transition-colors hover:bg-subtle sm:flex-row sm:items-center sm:gap-4">
               <div className="min-w-0 flex-1">
                 <Link
                   href={p.draft ? `/admin/posts/${p.slug}/edit` : `/posts/${p.slug}`}
-                  className="line-clamp-1 font-medium hover:text-strong"
+                  className="line-clamp-2 font-semibold hover:text-strong sm:line-clamp-1"
                 >
                   {p.title}
                 </Link>
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-meta">
                   {p.draft ? (
-                    <span className="rounded-full bg-amber-500/15 px-2 py-0.5 font-medium text-amber-600 dark:text-amber-400">임시저장</span>
+                    <span className="badge badge-warning">임시저장</span>
                   ) : (
-                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 font-medium text-emerald-600 dark:text-emerald-400">발행됨</span>
+                    <span className="badge badge-success">발행됨</span>
                   )}
-                  {p.category && <span className="rounded-full bg-surface px-2 py-0.5 text-muted">{p.category}</span>}
+                  {p.category && <span className="badge">{p.category}</span>}
                   <time>{p.date}</time>
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-0.5">
+              <div className="-ml-3 flex shrink-0 items-center gap-0.5 sm:ml-0">
                 <Link href={`/admin/posts/${p.slug}/preview`} className={ghost}>미리보기</Link>
                 <Link href={`/admin/posts/${p.slug}/edit`} className={ghost}>수정</Link>
                 <form action={deletePost}>
                   <input type="hidden" name="slug" value={p.slug} />
                   <ConfirmDeleteButton
                     target={p.title}
-                    className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/10"
                   />
                 </form>
               </div>

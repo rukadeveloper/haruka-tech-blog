@@ -21,11 +21,11 @@ export default async function PreviewPost({ params }: PageProps<"/admin/posts/[s
   const html = format === "html" ? await renderHtml(content) : await renderMarkdown(content);
   return (
     <article className="pb-24">
-      <div className="mb-8 flex items-center gap-3 rounded bg-surface px-4 py-2 text-sm">
-        <span className="font-semibold">미리보기</span>
-        <span className="text-muted">{meta.draft ? "임시저장(비공개) 글입니다." : "공개된 글입니다."}</span>
-        <Link href={`/admin/posts/${slug}/edit`} className="ml-auto hover:underline">수정</Link>
-        <Link href="/admin" className="hover:underline">목록</Link>
+      <div className="mb-8 flex items-center gap-3 rounded-xl bg-surface px-4 py-2.5 text-sm">
+        <span className="badge badge-primary">미리보기</span>
+        <span className="min-w-0 truncate text-muted">{meta.draft ? "임시저장(비공개) 글입니다." : "공개된 글입니다."}</span>
+        <Link href={`/admin/posts/${slug}/edit`} className="nav-link ml-auto shrink-0">수정</Link>
+        <Link href="/admin" className="nav-link shrink-0">목록</Link>
       </div>
       <PostArticleBody category={meta.category} title={meta.title} date={meta.date} html={html} />
     </article>

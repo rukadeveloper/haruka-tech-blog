@@ -13,14 +13,14 @@ function FileTreeView({ node, updateAttributes, deleteNode, selected }: NodeView
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
 
   return (
-    <NodeViewWrapper className={`my-5 rounded-xl border bg-surface/40 p-3 ${selected ? "border-strong" : "border-line"}`} contentEditable={false}>
-      <div className="mb-2 flex items-center gap-2 text-xs text-muted">
-        <span className="font-semibold">🗂 파일 트리</span>
+    <NodeViewWrapper className={`my-5 rounded-2xl border bg-subtle p-3 ${selected ? "border-strong" : "border-line"}`} contentEditable={false}>
+      <div className="mb-2 flex items-start gap-2 text-xs text-muted">
+        <span className="shrink-0 font-semibold">파일 트리</span>
         <span className="text-meta">들여쓰기 2칸 = 한 단계 · 폴더는 이름 뒤에 / · ` # 설명` 으로 설명 추가 · tree 명령 출력도 붙여넣기 가능</span>
         <button
           type="button"
           onClick={() => deleteNode()}
-          className="ml-auto rounded-lg px-2 py-1 text-muted transition-colors hover:bg-surface hover:text-red-500"
+          className="ml-auto shrink-0 rounded-lg px-2 py-1 text-muted transition-colors hover:bg-danger-soft hover:text-danger"
         >
           삭제
         </button>
@@ -37,11 +37,11 @@ function FileTreeView({ node, updateAttributes, deleteNode, selected }: NodeView
           rows={Math.min(16, Math.max(6, tree.split("\n").length + 1))}
           placeholder={FILE_TREE_SAMPLE}
           aria-label="파일 트리 내용"
-          className="w-full resize-y rounded-lg border border-line bg-background p-3 font-mono text-[13px] leading-6 outline-none transition-colors placeholder:text-meta focus:border-strong"
+          className="w-full resize-y rounded-xl border border-line bg-background p-3 font-mono text-[13px] leading-6 outline-none transition-colors placeholder:text-meta focus:border-strong"
         />
         <div className="min-w-0 overflow-x-auto">
           {html ? (
-            <div className="post-body !m-0 !max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
+            <div className="post-body !m-0 !max-w-none [&_.file-tree]:!m-0" dangerouslySetInnerHTML={{ __html: html }} />
           ) : (
             <p className="p-3 text-sm text-meta">왼쪽에 파일·폴더를 입력하면 여기에 트리가 나타납니다.</p>
           )}

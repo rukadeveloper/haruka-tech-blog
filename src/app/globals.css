@@ -365,7 +365,8 @@ body {
 }
 .post-body.editor-body pre { padding: 0; color: var(--cb-text); }
 .post-body.editor-body pre code {
-  display: block; overflow-x: auto; padding: 16px 20px 18px; font-size: 14px; line-height: 1.7;
+  /* 에디터에서는 code 가 가로 스크롤을 맡는다 (pre 가 밀려 상단 바가 잘리지 않도록 min-width 해제) */
+  display: block; min-width: 0; overflow-x: auto; padding: 16px 20px 18px; font-size: 14px; line-height: 1.7;
   background: none; border: none; border-radius: 0; color: inherit; white-space: pre;
   font-family: "JetBrains Mono", "Fira Code", var(--font-mono);
 }
