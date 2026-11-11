@@ -11,10 +11,10 @@ export const metadata = { title: "Admin", robots: { index: false, follow: false 
 async function AdminNav() {
   if (!(await isAdmin())) return null;
   return (
-    <nav className="mb-8 flex items-center gap-5 border-b border-line pb-3 text-sm">
+    <nav aria-label="관리자 메뉴" className="mb-6 flex items-center gap-5 border-b border-line pb-3 text-[15px] sm:mb-8">
       <AdminNavLinks />
       <form action={logout} className="ml-auto">
-        <button className="opacity-70 hover:underline">로그아웃</button>
+        <button className="nav-link text-sm">로그아웃</button>
       </form>
     </nav>
   );
@@ -22,11 +22,11 @@ async function AdminNav() {
 
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
-    <div className="py-10">
+    <div className="py-6 sm:py-10">
       <Suspense fallback={null}>
         <AdminNav />
       </Suspense>
-      <Suspense fallback={<p className="opacity-60">불러오는 중…</p>}>{children}</Suspense>
+      <Suspense fallback={<p className="text-meta">불러오는 중…</p>}>{children}</Suspense>
     </div>
   );
 }

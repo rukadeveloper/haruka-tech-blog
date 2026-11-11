@@ -8,9 +8,9 @@ export const instant = false;
 
 function Stat({ label, value, tone }: { label: string; value: number; tone?: string }) {
   return (
-    <div className="rounded-2xl border border-line bg-surface/50 px-4 py-4 sm:px-5">
-      <div className="text-xs font-medium text-meta">{label}</div>
-      <div className={`mt-1 text-2xl font-bold tracking-tight sm:text-3xl ${tone ?? ""}`}>{value}</div>
+    <div className="card bg-subtle px-4 py-4 sm:px-5">
+      <div className="text-caption font-medium">{label}</div>
+      <div className={`text-title mt-1 tabular-nums ${tone ?? ""}`}>{value}</div>
     </div>
   );
 }
@@ -25,12 +25,12 @@ export default async function AdminHome() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">글 관리</h1>
+          <h1 className="text-title">글 관리</h1>
           <p className="mt-1 text-sm text-muted">작성한 글을 확인하고 수정·삭제합니다.</p>
         </div>
         <Link
           href="/admin/posts/new"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-strong px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+          className="btn btn-primary shrink-0"
         >
           <span aria-hidden className="text-base leading-none">+</span> 새 글 작성
         </Link>
@@ -38,8 +38,8 @@ export default async function AdminHome() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="전체 글" value={posts.length} />
-        <Stat label="발행됨" value={posts.length - drafts} tone="text-emerald-600 dark:text-emerald-400" />
-        <Stat label="임시저장" value={drafts} tone="text-amber-600 dark:text-amber-400" />
+        <Stat label="발행됨" value={posts.length - drafts} tone="text-success" />
+        <Stat label="임시저장" value={drafts} tone="text-warning" />
         <Stat label="사용 중인 카테고리" value={categories} />
       </div>
 

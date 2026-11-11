@@ -1,8 +1,9 @@
 "use server";
 
 import crypto from "node:crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { isAdmin } from "@/lib/auth";
+import { TAGS } from "@/lib/cache";
 import { SLUG_RE, insertComment, readComments, removeComment } from "@/lib/comments";
 import { postExists } from "@/lib/posts";
 import { clearUserSession, getUser } from "@/lib/session";
@@ -56,7 +57,7 @@ export async function addComment(_prev: CommentState, formData: FormData): Promi
     console.error(e);
     return { error: "지금은 댓글을 저장할 수 없습니다." };
   }
-  revalidatePath(`/posts/${slug}`);
+  updateTag(TAGS.comments(slug));
   return { ok: Date.now() };
 }
 
@@ -72,7 +73,7 @@ export async function deleteComment(formData: FormData) {
 
   // 원댓글을 지우면 달린 답글도 함께 삭제 (DB 외래키 CASCADE)
   await removeComment(id);
-  revalidatePath(`/posts/${slug}`);
+  updateTag(TAGS.comments(slug));
 }
 
 export async function githubLogout(formData: FormData) {

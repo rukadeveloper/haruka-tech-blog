@@ -1,3 +1,5 @@
+import { cacheLife, cacheTag } from "next/cache";
+import { LIFE, TAGS } from "./cache";
 import { db, unwrap } from "./db";
 
 export type GuestbookEntry = {
@@ -32,6 +34,14 @@ const toEntry = (r: Row): GuestbookEntry => ({
   body: r.body,
   createdAt: new Date(r.created_at).toISOString(),
 });
+
+/** 공개 화면용: 방명록을 쓰거나 지우는 액션이 태그를 비운다 */
+export async function getGuestbook() {
+  "use cache";
+  cacheTag(TAGS.guestbook);
+  cacheLife(LIFE.guestbook);
+  return readGuestbook();
+}
 
 /** 최신순. 많아지면 페이지로 나누도록 확장한다 */
 export async function readGuestbook(): Promise<{ entries: GuestbookEntry[]; total: number }> {

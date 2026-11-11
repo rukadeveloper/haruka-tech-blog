@@ -43,9 +43,9 @@ const TOPICS: { name: string; summary: string; items: string[] }[] = [
 
 const STACK = [
   ["프레임워크", "Next.js 16 (App Router) · React 19 · TypeScript"],
-  ["스타일", "Tailwind CSS v4 · Kakao Big Sans"],
-  ["콘텐츠", "파일 기반 글 저장(Markdown / HTML) · 코드 하이라이팅(shiki)"],
-  ["관리자", "WYSIWYG 에디터(Tiptap) · 이미지 크기·정렬 조절 · 카테고리 관리 · GitHub 계정 인증"],
+  ["스타일", "Tailwind CSS v4 · Pretendard"],
+  ["콘텐츠", "Supabase(Postgres)에 글 저장 · Markdown / HTML · 코드 하이라이팅(shiki)"],
+  ["관리자", "WYSIWYG 에디터(Tiptap) · 파일 트리·코드 블록 · 카테고리 관리 · 허용 IP + GitHub 계정 인증"],
   ["댓글", "GitHub OAuth 로그인 기반 댓글과 답글"],
 ];
 
@@ -55,19 +55,19 @@ async function Topics() {
   const topics = [...TOPICS].sort((a, b) => (order.get(a.name) ?? 99) - (order.get(b.name) ?? 99));
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-2">
       {topics.map((t) => {
         const count = posts.filter((p) => inCategory(p, t.name)).length;
         return (
-          <section key={t.name} className="flex flex-col rounded-md border border-line p-6">
+          <section key={t.name} className="card card-pad flex flex-col">
             <div className="flex items-baseline justify-between">
-              <h3 className="text-xl font-bold">{t.name}</h3>
-              <Link href={categoryHref(t.name)} className="text-sm text-sub hover:underline">
+              <h3 className="text-heading">{t.name}</h3>
+              <Link href={categoryHref(t.name)} className="text-sm font-medium text-strong hover:underline">
                 글 {count}개 보기 →
               </Link>
             </div>
-            <p className="mt-3 text-[15px] leading-relaxed text-muted">{t.summary}</p>
-            <ul className="mt-4 space-y-2 text-[15px] leading-relaxed text-detail-desc">
+            <p className="text-body-sm mt-3 text-muted">{t.summary}</p>
+            <ul className="text-body-sm mt-4 space-y-2 text-detail-desc">
               {t.items.map((item) => (
                 <li key={item} className="flex gap-2">
                   <span className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-meta" />
@@ -83,15 +83,15 @@ async function Topics() {
 }
 
 const H2 = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="mt-20 mb-6 text-2xl font-bold sm:text-3xl">{children}</h2>
+  <h2 className="text-title mt-14 mb-5 sm:mt-20 sm:mb-6">{children}</h2>
 );
 
 export default function About() {
   return (
-    <div className="mx-auto max-w-[768px] pb-24">
-      <section className="pt-12 pb-6 text-center sm:pt-20">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">About</h1>
-        <p className="mt-5 text-lg text-muted sm:text-xl">
+    <div className="container-prose pb-20 sm:pb-24">
+      <section className="pt-10 sm:pt-16">
+        <h1 className="text-display">About</h1>
+        <p className="text-body mt-2 text-muted sm:mt-3 sm:text-lg">
           공부하는 개발자의 테크 블로그
           <br />
           배운 것을 내 말로 정리하고, 다시 꺼내 쓸 수 있게 남깁니다
@@ -99,7 +99,7 @@ export default function About() {
       </section>
 
       <H2>이 블로그는</H2>
-      <div className="space-y-4 text-[17px] leading-[1.8] text-detail-desc">
+      <div className="text-body space-y-4 text-detail-desc sm:text-[17px]">
         <p>
           Eunhaa Tech Developer Blog는 개발을 공부하며 이해한 내용을 직접 정리해 두는 공간입니다. 2026년 4월 Tistory에서
           시작해 파이썬 기초와 데이터 분석, 머신러닝에서 출발했고, 이후 자바스크립트와 React, Next.js 같은 프론트엔드 쪽으로
@@ -117,7 +117,7 @@ export default function About() {
       </Suspense>
 
       <H2>글을 쓰는 방식</H2>
-      <ul className="space-y-3 text-[17px] leading-[1.8] text-detail-desc">
+      <ul className="text-body space-y-3 text-detail-desc sm:text-[17px]">
         <li>
           <b className="text-foreground">원리를 먼저.</b> 사용법만 나열하기보다 왜 그렇게 동작하는지, 어떤 문제를 풀려고
           만들어진 기능인지부터 이해하려고 합니다.
@@ -141,22 +141,22 @@ export default function About() {
         {STACK.map(([k, v]) => (
           <div key={k} className="grid gap-1 py-4 sm:grid-cols-[8rem_1fr] sm:gap-6">
             <dt className="font-bold">{k}</dt>
-            <dd className="text-[15px] leading-relaxed text-detail-desc">{v}</dd>
+            <dd className="text-body-sm text-detail-desc">{v}</dd>
           </div>
         ))}
       </dl>
 
       <H2>연락 · 링크</H2>
-      <ul className="space-y-3 text-[17px] text-detail-desc">
+      <ul className="text-body space-y-3 text-detail-desc sm:text-[17px]">
         <li>
           GitHub —{" "}
-          <a href="https://github.com/rukadeveloper" target="_blank" rel="noopener noreferrer" className="font-bold underline">
+          <a href="https://github.com/rukadeveloper" target="_blank" rel="noopener noreferrer" className="font-semibold text-strong underline underline-offset-4">
             github.com/rukadeveloper
           </a>
         </li>
         <li>
           예전 블로그(Tistory) —{" "}
-          <a href="https://eun-haa.tistory.com" target="_blank" rel="noopener noreferrer" className="font-bold underline">
+          <a href="https://eun-haa.tistory.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-strong underline underline-offset-4">
             eun-haa.tistory.com
           </a>
         </li>

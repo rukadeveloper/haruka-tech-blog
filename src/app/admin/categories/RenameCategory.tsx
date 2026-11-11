@@ -17,7 +17,7 @@ export default function RenameCategory({ path, current }: { path: string; curren
       <button
         type="button"
         onClick={() => setEditing(true)}
-        className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface hover:text-foreground"
+        className="btn btn-sm btn-ghost"
       >
         이름 변경
       </button>
@@ -35,10 +35,10 @@ export default function RenameCategory({ path, current }: { path: string; curren
         maxLength={40}
         aria-label={`${current} 새 이름`}
         onKeyDown={(e) => e.key === "Escape" && setEditing(false)}
-        className="w-32 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm outline-none focus:border-strong"
+        className="field min-h-9! w-32 py-1.5! text-sm!"
       />
-      <button className="rounded-lg bg-strong px-2.5 py-1.5 text-xs font-semibold text-white hover:opacity-90">저장</button>
-      <button type="button" onClick={() => setEditing(false)} className="rounded-lg px-2 py-1.5 text-xs text-muted hover:bg-surface">
+      <button className="btn btn-sm btn-primary">저장</button>
+      <button type="button" onClick={() => setEditing(false)} className="btn btn-sm btn-ghost">
         취소
       </button>
     </form>

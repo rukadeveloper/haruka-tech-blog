@@ -12,11 +12,11 @@ export default function Pagination({
   if (total <= 1) return null;
   const href = (n: number) => (n === 1 ? base : `${base}?page=${n}`);
   const box =
-    "inline-flex h-10 min-w-10 items-center justify-center rounded-md px-2 text-base text-meta hover:text-foreground sm:h-12 sm:min-w-12";
+    "inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-2 text-[15px] font-medium text-muted transition-colors hover:bg-surface hover:text-foreground";
   return (
-    <nav aria-label="페이지" className="mt-20 flex flex-wrap justify-center gap-2">
+    <nav aria-label="페이지" className="mt-14 flex flex-wrap justify-center gap-1 sm:mt-20 sm:gap-2">
       {page > 1 && (
-        <Link href={href(page - 1)} className={`${box} bg-surface`} aria-label="이전">
+        <Link href={href(page - 1)} className={box} aria-label="이전 페이지">
           ‹
         </Link>
       )}
@@ -25,13 +25,13 @@ export default function Pagination({
           key={n}
           href={href(n)}
           aria-current={n === page ? "page" : undefined}
-          className={`${box} ${n === page ? "pointer-events-none bg-surface text-foreground" : ""}`}
+          className={n === page ? `${box} pointer-events-none !bg-foreground !text-background` : box}
         >
           {n}
         </Link>
       ))}
       {page < total && (
-        <Link href={href(page + 1)} className={`${box} bg-surface`} aria-label="다음">
+        <Link href={href(page + 1)} className={box} aria-label="다음 페이지">
           ›
         </Link>
       )}

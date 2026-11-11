@@ -26,7 +26,7 @@ export default function AdminNavLinks() {
             key={href}
             href={href}
             aria-current={on ? "page" : undefined}
-            className={on ? "font-semibold text-strong" : "opacity-70 hover:opacity-100"}
+            className="nav-link whitespace-nowrap"
           >
             {label}
           </Link>

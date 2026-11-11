@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import Image from "@tiptap/extension-image";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
-import Spinner from "@/components/Spinner";
+import Spinner from "@/components/ui/common/Spinner";
 
 type Align = "left" | "center" | "right";
 
@@ -98,16 +98,16 @@ function ImageView({ node, updateAttributes, selected, deleteNode }: NodeViewPro
           alt={node.attrs.alt ?? ""}
           draggable={false}
           style={{ width: width ? `${width}px` : undefined, maxWidth: "100%", height: "auto", display: "block", minHeight: loaded ? undefined : 140 }}
-          className={selected ? "outline-2 outline-offset-2 outline-blue-500" : ""}
+          className={selected ? "outline-2 outline-offset-2 outline-strong" : ""}
         />
         {selected && (
           <>
             {width ? (
-              <span className="absolute -bottom-6 left-0 text-xs text-neutral-500">{width}px</span>
+              <span className="absolute -bottom-6 left-0 text-xs text-meta">{width}px</span>
             ) : null}
             <span
               onPointerDown={startResize}
-              className="absolute -right-1.5 -bottom-1.5 h-3.5 w-3.5 cursor-nwse-resize rounded-sm border-2 border-white bg-blue-500"
+              className="absolute -right-1.5 -bottom-1.5 h-3.5 w-3.5 cursor-nwse-resize rounded-sm border-2 border-white bg-strong"
               title="드래그해서 크기 조절"
             />
           </>
