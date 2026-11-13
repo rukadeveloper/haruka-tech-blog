@@ -3,6 +3,7 @@ import { loadCategories } from "@/lib/categories";
 import { loadPostMetas, inCategory } from "@/lib/posts";
 import { addCategory, deleteCategory } from "../actions";
 import ConfirmDeleteButton from "@/components/ui/common/ConfirmDeleteButton";
+import Select from "@/components/ui/common/Select";
 import RenameCategory from "./RenameCategory";
 
 // 로그인 확인과 DB 조회로 요청마다 렌더링하는 화면이라 즉시 이동(instant) 검증에서 제외
@@ -83,12 +84,12 @@ export default async function CategoriesPage() {
           <h2 className="text-heading">카테고리 추가</h2>
           <label className="block">
             <span className="field-label">상위 카테고리</span>
-            <select name="parent" className={field}>
-              <option value="">(대분류로 추가)</option>
-              {categories.map((c) => (
-                <option key={c.name} value={c.name}>{c.name}</option>
-              ))}
-            </select>
+            <Select
+              name="parent"
+              aria-label="상위 카테고리"
+              options={[{ value: "", label: "(대분류로 추가)" }, ...categories.map((c) => ({ value: c.name, label: c.name }))]}
+              className={field}
+            />
           </label>
           <label className="block">
             <span className="field-label">이름</span>

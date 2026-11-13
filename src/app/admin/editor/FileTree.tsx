@@ -37,7 +37,7 @@ function FileTreeView({ node, updateAttributes, deleteNode, selected }: NodeView
           rows={Math.min(16, Math.max(6, tree.split("\n").length + 1))}
           placeholder={FILE_TREE_SAMPLE}
           aria-label="파일 트리 내용"
-          className="w-full resize-y rounded-xl border border-line bg-background p-3 font-mono text-[13px] leading-6 outline-none transition-colors placeholder:text-meta focus:border-strong"
+          className="w-full resize-y rounded-xl border border-line bg-background p-3 font-mono text-[13px] leading-6 outline-none placeholder:text-meta"
         />
         <div className="min-w-0 overflow-x-auto">
           {html ? (
