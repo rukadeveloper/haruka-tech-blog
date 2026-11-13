@@ -7,6 +7,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
 import PostArticleBody from "@/components/ui/post/PostArticleBody";
+import Select from "@/components/ui/common/Select";
 import Spinner from "@/components/ui/common/Spinner";
 import { CODE_LANGUAGES } from "@/lib/code-languages";
 import { previewHtml, savePost } from "../actions";
@@ -94,24 +95,20 @@ function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => v
     // 모바일은 한 줄 가로 스크롤(화면 끝까지), sm 부터 여러 줄로 감싼다
     <div className="scroll-row sticky top-14 z-20 items-center gap-0.5! border-y border-line bg-background/95 py-2 backdrop-blur sm:mx-0 sm:flex-wrap sm:px-3">
       {/* 삽입 묶음(코드 블록·파일 트리·사진·표)을 앞에 둔다 — 모바일 가로 스크롤에서도 바로 보이도록 */}
-      <select
+      <Select
         title="코드 블록 — 언어를 골라 삽입 (코드 안에서는 언어 변경)"
         aria-label="코드 블록 언어"
+        placeholder="{ } 코드 블록"
+        keepFocus
         value={codeActive ? codeLang || "plaintext" : ""}
-        onChange={(e) => onCodeLanguage(e.target.value)}
-        className={`h-9 shrink-0 rounded-lg border px-1.5 text-sm outline-none ${codeActive ? "border-strong bg-strong-soft font-semibold text-strong" : "border-line bg-background text-muted"}`}
-      >
-        <option value="" disabled>
-          {"{ }"} 코드 블록
-        </option>
-        {codeActive && !knownLang && codeLang && <option value={codeLang}>{codeLang}</option>}
-        {CODE_LANGUAGES.map((l) => (
-          <option key={l.value} value={l.value}>
-            {l.label}
-          </option>
-        ))}
-        {codeActive && <option value="__off">코드 블록 해제</option>}
-      </select>
+        onChange={onCodeLanguage}
+        options={[
+          ...(codeActive && !knownLang && codeLang ? [{ value: codeLang, label: codeLang }] : []),
+          ...CODE_LANGUAGES.map((l) => ({ value: l.value, label: l.label })),
+          ...(codeActive ? [{ value: "__off", label: "코드 블록 해제", tone: "danger" as const }] : []),
+        ]}
+        className={`h-9 shrink-0 rounded-lg border px-2 text-sm ${codeActive ? "border-transparent bg-strong-soft font-semibold text-strong" : "border-line bg-background text-muted [&>span]:text-muted"}`}
+      />
       <Btn label="`c`" title="인라인 코드" active={editor.isActive("code")} onClick={() => c().toggleCode().run()} />
       <Btn label="사진" title="이미지 업로드" onClick={onPickImage} />
       <Btn label="파일 트리" title="파일 트리 삽입 — 들여쓰기로 폴더 구조를 적으면 트리로 그려집니다" onClick={() => c().insertContent({ type: "fileTree", attrs: { tree: FILE_TREE_SAMPLE } }).run()} />
@@ -311,21 +308,22 @@ export default function PostEditor({
       <input type="hidden" name="content" value={html} />
 
       <div className="mx-auto max-w-[768px]">
-        <select name="category" defaultValue={initial.category} className="field mb-4 w-auto! max-w-full rounded-full! py-2! text-sm! font-medium">
-          <option value="">카테고리 없음</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c.split("/").join(" › ")}
-            </option>
-          ))}
-        </select>
+        <Select
+          name="category"
+          aria-label="카테고리"
+          defaultValue={initial.category}
+          // 숨은 input 은 form 의 change 이벤트를 일으키지 않으므로 직접 표시한다
+          onChange={() => (dirtyRef.current = true)}
+          options={[{ value: "", label: "카테고리 없음" }, ...categories.map((c) => ({ value: c, label: c.split("/").join(" › ") }))]}
+          className="field mb-4 w-auto! max-w-full rounded-full! py-2! text-sm! font-medium"
+        />
 
         <input
           name="title"
           defaultValue={initial.title}
           required
           placeholder="제목을 입력하세요"
-          className="text-display mb-4 w-full border-b border-line bg-transparent pb-3 outline-none transition-colors placeholder:text-meta focus:border-strong"
+          className="text-display mb-4 w-full border-b border-line bg-transparent pb-3 outline-none placeholder:text-meta"
         />
       </div>
 

@@ -22,7 +22,7 @@ async function AdminNav() {
 
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
-    <div className="py-6 sm:py-10">
+    <div className="admin-ui py-6 sm:py-10">
       <Suspense fallback={null}>
         <AdminNav />
       </Suspense>

@@ -114,6 +114,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 /* 입력: input, select, textarea 공통 */
 .field       { min-height: 44px; padding: 10px 14px; border-radius: 12px; background: var(--surface); font-size: 15px; }
 .field:focus { border-color: var(--strong); background: var(--background); }
+.admin-ui .field:focus { border-color: transparent; background: var(--surface); }   /* 관리자 화면: 포커스해도 테두리·외곽선 변화 없음 */
 .field-label { margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
 
 /* 기타 */
@@ -121,6 +122,8 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 .skeleton { border-radius: 8px; background: var(--surface); animation: pulse; }
 .empty    { padding: 56px 16px; border: 1px dashed var(--line); border-radius: 16px; text-align: center; color: var(--meta); }
 ```
+
+드롭다운은 기본 `<select>` 대신 `src/components/ui/common/Select` 를 씁니다. 여는 버튼은 `.field`(또는 넘긴 클래스), 목록은 `bg-elevated` + `shadow-pop` 팝오버(모서리 12px, 항목 높이 36px)이며 선택된 항목은 강조 색과 체크 표시로 나타냅니다.
 
 같은 모양은 `src/components/ui/common` 의 컴포넌트(`Button`, `Chip`, `Card`)로도 쓸 수 있습니다. 링크나 `form` 버튼처럼 태그가 정해진 곳에서는 클래스를 직접 붙입니다.
 
