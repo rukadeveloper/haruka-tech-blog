@@ -98,7 +98,6 @@ function ImageView({ node, updateAttributes, selected, deleteNode }: NodeViewPro
           alt={node.attrs.alt ?? ""}
           draggable={false}
           style={{ width: width ? `${width}px` : undefined, maxWidth: "100%", height: "auto", display: "block", minHeight: loaded ? undefined : 140 }}
-          className={selected ? "outline-2 outline-offset-2 outline-strong" : ""}
         />
         {selected && (
           <>

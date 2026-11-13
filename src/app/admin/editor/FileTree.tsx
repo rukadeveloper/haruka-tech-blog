@@ -13,7 +13,7 @@ function FileTreeView({ node, updateAttributes, deleteNode, selected }: NodeView
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
 
   return (
-    <NodeViewWrapper className={`my-5 rounded-2xl border bg-subtle p-3 ${selected ? "border-strong" : "border-line"}`} contentEditable={false}>
+    <NodeViewWrapper className={`my-5 rounded-2xl border border-line p-3 ${selected ? "bg-surface" : "bg-subtle"}`} contentEditable={false}>
       <div className="mb-2 flex items-start gap-2 text-xs text-muted">
         <span className="shrink-0 font-semibold">파일 트리</span>
         <span className="text-meta">들여쓰기 2칸 = 한 단계 · 폴더는 이름 뒤에 / · ` # 설명` 으로 설명 추가 · tree 명령 출력도 붙여넣기 가능</span>

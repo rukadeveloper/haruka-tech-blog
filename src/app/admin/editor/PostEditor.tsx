@@ -107,7 +107,7 @@ function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => v
           ...CODE_LANGUAGES.map((l) => ({ value: l.value, label: l.label })),
           ...(codeActive ? [{ value: "__off", label: "코드 블록 해제", tone: "danger" as const }] : []),
         ]}
-        className={`h-9 shrink-0 rounded-lg border px-2 text-sm ${codeActive ? "border-strong bg-strong-soft font-semibold text-strong" : "border-line bg-background text-muted [&>span]:text-muted"}`}
+        className={`h-9 shrink-0 rounded-lg border px-2 text-sm ${codeActive ? "border-transparent bg-strong-soft font-semibold text-strong" : "border-line bg-background text-muted [&>span]:text-muted"}`}
       />
       <Btn label="`c`" title="인라인 코드" active={editor.isActive("code")} onClick={() => c().toggleCode().run()} />
       <Btn label="사진" title="이미지 업로드" onClick={onPickImage} />
