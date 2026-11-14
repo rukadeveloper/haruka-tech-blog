@@ -50,6 +50,7 @@
   --press-lg: 0.98;               /* 눌렀을 때 크기 (카드) */
   --pop-from: scale(0.96);        /* 팝오버가 나타나기 시작하는 모양 */
   --slide-from: translateY(-8px); /* 헤더 아래에서 내려오는 메뉴 */
+  --knob-stretch: 6px;            /* 토글 스위치를 누르는 동안 손잡이가 늘어나는 길이 */
 }
 
 [data-theme="dark"] {
@@ -89,7 +90,7 @@
 
 /* 움직임 줄이기: 크기·위치 변화는 없애고 짧은 투명도 전환만 남긴다 */
 @media (prefers-reduced-motion: reduce) {
-  :root { --press: 1; --press-lg: 1; --pop-from: none; --slide-from: none; }
+  :root { --press: 1; --press-lg: 1; --pop-from: none; --slide-from: none; --knob-stretch: 0px; }
 }
 /* 투명도 줄이기 · 대비 높이기: 재질을 불투명하게, 선은 또렷하게 */
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
@@ -150,6 +151,10 @@ body {
 
 /* 테마 전환(ThemeToggle)은 화면 전체를 짧게 교차 페이드한다 — 밝기가 갑자기 바뀌지 않도록 */
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 240ms; animation-timing-function: ease; }
+/* 토글 스위치는 교차 페이드에서 빼 살아 있는 새 화면을 바로 보여준다 — 손잡이가 미끄러지는 전환이 그대로 보이도록 */
+.theme-switch { view-transition-name: theme-switch; }
+::view-transition-old(theme-switch) { display: none; }
+::view-transition-new(theme-switch) { animation: none; }
 
 /* ───────── 클래스 정의 (DESIGN.md) — 모바일 값이 기본, 넓은 화면에서 키운다 ───────── */
 @layer components {
@@ -253,6 +258,29 @@ body {
   }
   .icon-btn:active { transform: scale(var(--press)); }
   @media (hover: hover) { .icon-btn:hover { background: var(--surface); color: var(--foreground); } }
+  /* 테마 토글 스위치 (ThemeToggle) — 손잡이 위치와 아이콘은 html[data-theme] 를 따른다. 켜짐 = 다크 */
+  .theme-switch { display: inline-flex; align-items: center; height: 44px; padding-inline: 6px; border-radius: 999px; cursor: pointer; }
+  .theme-switch-track {
+    position: relative; width: 52px; height: 30px; border-radius: 999px;
+    background: var(--surface-hover); box-shadow: inset 0 0 0 1px var(--line);
+    transition: background-color var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
+  }
+  .theme-switch-knob {
+    position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 999px;
+    display: grid; place-items: center; background: var(--on-strong); color: var(--warning);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+    transition: transform var(--dur-slow) var(--ease-out), width var(--dur) var(--ease-out), color var(--dur);
+  }
+  .theme-switch-knob svg { grid-area: 1 / 1; transition: opacity var(--dur), transform var(--dur-slow) var(--ease-out); }
+  .theme-switch-moon { opacity: 0; transform: rotate(-60deg); }
+  [data-theme="dark"] .theme-switch-track { background: var(--strong); box-shadow: inset 0 0 0 1px transparent; }
+  [data-theme="dark"] .theme-switch-knob { transform: translateX(22px); color: var(--strong); }
+  [data-theme="dark"] .theme-switch-sun { opacity: 0; transform: rotate(60deg); }
+  [data-theme="dark"] .theme-switch-moon { opacity: 1; transform: none; }
+  /* 누르고 있는 동안 손잡이가 가려는 쪽으로 늘어난다 */
+  .theme-switch:active .theme-switch-knob { width: calc(24px + var(--knob-stretch)); }
+  [data-theme="dark"] .theme-switch:active .theme-switch-knob { transform: translateX(calc(22px - var(--knob-stretch))); }
+
   /* 눌림 반응만 필요한 링크·카드에 붙인다. 카드처럼 큰 요소는 .pressable-lg 를 함께 */
   .pressable {
     transition: background-color var(--dur), border-color var(--dur), color var(--dur), transform var(--dur-press) var(--ease-out);
