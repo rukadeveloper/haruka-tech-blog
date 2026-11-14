@@ -74,7 +74,7 @@ function Nav({ adminLink, adminLinkMobile, pathname }: Props) {
         data-open={open ? "true" : undefined}
         inert={!open}
         onClick={() => setOpen(false)}
-        className="mobile-menu material-thick sm:hidden"
+        className="mobile-menu glass-thick sm:hidden"
       >
         {links("nav-link flex h-12 items-center rounded-xl px-3 text-base hover:bg-surface")}
         {adminLinkMobile}

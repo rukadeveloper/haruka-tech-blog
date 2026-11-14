@@ -93,7 +93,7 @@ function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => v
 
   return (
     // 모바일은 한 줄 가로 스크롤(화면 끝까지), sm 부터 여러 줄로 감싼다
-    <div className="scroll-row sticky top-14 z-20 items-center gap-0.5! border-y border-line bg-background/95 py-2 backdrop-blur sm:mx-0 sm:flex-wrap sm:px-3">
+    <div className="scroll-row sticky top-[68px] z-20 sm:top-[72px] items-center gap-0.5! border-y border-line bg-background/95 py-2 backdrop-blur sm:mx-0 sm:flex-wrap sm:px-3">
       {/* 삽입 묶음(코드 블록·파일 트리·사진·표)을 앞에 둔다 — 모바일 가로 스크롤에서도 바로 보이도록 */}
       <Select
         title="코드 블록 — 언어를 골라 삽입 (코드 안에서는 언어 변경)"

@@ -58,7 +58,7 @@ export default function ConfirmDeleteButton({ target, description, className }: 
               aria-modal="true"
               aria-labelledby="confirm-delete-title"
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-3xl border border-line bg-elevated p-6 text-foreground shadow-pop"
+              className="glass-thick w-full max-w-sm rounded-3xl p-6 text-foreground"
             >
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-danger-soft text-danger">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

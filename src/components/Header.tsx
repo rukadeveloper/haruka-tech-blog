@@ -5,10 +5,10 @@ import HeaderNav from "./HeaderNav";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50">
-      {/* 반투명 바탕과 스크롤 구분선 (globals.css .site-header-bg) */}
-      <div className="site-header-bg" aria-hidden />
-      <div className="container-page relative flex h-14 items-center sm:justify-between">
+    // 화면 위에 띄운 둥근 유리 바 (globals.css .site-header)
+    <header className="site-header">
+      <div className="site-header-bar sm:justify-between">
+        <div className="site-header-bg" aria-hidden />
         <Link href="/" className="text-lg font-extrabold tracking-tight sm:mr-auto">
           eunhaa<span className="text-strong"> tech</span>
         </Link>

@@ -178,7 +178,7 @@ export default function Select({
             data-up={pos.bottom !== undefined ? "true" : undefined}
             // 항목을 눌러도 버튼(또는 에디터)의 포커스가 유지되도록
             onMouseDown={(e) => e.preventDefault()}
-            className="select-pop material-thick fixed z-[70] overflow-y-auto rounded-xl border border-line p-1 text-foreground"
+            className="select-pop glass-thick fixed z-[70] overflow-y-auto rounded-xl p-1 text-foreground"
           >
             {options.map((o, i) => {
               const isSelected = o.value === current;

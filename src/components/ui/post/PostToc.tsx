@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { TocItem } from "@/lib/toc";
 
-// 헤더(sticky, 56px) 아래로 제목이 내려오는 기준선 — CSS scroll-margin-top 과 맞춘다
-const ACTIVE_OFFSET = 96;
+// 헤더 바(위에서 8–12px 띄운 56px) 아래로 제목이 내려오는 기준선 — CSS scroll-margin-top(100px) 보다 조금 아래
+const ACTIVE_OFFSET = 108;
 
 function ListIcon() {
   return (
@@ -84,7 +84,7 @@ export default function PostToc({ items }: { items: TocItem[] }) {
   useEffect(() => {
     const el = inlineRef.current;
     if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setInlineVisible(entry.isIntersecting), { rootMargin: "-56px 0px 0px 0px" });
+    const io = new IntersectionObserver(([entry]) => setInlineVisible(entry.isIntersecting), { rootMargin: "-68px 0px 0px 0px" });
     io.observe(el);
     return () => io.disconnect();
   }, []);
