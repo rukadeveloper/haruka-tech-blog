@@ -37,6 +37,9 @@ export default function ThemeToggle() {
     <button
       type="button"
       role="switch"
+      // 서버는 테마를 모르므로 false 로 그리고, 실제 값은 아래 ref 와 toggle 이 DOM 에 쓴다
+      aria-checked={false}
+      suppressHydrationWarning
       ref={(el) => el?.setAttribute("aria-checked", String(isDark()))}
       onClick={toggle}
       className="theme-switch"
