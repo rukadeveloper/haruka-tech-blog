@@ -12,7 +12,7 @@ export default function Pagination({
   if (total <= 1) return null;
   const href = (n: number) => (n === 1 ? base : `${base}?page=${n}`);
   const box =
-    "inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-2 text-[15px] font-medium text-muted transition-colors hover:bg-surface hover:text-foreground";
+    "inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-2 text-[15px] font-medium text-muted pressable hover:bg-surface hover:text-foreground";
   return (
     <nav aria-label="페이지" className="mt-14 flex flex-wrap justify-center gap-1 sm:mt-20 sm:gap-2">
       {page > 1 && (

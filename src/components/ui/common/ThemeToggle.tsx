@@ -12,7 +12,15 @@ export default function ThemeToggle() {
   const toggle = () => {
     const root = document.documentElement;
     const next = root.dataset.theme === "dark" ? "light" : "dark";
-    root.dataset.theme = next;
+    const apply = () => {
+      root.dataset.theme = next;
+    };
+    // 밝기가 갑자기 바뀌지 않도록 화면을 교차 페이드한다 (지원하지 않거나 움직임 줄이기를 켠 경우는 바로 전환)
+    if ("startViewTransition" in document && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.startViewTransition(apply);
+    } else {
+      apply();
+    }
     try {
       localStorage.setItem(THEME_KEY, next);
     } catch {

@@ -174,9 +174,11 @@ export default function Select({
             role="listbox"
             aria-label={ariaLabel}
             style={pos}
+            // 위로 열렸으면 아래쪽(버튼 쪽) 모서리에서 펼쳐진다
+            data-up={pos.bottom !== undefined ? "true" : undefined}
             // 항목을 눌러도 버튼(또는 에디터)의 포커스가 유지되도록
             onMouseDown={(e) => e.preventDefault()}
-            className="fixed z-[70] overflow-y-auto rounded-xl border border-line bg-elevated p-1 text-foreground shadow-pop"
+            className="select-pop material-thick fixed z-[70] overflow-y-auto rounded-xl border border-line p-1 text-foreground"
           >
             {options.map((o, i) => {
               const isSelected = o.value === current;

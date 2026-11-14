@@ -59,26 +59,26 @@ function Nav({ adminLink, adminLinkMobile, pathname }: Props) {
           onClick={() => setOpen((v) => !v)}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-            {open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            {/* 두 아이콘을 겹쳐 두고 교차 페이드한다 */}
+            <path d="M4 7h16M4 12h16M4 17h16" className={`transition-opacity duration-(--dur) ${open ? "opacity-0" : ""}`} />
+            <path d="M6 6l12 12M18 6L6 18" className={`transition-opacity duration-(--dur) ${open ? "" : "opacity-0"}`} />
           </svg>
         </button>
       </div>
 
-      {/* 모바일: 헤더 아래로 펼쳐지는 메뉴 */}
-      {open && (
-        <>
-          <div className="fixed inset-0 top-14 z-40 bg-black/30 sm:hidden" onClick={() => setOpen(false)} aria-hidden />
-          <nav
-            id="mobile-menu"
-            aria-label="주 메뉴"
-            onClick={() => setOpen(false)}
-            className="absolute inset-x-0 top-14 z-50 flex flex-col border-b border-line bg-background px-3 py-2 shadow-card sm:hidden"
-          >
-            {links("nav-link flex h-12 items-center rounded-xl px-3 text-base hover:bg-surface")}
-            {adminLinkMobile}
-          </nav>
-        </>
-      )}
+      {/* 모바일: 헤더 아래로 펼쳐지는 메뉴. 닫힐 때도 같은 길로 올라가도록 항상 그려 두고 data-open 으로 여닫는다 */}
+      <div className="menu-scrim sm:hidden" data-open={open ? "true" : undefined} onClick={() => setOpen(false)} aria-hidden />
+      <nav
+        id="mobile-menu"
+        aria-label="주 메뉴"
+        data-open={open ? "true" : undefined}
+        inert={!open}
+        onClick={() => setOpen(false)}
+        className="mobile-menu material-thick sm:hidden"
+      >
+        {links("nav-link flex h-12 items-center rounded-xl px-3 text-base hover:bg-surface")}
+        {adminLinkMobile}
+      </nav>
     </>
   );
 }
