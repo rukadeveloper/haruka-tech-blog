@@ -9,6 +9,9 @@
 - **글꼴**: Pretendard Variable (`--font-sans`), 코드는 Geist Mono (`--font-mono`).
 - **터치 크기**: 누를 수 있는 요소의 높이는 최소 36px, 주요 버튼과 입력은 44px.
 - 모서리는 둥글게(12–16px), 선은 얇게, 그림자는 꼭 떠 있어야 하는 요소(팝오버, 플로팅 버튼)에만 씁니다.
+- **반응은 누르는 순간에**: 누를 수 있는 요소는 `:active` 에서 바로 살짝 줄어듭니다. hover 스타일은 `@media (hover: hover)` 안에만 둡니다.
+- **들어온 길로 나간다**: 메뉴와 팝오버는 자신을 연 버튼 쪽에서 나타나고 같은 곳으로 사라집니다. 꾸미기 위한 움직임은 넣지 않습니다.
+- **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "재질").
 
 ## 색 토큰
 
@@ -59,6 +62,60 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 
 그림자: `shadow-card` (카드가 떠 보여야 할 때), `shadow-pop` (팝오버, 모달).
 
+## 움직임
+
+```css
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);   /* 튀지 않고 빠르게 붙는 곡선 — 모든 전환이 함께 쓴다 */
+  --dur-press: 100ms;              /* 눌림 반응 */
+  --dur: 200ms;                    /* 색, 팝오버, 메뉴 */
+  --dur-slow: 320ms;               /* 썸네일 확대처럼 큰 면 */
+  --press: 0.97;                   /* 눌렀을 때 크기 (버튼, 칩, 아이콘 버튼) */
+  --press-lg: 0.98;                /* 눌렀을 때 크기 (카드) */
+  --pop-from: scale(0.96);         /* 팝오버가 나타나기 시작하는 모양 */
+  --slide-from: translateY(-8px);  /* 헤더 아래에서 내려오는 메뉴 */
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --press: 1; --press-lg: 1; --pop-from: none; --slide-from: none; }   /* 투명도 전환만 남는다 */
+}
+
+.pressable    { transition: 색 var(--dur), transform var(--dur-press) var(--ease-out); }   /* 눌림 반응만 필요한 링크·카드 */
+.pressable:active    { transform: scale(var(--press)); }
+.pressable-lg:active { transform: scale(var(--press-lg)); }
+```
+
+- `.btn`, `.chip`, `.icon-btn`, `.toc-float-btn` 은 눌림 반응이 들어 있습니다. 그 밖의 링크·카드에는 `.pressable` (카드는 `.pressable-lg` 함께)을 붙입니다.
+- 여닫는 요소는 조건부 렌더링 대신 `data-open` + `inert` 로 두어 닫힐 때도 전환이 보이고, 도중에 다시 눌러도 현재 위치에서 되돌아갑니다.
+- 팝오버의 `transform-origin` 은 연 버튼 쪽 모서리입니다 (Select: 위/아래 방향에 따라, 목차 패널: 모바일 오른쪽 아래 · `lg` 오른쪽 위).
+- 테마 전환은 View Transitions 로 화면을 240ms 교차 페이드합니다 (`ThemeToggle`).
+
+## 재질
+
+```css
+:root {
+  --material: rgba(255, 255, 255, 0.72);         /* 헤더 */
+  --material-thick: rgba(255, 255, 255, 0.86);   /* 팝오버, 모바일 메뉴, 플로팅 버튼 */
+  --material-edge: rgba(255, 255, 255, 0.7);     /* 위쪽 가장자리의 밝은 선 */
+  --material-filter: blur(20px) saturate(180%);
+}
+[data-theme="dark"] {
+  --material: rgba(23, 23, 28, 0.72);
+  --material-thick: rgba(32, 32, 39, 0.86);
+  --material-edge: rgba(255, 255, 255, 0.08);
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  /* 불투명 바탕, blur 없음. 대비 높이기에서는 --line 도 진해진다 */
+}
+
+.material-thick { background: var(--material-thick); backdrop-filter: var(--material-filter);
+                  box-shadow: inset 0 1px 0 var(--material-edge), var(--shadow-pop); }
+.site-header-bg { background: var(--material); backdrop-filter: var(--material-filter); }   /* 헤더 바탕 층 */
+```
+
+- 반투명 위에 반투명을 겹치지 않습니다. 팝오버 안쪽 항목의 hover·선택 표시는 불투명 색(`surface`, `strong-soft`)을 씁니다.
+- 헤더의 아래 구분선은 맨 위에서는 숨고, 스크롤해 내용이 헤더 아래로 들어오면 나타납니다 (스크롤 연동 애니메이션을 지원하지 않는 브라우저에서는 항상 보입니다).
+- 헤더 바탕은 `header` 가 아니라 안쪽 `.site-header-bg` 층에 깝니다. `header` 에 `backdrop-filter` 를 걸면 그 안의 `position: fixed` 요소(모바일 메뉴 딤)가 헤더 크기에 갇힙니다.
+
 ## 레이아웃
 
 ```css
@@ -73,13 +130,17 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 ## 타이포
 
 ```css
-.text-display { font-size: 28px; line-height: 1.3;  font-weight: 800; letter-spacing: -0.02em; }  /* sm: 40px, lg: 48px — 페이지 제목 */
-.text-title   { font-size: 22px; line-height: 1.35; font-weight: 700; letter-spacing: -0.01em; }  /* sm: 28px — 구획 제목 */
-.text-heading { font-size: 18px; line-height: 1.4;  font-weight: 700; }                           /* sm: 20px — 카드 제목 */
+.text-display { font-size: 28px; line-height: 1.3;  font-weight: 800; letter-spacing: -0.02em; }   /* 페이지 제목 */
+              /* sm: 40px / 1.2 / -0.025em    lg: 48px / 1.15 / -0.03em */
+.text-title   { font-size: 22px; line-height: 1.35; font-weight: 700; letter-spacing: -0.015em; }  /* 구획 제목 */
+              /* sm: 28px / 1.3 / -0.02em */
+.text-heading { font-size: 18px; line-height: 1.4;  font-weight: 700; letter-spacing: -0.01em; }   /* sm: 20px — 카드 제목 */
 .text-body    { font-size: 16px; line-height: 1.7; }
 .text-body-sm { font-size: 15px; line-height: 1.6; }
 .text-caption { font-size: 13px; line-height: 1.5;  color: var(--meta); }
 ```
+
+자간과 줄 간격은 크기를 따라갑니다 — 글자가 커질수록 좁게, 본문은 0 으로 둡니다. `.text-display`, `.text-title` 과 본문 `h2`·`h3` 은 `text-wrap: balance` 로 줄 길이를 고르게 나눕니다.
 
 ## 컴포넌트 클래스
 
@@ -123,7 +184,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 .empty    { padding: 56px 16px; border: 1px dashed var(--line); border-radius: 16px; text-align: center; color: var(--meta); }
 ```
 
-드롭다운은 기본 `<select>` 대신 `src/components/ui/common/Select` 를 씁니다. 여는 버튼은 `.field`(또는 넘긴 클래스), 목록은 `bg-elevated` + `shadow-pop` 팝오버(모서리 12px, 항목 높이 36px)이며 선택된 항목은 강조 색과 체크 표시로 나타냅니다.
+드롭다운은 기본 `<select>` 대신 `src/components/ui/common/Select` 를 씁니다. 여는 버튼은 `.field`(또는 넘긴 클래스), 목록은 `.material-thick` 팝오버(모서리 12px, 항목 높이 36px)이며 선택된 항목은 강조 색과 체크 표시로 나타냅니다.
 
 같은 모양은 `src/components/ui/common` 의 컴포넌트(`Button`, `Chip`, `Card`)로도 쓸 수 있습니다. 링크나 `form` 버튼처럼 태그가 정해진 곳에서는 클래스를 직접 붙입니다.
 
@@ -132,7 +193,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 글 본문은 HTML 문자열이라 클래스를 붙일 수 없으므로 `.post-body` 아래 태그 선택자로 꾸밉니다. 공개 글, 관리자 미리보기, 에디터(`.post-body.editor-body`)가 같은 규칙을 써서 쓰는 화면과 발행된 화면이 같게 보입니다.
 
 - 읽는 폭 768px, 본문 16px(sm: 17px) / 줄 간격 1.8.
-- `h2` 22px(sm: 26px), `h3` 19px(sm: 21px). 목차는 `h2`·`h3` 로 만듭니다.
+- `h2` 22px / -0.015em (sm: 26px / -0.02em), `h3` 19px(sm: 21px) / -0.01em. 목차는 `h2`·`h3` 로 만듭니다.
 - 표와 코드는 좁은 화면에서 가로로 스크롤합니다.
 - **코드 블록**: 테마와 무관하게 어두운 맥 창 모양 — 상단 바(점 3개 + 언어 라벨), 줄 번호, 모서리 14px. 토큰은 `--cb-body`, `--cb-head`, `--cb-text`, `--cb-num`, `--cb-lang`. 언어 라벨은 `src/lib/code-languages.ts` 의 목록과 맞춥니다.
 - **파일 트리** (`.file-tree`): 코드 블록과 짝을 이루는 창 모양 — `FILES` 상단 바, 폴더(강조 색)·파일 아이콘, 가지 선, `# 설명`.

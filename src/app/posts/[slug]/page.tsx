@@ -48,7 +48,7 @@ async function Article({ params }: { params: PageProps<"/posts/[slug]">["params"
       {/* 이전·다음 글: 모바일은 위아래, sm 부터 좌우 */}
       <nav aria-label="이전·다음 글" className="container-prose mt-14 grid gap-3 sm:mt-20 sm:grid-cols-2">
         {prev ? (
-          <Link href={`/posts/${prev.slug}`} className="card group p-4 transition-colors hover:border-strong">
+          <Link href={`/posts/${prev.slug}`} className="card pressable pressable-lg group p-4 hover:border-strong">
             <span className="text-caption">← 이전 글</span>
             <div className="text-body-sm mt-1 line-clamp-2 font-semibold group-hover:text-strong">{prev.title}</div>
           </Link>
@@ -56,7 +56,7 @@ async function Article({ params }: { params: PageProps<"/posts/[slug]">["params"
           <span className="hidden sm:block" />
         )}
         {next && (
-          <Link href={`/posts/${next.slug}`} className="card group p-4 transition-colors hover:border-strong sm:text-right">
+          <Link href={`/posts/${next.slug}`} className="card pressable pressable-lg group p-4 hover:border-strong sm:text-right">
             <span className="text-caption">다음 글 →</span>
             <div className="text-body-sm mt-1 line-clamp-2 font-semibold group-hover:text-strong">{next.title}</div>
           </Link>
