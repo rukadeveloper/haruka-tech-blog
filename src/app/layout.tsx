@@ -46,7 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <Header />
         <main className="container-page flex-1">{children}</main>
-        <footer className="mt-auto border-t border-line bg-footer">
+        <footer className="site-footer">
           <div className="container-page flex flex-col gap-4 py-8 sm:flex-row sm:items-end sm:justify-between sm:py-10">
             <div>
               <strong className="text-base font-extrabold tracking-tight">

@@ -11,7 +11,7 @@
 - 모서리는 둥글게(12–16px), 선은 얇게, 그림자는 꼭 떠 있어야 하는 요소(팝오버, 플로팅 버튼)에만 씁니다.
 - **반응은 누르는 순간에**: 누를 수 있는 요소는 `:active` 에서 바로 살짝 줄어듭니다. hover 스타일은 `@media (hover: hover)` 안에만 둡니다.
 - **들어온 길로 나간다**: 메뉴와 팝오버는 자신을 연 버튼 쪽에서 나타나고 같은 곳으로 사라집니다. 꾸미기 위한 움직임은 넣지 않습니다.
-- **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "재질").
+- **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "글래스").
 
 ## 색 토큰
 
@@ -87,34 +87,52 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 - `.btn`, `.chip`, `.icon-btn`, `.toc-float-btn` 은 눌림 반응이 들어 있습니다. 그 밖의 링크·카드에는 `.pressable` (카드는 `.pressable-lg` 함께)을 붙입니다.
 - 여닫는 요소는 조건부 렌더링 대신 `data-open` + `inert` 로 두어 닫힐 때도 전환이 보이고, 도중에 다시 눌러도 현재 위치에서 되돌아갑니다.
 - 팝오버의 `transform-origin` 은 연 버튼 쪽 모서리입니다 (Select: 위/아래 방향에 따라, 목차 패널: 모바일 오른쪽 아래 · `lg` 오른쪽 위).
-- 테마 전환은 View Transitions 로 화면을 240ms 교차 페이드합니다 (`ThemeToggle`).
+- 테마 전환은 View Transitions 로 화면을 240ms 교차 페이드합니다 (`ThemeToggle`). 토글 스위치만은 교차 페이드에서 빼 손잡이가 미끄러지는 모습이 그대로 보입니다.
 
-## 재질
+## 글래스
+
+공개 화면의 면은 뒤가 비쳐 보이는 유리입니다. 유리는 뒤에 비칠 것이 있어야 보이므로, 바탕에 강조 색 계열의 옅은 색 번짐(`--ambient`)을 화면에 고정해 깝니다 (`body::before`, 움직이지 않음).
 
 ```css
 :root {
-  --material: rgba(255, 255, 255, 0.72);         /* 헤더 */
-  --material-thick: rgba(255, 255, 255, 0.86);   /* 팝오버, 모바일 메뉴, 플로팅 버튼 */
-  --material-edge: rgba(255, 255, 255, 0.7);     /* 위쪽 가장자리의 밝은 선 */
-  --material-filter: blur(20px) saturate(180%);
+  --glass: rgba(255, 255, 255, 0.55);         /* 카드, 헤더 바, 푸터, 목차 상자 */
+  --glass-thick: rgba(255, 255, 255, 0.8);    /* 팝오버, 모바일 메뉴, 확인 창, 플로팅 버튼 */
+  --glass-tint: rgba(255, 255, 255, 0.6);     /* 칩, 보조 버튼, 페이지 번호 — blur 없이 옅게 */
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-edge: rgba(255, 255, 255, 0.9);     /* 위쪽 가장자리에 맺히는 빛 (inset) */
+  --glass-filter: blur(24px) saturate(180%);
+  --shadow-glass: 0 0 0 1px rgba(0, 27, 55, 0.05), 0 1px 2px rgba(0, 27, 55, 0.04), 0 8px 32px rgba(0, 27, 55, 0.08);
+  --shadow-tint: 0 0 0 1px rgba(0, 27, 55, 0.05), 0 1px 2px rgba(0, 27, 55, 0.05);   /* 작은 유리 면용 얕은 그림자 */
+  --ambient: radial-gradient(…) × 4;          /* 파랑 · 보라 · 하늘 · 남색, 불투명도 0.14–0.2 */
 }
 [data-theme="dark"] {
-  --material: rgba(23, 23, 28, 0.72);
-  --material-thick: rgba(32, 32, 39, 0.86);
-  --material-edge: rgba(255, 255, 255, 0.08);
-}
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  /* 불투명 바탕, blur 없음. 대비 높이기에서는 --line 도 진해진다 */
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-thick: rgba(36, 36, 46, 0.8);
+  --glass-tint: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-edge: rgba(255, 255, 255, 0.14);
+  --shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
-.material-thick { background: var(--material-thick); backdrop-filter: var(--material-filter);
-                  box-shadow: inset 0 1px 0 var(--material-edge), var(--shadow-pop); }
-.site-header-bg { background: var(--material); backdrop-filter: var(--material-filter); }   /* 헤더 바탕 층 */
+.glass       { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-filter);
+               box-shadow: inset 0 1px 0 var(--glass-edge), var(--shadow-glass); }
+.glass-thick { background: var(--glass-thick); /* 나머지는 .glass 와 같고 그림자만 */ box-shadow: …, var(--shadow-pop); }
+.glass-tint  { background: var(--glass-tint); box-shadow: inset 0 0 0 1px var(--glass-border), var(--shadow-tint); }
 ```
 
-- 반투명 위에 반투명을 겹치지 않습니다. 팝오버 안쪽 항목의 hover·선택 표시는 불투명 색(`surface`, `strong-soft`)을 씁니다.
-- 헤더의 아래 구분선은 맨 위에서는 숨고, 스크롤해 내용이 헤더 아래로 들어오면 나타납니다 (스크롤 연동 애니메이션을 지원하지 않는 브라우저에서는 항상 보입니다).
-- 헤더 바탕은 `header` 가 아니라 안쪽 `.site-header-bg` 층에 깝니다. `header` 에 `backdrop-filter` 를 걸면 그 안의 `position: fixed` 요소(모바일 메뉴 딤)가 헤더 크기에 갇힙니다.
+- **유리 위에 유리를 겹치지 않습니다.** 유리 면 안쪽의 입력(`.field`), hover, 선택 표시는 단색(`surface`, `strong-soft`)을 씁니다.
+- **글 본문(`.post-body`)은 유리에 올리지 않습니다.** 긴 글은 바탕 위에 그대로 두고, 코드 블록과 파일 트리도 불투명합니다.
+- **관리자 화면(`.admin-ui`)은 유리를 쓰지 않습니다.** 에디터에는 카드 안에 `fixed`·`sticky` 요소가 있어 `backdrop-filter` 가 배치를 깨뜨립니다. `.admin-ui` 가 글래스 토큰을 불투명 값으로 되돌리므로 같은 클래스(`.card`, `.chip` …)를 그대로 써도 됩니다.
+- `prefers-reduced-transparency`, `prefers-contrast: more` 에서도 같은 방식으로 토큰이 불투명해지고 색 번짐이 꺼집니다.
+- `backdrop-filter` 가 걸린 요소는 그 안의 `position: fixed` 요소를 자기 크기에 가두고, 안쪽 요소의 blur 가 바깥을 비추지 못하게 합니다. 그래서 헤더는 바 자체가 아니라 안쪽 `.site-header-bg` 층에 유리를 깝니다 (모바일 메뉴 딤과 메뉴의 blur 가 화면 전체에 닿도록).
+
+### 헤더 바 (`.site-header`)
+
+화면 위에서 8px(sm: 12px) 띄운 높이 56px 의 둥근(20px) 유리 바입니다. 바깥 여백(8 / 12px) + 바 안쪽 여백(12px)이 `.container-page` 의 여백(20 / 24px)과 같아 로고가 본문과 줄이 맞습니다. 헤더 아래에 붙는 요소는 이 높이(68 / 72px)를 기준으로 잡습니다 — 본문 제목의 `scroll-margin-top`, `PostToc` 의 기준선, 에디터 툴바의 `top`.
+
+### 테마 토글 스위치 (`.theme-switch`)
+
+52×30px 트랙 위를 24px 손잡이가 미끄러집니다 (켜짐 = 다크). 손잡이 위치와 해·달 아이콘은 `html[data-theme]` 를 CSS 가 읽어 정하므로 컴포넌트에 상태가 없습니다. 누르는 동안 손잡이가 `--knob-stretch` 만큼 늘어납니다.
 
 ## 레이아웃
 
@@ -146,7 +164,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 
 ```css
 /* 카드 */
-.card     { background: var(--elevated); border: 1px solid var(--line); border-radius: 16px; }
+.card     { /* .glass 와 같은 유리 면 */ border-radius: 20px; }
 .card-pad { padding: 20px; }                                         /* sm: 24px */
 
 /* 버튼: .btn + 모양 하나. 작게는 .btn-sm, 가로로 꽉 채울 때 .btn-block */
@@ -154,7 +172,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 .btn-sm           { height: 36px; padding-inline: 12px; border-radius: 10px; font-size: 14px; }
 .btn-block        { width: 100%; }
 .btn-primary      { background: var(--strong);  color: var(--on-strong); }   /* 화면의 주된 행동 하나 */
-.btn-secondary    { background: var(--surface); color: var(--foreground); }
+.btn-secondary    { background: var(--glass-tint); color: var(--foreground); }  /* + 유리 테두리 */
 .btn-ghost        { color: var(--muted); }                                   /* 바탕 없음, hover 시 surface */
 .btn-danger       { color: var(--danger); }                                  /* 삭제 (바탕 없음) */
 .btn-danger-solid { background: var(--danger);  color: #fff; }               /* 삭제 확인 */
@@ -162,7 +180,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 .icon-btn         { width: 40px; height: 40px; border-radius: 12px; color: var(--muted); }
 
 /* 칩: 선택된 항목은 aria-current="page" 또는 data-active="true" */
-.chip       { height: 36px; padding-inline: 14px; border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 15px; }
+.chip       { height: 36px; padding-inline: 14px; border-radius: 999px; background: var(--glass-tint); color: var(--muted); font-size: 15px; }
 .chip[aria-current="page"] { background: var(--foreground); color: var(--background); }
 .chip-count { font-size: 13px; opacity: 0.7; }
 
@@ -184,7 +202,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 .empty    { padding: 56px 16px; border: 1px dashed var(--line); border-radius: 16px; text-align: center; color: var(--meta); }
 ```
 
-드롭다운은 기본 `<select>` 대신 `src/components/ui/common/Select` 를 씁니다. 여는 버튼은 `.field`(또는 넘긴 클래스), 목록은 `.material-thick` 팝오버(모서리 12px, 항목 높이 36px)이며 선택된 항목은 강조 색과 체크 표시로 나타냅니다.
+드롭다운은 기본 `<select>` 대신 `src/components/ui/common/Select` 를 씁니다. 여는 버튼은 `.field`(또는 넘긴 클래스), 목록은 `.glass-thick` 팝오버(모서리 12px, 항목 높이 36px)이며 선택된 항목은 강조 색과 체크 표시로 나타냅니다.
 
 같은 모양은 `src/components/ui/common` 의 컴포넌트(`Button`, `Chip`, `Card`)로도 쓸 수 있습니다. 링크나 `form` 버튼처럼 태그가 정해진 곳에서는 클래스를 직접 붙입니다.
 

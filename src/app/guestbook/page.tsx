@@ -55,7 +55,7 @@ async function GuestbookContent() {
 
   return (
     <>
-      <Card as="section" className="bg-subtle">
+      <Card as="section">
         {user ? (
           <div className="space-y-4">
             <UserBar user={user} logout={guestbookLogout} />

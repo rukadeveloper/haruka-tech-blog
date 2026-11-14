@@ -20,11 +20,13 @@ export default function BlogSkeleton() {
 
       <ul className={POST_GRID}>
         {Array.from({ length: 9 }, (_, i) => (
-          <li key={i} className="flex flex-col">
-            <div className="skeleton aspect-[16/9] !rounded-2xl" />
-            <div className="skeleton mt-4 h-[22px] w-28" />
-            <div className="skeleton mt-2 h-7 w-full" />
-            <div className="skeleton mt-1.5 h-6 w-5/6" />
+          <li key={i} className="card flex flex-col p-2.5">
+            <div className="skeleton aspect-[16/9] !rounded-[14px]" />
+            <div className="px-2 pt-4 pb-2.5">
+              <div className="skeleton h-[22px] w-28" />
+              <div className="skeleton mt-2 h-7 w-full" />
+              <div className="skeleton mt-1.5 h-6 w-5/6" />
+            </div>
           </li>
         ))}
       </ul>
