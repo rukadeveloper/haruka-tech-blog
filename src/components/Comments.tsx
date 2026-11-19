@@ -3,7 +3,7 @@ import { isAdmin } from "@/lib/auth";
 import { getComments, type Comment } from "@/lib/comments";
 import { formatDateTime } from "@/lib/format";
 import { getUser, isGithubConfigured, type SessionUser } from "@/lib/session";
-import { deleteComment, githubLogout } from "@/app/posts/[slug]/comment-actions";
+import { deleteComment, githubLogout } from "@/app/(site)/posts/[slug]/comment-actions";
 import CommentForm from "@/components/ui/comment/CommentForm";
 import ReplyToggle from "@/components/ui/comment/ReplyToggle";
 import GithubLoginLink from "@/components/ui/common/GithubLoginLink";
