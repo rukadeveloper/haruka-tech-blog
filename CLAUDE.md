@@ -29,6 +29,8 @@
 
 - 내 공인 IP 확인 (관리자 허용 목록용) : npm run admin:ip
 
+- 로고에서 파비콘 · 애플 아이콘 다시 만들기 : npm run icons (`src/app/icon.svg` 를 고친 뒤 실행. 모양 규칙은 DESIGN.md "로고")
+
 - 클로드 내부 명령 (새 브랜치 생성 & 커밋 & PR) : push-commit (`.claude/commands/push-commit.md`)
 
 # 디자인 원칙

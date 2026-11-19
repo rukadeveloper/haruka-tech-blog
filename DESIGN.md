@@ -14,6 +14,21 @@
 - **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "글래스").
 - **인트로 페이지(`/intro`)는 이 문서의 토큰 체계 밖입니다.** 검은 바탕 하나에 자체 값을 쓰며, 정의는 `.claude/rules/intro-page.md` 와 `src/app/intro/intro.css` 에 있습니다.
 
+## 로고
+
+Haruka 의 **H 모노그램**입니다. 흰 기둥 두 개 사이를 하늘색 가로획이 지나 오른쪽 기둥 밖으로 뻗습니다 (멀리 뻗는 지평선 — 遥か).
+
+```
+viewBox 0 0 64 64          한 칸 = 4 (16px 파비콘의 1px)
+바탕     64×64, rx 14        #4f46e5
+기둥     x 12–20, 36–44      y 16–48   #fff
+가로획   x 20–56, y 28–36    오른쪽 끝만 둥글게 (r 4)   #93c5fd — 오른쪽 기둥 뒤로 지난다
+```
+
+- 모든 좌표가 4 의 배수라 16px 로 줄여도 획이 픽셀에 딱 맞습니다. 값을 바꿀 때도 4 의 배수를 지킵니다.
+- 색은 테마와 무관하게 고정입니다. 라이트 · 다크 · 인트로의 흰 원 어디에 올려도 같은 그림을 씁니다.
+- 원본은 `src/app/icon.svg` 하나입니다. 헤더, 인트로, 브라우저 탭이 이 파일을 쓰고, `npm run icons` 가 여기서 `favicon.ico`(16 · 32 · 48px)와 `apple-icon.png`(180px, 모서리까지 바탕색으로 채움)를 만듭니다. 두 파일을 직접 고치지 않습니다.
+
 ## 색 토큰
 
 Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그대로 씁니다.
