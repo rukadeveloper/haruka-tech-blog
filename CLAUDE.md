@@ -15,6 +15,10 @@
 
 - src/lib : S3 업로드, 카테고리 관리 등 공통으로 사용할 로직들을 관리합니다.
 
+- src/app/(site) : 헤더와 푸터가 붙는 블로그 화면(홈, 글, 카테고리, About, 방명록, 관리자)입니다. 라우트 그룹이라 주소에는 나타나지 않습니다.
+
+- src/app/intro : 인트로 페이지(`/intro`)입니다. 헤더와 푸터가 붙지 않도록 `(site)` 밖에 둡니다.
+
 # 명령어
 
 - 개발 서버 : npm run dev
@@ -39,6 +43,8 @@
 
 - 공개 화면은 글래스(유리) 디자인이고 관리자 화면은 불투명합니다. 움직임과 유리 면은 DESIGN.md 의 토큰(`--ease-out`, `--dur*`, `--press*`, `--glass*`)과 클래스(`.glass`, `.glass-thick`, `.glass-tint`)로만 씁니다. 움직임 줄이기 · 투명도 줄이기 · 대비 높이기 설정은 그 토큰 값을 바꿔 처리하므로, 값을 직접 쓰면 설정이 무시됩니다.
 
+- 인트로 페이지(`/intro`)만 위 원칙의 예외입니다. 검은 바탕 하나에 자체 색 · 글꼴 · 움직임 값을 쓰며, 그 값은 `.claude/rules/intro-page.md` 에 고정해 두었습니다.
+
 # 전체 규칙
 
 - 먼저 계획 모드로 확인 후 최종 CLAUDE.md 파일을 구성 후 수정합니다.
@@ -59,11 +65,25 @@
 
 # 아키텍처
 
+## 레이아웃
+
+- 루트 레이아웃(`src/app/layout.tsx`)은 `html`, `body`, 글꼴, 테마 초기화 스크립트만 가집니다.
+- 블로그 헤더 · 본문 폭 · 푸터는 `src/components/SiteFrame.tsx` 이고, `src/app/(site)/layout.tsx` 가 블로그 화면에 씌웁니다.
+- `src/app/not-found.tsx` 는 없는 주소와 `notFound()` 를 함께 받습니다. 루트 레이아웃 바로 아래에 그려지므로 `SiteFrame` 을 직접 감쌉니다 (차단된 관리자 IP 도 이 화면을 봅니다).
+
+## 인트로 페이지 (`/intro`)
+
+- 한 화면을 채운 영상 위에 헤더 · 히어로 · 통계를 올린 랜딩 화면입니다. 구성 파일은 `src/app/intro/` 에 모여 있고 스타일은 `intro.module.css` 하나입니다.
+- 디자인 수치, 글꼴, 영상 주소, 움직임, 모바일 동작은 `.claude/rules/intro-page.md` 에 고정해 두었습니다. 인트로를 고칠 때는 그 파일을 따르고, 값을 바꾸면 그 파일도 함께 고칩니다.
+- 외부에 기대는 것: 배경 영상(CloudFront), 헤드라인 글꼴(OnlineWebFonts), 아이콘(cdnjs 의 Font Awesome). 글꼴 CDN 이 응답하지 않으면 Geist Pixel Circle(`src/app/fonts`)로 대체됩니다.
+- 통계 숫자는 `getAllPosts()`, `getCategories()` 에서 계산하므로 글 캐시 태그를 따라 갱신됩니다.
+- `globals.css` 의 `html:has([data-intro])` 규칙이 이 화면에서만 바탕을 검게 하고 스크롤과 색 번짐을 끕니다.
+
 ## 데이터 (Supabase)
 
 - 테이블: `posts`, `categories`, `comments`, `guestbook` (정의는 `db/schema.sql`).
 - 접근은 `src/lib/db.ts` 의 `db()` 하나로만 합니다. service role 키를 쓰는 서버 전용 클라이언트(`server-only`)라 클라이언트 컴포넌트에서 import 하면 빌드가 실패합니다.
-- 읽기는 `src/lib/*.ts` 의 함수, 쓰기는 Server Actions (`src/app/admin/actions.ts`, `src/app/posts/[slug]/comment-actions.ts`, `src/app/guestbook/actions.ts`).
+- 읽기는 `src/lib/*.ts` 의 함수, 쓰기는 Server Actions (`src/app/(site)/admin/actions.ts`, `src/app/(site)/posts/[slug]/comment-actions.ts`, `src/app/(site)/guestbook/actions.ts`).
 - 카테고리는 2단계이며 DB 에는 경로(`"FE"`, `"FE/Next.js"`)와 `position` 만 저장하고 트리는 읽을 때 만듭니다. 글의 `category` 는 그 경로 문자열입니다.
 
 ## 캐싱
