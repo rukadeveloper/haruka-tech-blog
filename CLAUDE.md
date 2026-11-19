@@ -77,6 +77,8 @@
 - 디자인 수치, 글꼴, 영상 주소, 움직임, 모바일 동작은 `.claude/rules/intro-page.md` 에 고정해 두었습니다. 인트로를 고칠 때는 그 파일을 따르고, 값을 바꾸면 그 파일도 함께 고칩니다.
 - 외부에 기대는 것: 배경 영상(CloudFront), 헤드라인 글꼴(OnlineWebFonts), 아이콘(cdnjs 의 Font Awesome). 글꼴 CDN 이 응답하지 않으면 Geist Pixel Circle(`src/app/fonts`)로 대체됩니다.
 - 통계 숫자는 `getAllPosts()`, `getCategories()` 에서 계산하므로 글 캐시 태그를 따라 갱신됩니다.
+- 블로그 홈(`/`)에 처음 들어오거나 홈에서 새로고침하면 `src/proxy.ts` 가 `/intro` 로 보냅니다. 사이트 안 이동은 보내지 않으며, 글 · 카테고리 · About · 방명록 · 관리자 주소는 대상이 아닙니다. 판정은 `src/lib/intro-gate.ts` (`Sec-Fetch-Dest: document`).
+- 그래서 홈으로 가는 링크는 `next/link` 로 씁니다. 문서를 새로 받는 이동(`<a href="/">`, `location.href`)은 인트로로 되돌아옵니다.
 - 인트로가 보이는 동안 `StageLock` 이 `html` 에 `data-intro` 를 붙이고, `globals.css` 의 `html[data-intro]` 규칙이 바탕을 검게 하고 스크롤과 색 번짐을 끕니다. `:has()` 로 화면 안의 표식을 찾으면 안 됩니다 — cacheComponents 는 떠난 화면의 DOM 을 숨긴 채 남겨 두므로 블로그 화면까지 잠깁니다.
 
 ## 데이터 (Supabase)
@@ -104,7 +106,7 @@
 
 - GitHub OAuth 로 만든 서명 쿠키 하나(`gh_session`, `src/lib/session.ts`)를 댓글 작성자와 관리자가 함께 씁니다.
 - 관리자 = **허용 IP** 이면서 **`ADMIN_GITHUB_LOGIN` 계정으로 로그인**한 경우입니다.
-  - `src/proxy.ts` 가 `/admin` 이하 요청을 IP 로 걸러 허용되지 않으면 404 를 보여줍니다.
+  - `src/proxy.ts` 가 `/admin` 이하 요청을 IP 로 걸러 허용되지 않으면 404 를 보여줍니다. (같은 파일이 홈 진입을 인트로로 보내는 일도 합니다 — "인트로 페이지" 참고)
   - `isAdmin()` (`src/lib/auth.ts`) 도 IP 를 다시 확인하므로 모든 Server Action 이 같은 규칙을 따릅니다. 각 관리자 액션은 스스로 `requireAdmin()` 을 호출해야 합니다.
   - 판정 로직은 `src/lib/admin-ip.ts`.
 - 허용 IP 설정: `ADMIN_ALLOWED_IPS` 에 쉼표로 구분해 적습니다 (IPv4/IPv6, CIDR 가능). 개발 모드에서는 localhost 가 자동 허용되고, 프로덕션에서 비어 있으면 전부 차단됩니다. 차단된 IP 는 서버 로그에 찍히므로 그대로 복사해 추가하면 됩니다.
