@@ -12,7 +12,7 @@ paths:
 CLAUDE.md 와 DESIGN.md 의 디자인 규칙은 이 화면에 적용하지 않습니다.
 
 - 테마는 검은 바탕 하나뿐입니다. 라이트/다크 전환, `data-theme`, DESIGN.md 의 색 · 글래스 · 움직임 토큰과 `.glass*`, `.btn`, `.chip` 같은 클래스를 쓰지 않습니다.
-- 색과 수치는 `intro.module.css` 의 `.root` 에 선언한 자체 변수와 명세의 값을 그대로 씁니다.
+- 색과 수치는 `intro.css` 의 `.intro-root` 에 선언한 자체 변수와 명세의 값을 그대로 씁니다.
 - 분기는 모바일 퍼스트가 아니라 명세대로 `max-width: 720px`, `max-width: 420px`, `max-height: 700px` 입니다.
 - 모바일 메뉴는 `hidden` 속성으로 여닫고 나타날 때만 움직입니다 (`data-open` + `inert` 규칙을 따르지 않습니다).
 - 블로그 헤더 · 푸터가 붙지 않도록 라우트 그룹 `(site)` 밖(`src/app/intro`)에 둡니다.
@@ -23,16 +23,19 @@ CLAUDE.md 와 DESIGN.md 의 디자인 규칙은 이 화면에 적용하지 않�
 | 파일 | 역할 |
 |---|---|
 | `page.tsx` | 서버 컴포넌트. 메타데이터, 글꼴, 외부 스타일시트, 전체 마크업, 통계 값 조회 |
-| `intro.module.css` | 스타일 전부. 클래스 이름이 흔해서(`.page`, `.header`, `.anim`) CSS 모듈로 가둡니다 |
+| `intro.css` | 스타일 전부. 이 저장소는 모든 `*.css` 를 Tailwind 로더로 처리해 CSS 모듈을 쓸 수 없으므로, 클래스와 키프레임에 `intro-` 접두사를 붙입니다 |
 | `IntroHeader.tsx` | 클라이언트. 로고 · 내비 · 우측 필 · 모바일 메뉴 |
 | `CountUp.tsx` | 클라이언트. 통계 숫자 카운트업 |
 | `BgVideo.tsx` | 클라이언트. 배경 영상 (자동 재생 보장) |
+| `StageLock.tsx` | 클라이언트. 인트로가 보이는 동안만 `html` 에 `data-intro` 를 붙임 |
 
-`src/app/globals.css` 의 `html:has([data-intro])` 규칙이 바탕을 검게 하고 스크롤과 색 번짐(`body::before`)을 끕니다. 최상위 요소의 `data-intro` 속성을 지우면 안 됩니다.
+인트로가 보이는 동안 `StageLock` 이 `html` 에 `data-intro` 를 붙이고, `src/app/globals.css` 의 `html[data-intro]` 규칙이 바탕을 검게 하고 스크롤과 색 번짐(`body::before`)을 끕니다.
+
+cacheComponents 에서는 다른 화면으로 넘어가도 인트로의 DOM 이 숨겨진 채 남습니다. 그래서 화면에 묶인 것은 CSS 선택자(`:has()`)가 아니라 이펙트로 켜고 정리 함수에서 끕니다 — 바탕 잠금(`StageLock`), 영상 재생(`BgVideo`), 카운트업(`CountUp`)이 그렇게 되어 있습니다.
 
 ## 배경 영상
 
-부모 `.bg` 는 `#000`, `position: absolute; inset: 0; overflow: hidden`. 영상은 `position: absolute; inset: 0; object-fit: cover; pointer-events: none; z-index: 0` 이고 `autoplay muted loop playsinline` 입니다. 주소는 아래 것만 씁니다.
+부모 `.intro-bg` 는 `#000`, `position: absolute; inset: 0; overflow: hidden`. 영상은 `position: absolute; inset: 0; object-fit: cover; pointer-events: none; z-index: 0` 이고 `autoplay muted loop playsinline` 입니다. 주소는 아래 것만 씁니다.
 
 ```
 https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4
@@ -58,7 +61,7 @@ integrity: sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pB
 
 BubbledotICG 는 상용 글꼴이고 이 CDN 의 권리 관계는 확인되지 않았습니다. 공개 배포 전에 라이선스를 확인합니다.
 
-## CSS 변수 (`.root`)
+## CSS 변수 (`.intro-root`)
 
 ```css
 --bg: #000000;
@@ -77,7 +80,7 @@ BubbledotICG 는 상용 글꼴이고 이 CDN 의 권리 관계는 확인되지 �
 
 ## 배치
 
-`.page`: 세로 flex, 가운데 정렬, `padding: clamp(16px, 2.4vh, 28px) clamp(14px, 3vw, 32px)`, 높이 `100vh` / `100dvh`, `overflow: hidden`. 위에서부터 헤더(줄어들지 않음) · 히어로(`flex: 1`, 가운데) · 통계(줄어들지 않음).
+`.intro-page`: 세로 flex, 가운데 정렬, `padding: clamp(16px, 2.4vh, 28px) clamp(14px, 3vw, 32px)`, 높이 `100vh` / `100dvh`, `overflow: hidden`. 위에서부터 헤더(줄어들지 않음) · 히어로(`flex: 1`, 가운데) · 통계(줄어들지 않음).
 
 ### 헤더 (데스크톱)
 
@@ -109,7 +112,7 @@ BubbledotICG 는 상용 글꼴이고 이 CDN 의 권리 관계는 확인되지 �
 
 ## 입장 애니메이션
 
-`.anim` 은 `opacity: 0; translateY(22px) scale(0.98); blur(6px)` 에서 `reveal 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards` 로 들어오고, 지연은 인라인 `--d` 로 줍니다. `prefers-reduced-motion: reduce` 에서는 애니메이션을 모두 끄고 최종 상태를 바로 보여 줍니다 (카운트업도 최종 값으로).
+`.intro-anim` 은 `opacity: 0; translateY(22px) scale(0.98); blur(6px)` 에서 `reveal 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards` 로 들어오고, 지연은 인라인 `--d` 로 줍니다. `prefers-reduced-motion: reduce` 에서는 애니메이션을 모두 끄고 최종 상태를 바로 보여 줍니다 (카운트업도 최종 값으로).
 
 ## 모바일 (720px 이하)
 

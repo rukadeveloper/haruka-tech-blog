@@ -1,0 +1,632 @@
+/*
+ * 인트로 페이지(/intro) 전용 스타일.
+ * 이 저장소는 모든 *.css 를 Tailwind 로더로 처리해 CSS 모듈을 쓸 수 없으므로, 일반 CSS 에 `intro-` 접두사를 붙여 다른 화면과 겹치지 않게 한다.
+ * 이 화면은 DESIGN.md 의 토큰을 쓰지 않는다 — 값은 .claude/rules/intro-page.md 에 고정해 둔 명세 그대로다.
+ * 분기도 명세를 따라 max-width 720px / 420px, max-height 700px 를 쓴다.
+ */
+
+.intro-root {
+  --bg: #000000;
+  --text: #ffffff;
+  --muted: #8e8e8e;
+  --nav-text: #2e2e2e;
+  --pill-dark: #28282a;
+  --sign-in-text: #c8c8c8;
+  --nav-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  --trust-bg: #28282a;
+  --trust-border: rgba(255, 255, 255, 0.4);
+  --trust-text: #c4c2c3;
+  /* Inter 에는 한글이 없어 한글만 Pretendard 로 받는다 */
+  --font-sans: var(--font-inter), var(--font-pretendard), "Segoe UI", system-ui, sans-serif;
+  --font-display: "BubbledotICG-FinePos", var(--font-geist-pixel), monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── 배경 영상 ───────────────────────────────────────────── */
+
+.intro-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.intro-bg-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* ── 한 화면 배치: 헤더 · 히어로 · 통계 ─────────────────────── */
+
+.intro-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  height: 100dvh;
+  padding: clamp(16px, 2.4vh, 28px) clamp(14px, 3vw, 32px);
+  overflow: hidden;
+}
+
+/* ── 헤더 ───────────────────────────────────────────────── */
+
+.intro-header {
+  position: relative;
+  /* 모바일 메뉴의 딤(z-index 2)보다 위에 두어 열린 상태에서도 로고와 버거가 또렷하다 */
+  z-index: 3;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 2.8vw, 28px);
+  width: 100%;
+  max-width: 720px;
+  animation: intro-slideDown 0.7s var(--ease) both;
+}
+
+.intro-logo {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: clamp(40px, 4.4vw, 46px);
+  height: clamp(40px, 4.4vw, 46px);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--nav-shadow);
+  transition: transform 0.3s var(--ease);
+}
+
+/* 원 크기는 그대로 두고 그림만 72% 로 줄인다 */
+.intro-logo img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
+
+.intro-nav {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 430px;
+  height: clamp(44px, 5.2vw, 48px);
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--nav-shadow);
+}
+
+.intro-nav a {
+  position: relative;
+  display: grid;
+  flex: 1;
+  place-items: center;
+  height: 100%;
+  color: var(--nav-text);
+  font-size: clamp(13px, 1.4vw, 15px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  opacity: 0.5;
+  transition: opacity 0.25s ease;
+}
+
+.intro-nav a[aria-current="page"] {
+  opacity: 1;
+}
+
+/* 현재 위치: 글자 아래 3×3px 점 세 개 */
+.intro-nav a[aria-current="page"]::after,
+.intro-sheet a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 50%;
+  background: #000;
+  box-shadow: -5px 0 0 #000, 5px 0 0 #000;
+}
+
+.intro-sign-in {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: clamp(44px, 5.2vw, 48px);
+  padding: 0 clamp(18px, 2.4vw, 24px);
+  border-radius: 999px;
+  background: var(--pill-dark);
+  box-shadow: var(--nav-shadow);
+  color: var(--sign-in-text);
+  font-size: clamp(13px, 1.4vw, 15px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+/* 버거는 모바일에서만 보인다 */
+.intro-burger {
+  display: none;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--pill-dark);
+  box-shadow: var(--nav-shadow);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.intro-burger span {
+  width: 18px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: #fff;
+  transition: transform 0.3s var(--ease), opacity 0.2s ease, background-color 0.3s ease;
+}
+
+/* 열림: 흰 원 + 검은 X */
+.intro-burger[aria-expanded="true"] {
+  background: #fff;
+}
+.intro-burger[aria-expanded="true"] span {
+  background: #000;
+}
+.intro-burger[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+.intro-burger[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.intro-burger[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+/* ── 모바일 메뉴 ─────────────────────────────────────────── */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  /* 헤더(위 여백 + 48px) 바로 아래에 시트가 온다 */
+  padding: calc(clamp(16px, 2.4vh, 28px) + 48px + 12px) 14px 0;
+  background: rgba(0, 0, 0, 0.62);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: intro-overlayIn 0.28s ease both;
+}
+
+.intro-sheet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 360px;
+  padding: 22px 18px 20px;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  animation: intro-menuIn 0.38s var(--ease) both;
+}
+
+.intro-sheet > * {
+  animation: intro-linkIn 0.4s var(--ease) both;
+}
+.intro-sheet > :nth-child(1) { animation-delay: 0.06s; }
+.intro-sheet > :nth-child(2) { animation-delay: 0.1s; }
+.intro-sheet > :nth-child(3) { animation-delay: 0.14s; }
+.intro-sheet > :nth-child(4) { animation-delay: 0.18s; }
+.intro-sheet > :nth-child(5) { animation-delay: 0.22s; }
+
+/* 입장 애니메이션이 opacity 를 쓰므로 흐린 정도는 색의 알파로 낸다 */
+.intro-sheet a {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 50px;
+  color: rgba(46, 46, 46, 0.5);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.intro-sheet a[aria-current="page"] {
+  color: var(--nav-text);
+}
+.intro-sheet a[aria-current="page"]::after {
+  bottom: 8px;
+}
+
+.intro-sheet a.intro-sheet-sign-in {
+  margin-top: 10px;
+  border-radius: 999px;
+  background: var(--pill-dark);
+  color: var(--sign-in-text);
+  font-size: 15px;
+}
+
+/* ── 히어로 ─────────────────────────────────────────────── */
+
+.intro-hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  min-height: 0;
+  text-align: center;
+}
+
+.intro-trust {
+  --trust-size: clamp(36px, 4.5vw, 42px);
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: clamp(16px, 2.5vh, 26px);
+}
+
+/* 어두운 고리 안에 작은 흰 원 — 꽉 찬 흰 원으로 만들지 않는다 */
+.intro-avatar {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex-shrink: 0;
+  width: var(--trust-size);
+  height: var(--trust-size);
+  padding: 5px;
+  border: 1px solid var(--trust-border);
+  border-radius: 50%;
+  background: var(--trust-bg);
+  transition: transform 0.35s var(--ease);
+}
+
+.intro-avatar + .intro-avatar {
+  z-index: 2;
+  margin-left: calc(var(--trust-size) * -0.42);
+}
+.intro-avatar + .intro-avatar + .intro-avatar {
+  z-index: 4;
+}
+
+.intro-avatar-inner {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  font-size: calc(var(--trust-size) * 0.34);
+  line-height: 1;
+}
+
+.intro-trust-pill {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  height: var(--trust-size);
+  margin-left: calc(var(--trust-size) * -0.42);
+  /* 왼쪽 안쪽 여백으로 겹친 아바타만큼 글자를 민다 */
+  padding: 0 clamp(14px, 1.8vw, 18px) 0 calc(var(--trust-size) * 0.58);
+  border: 1px solid var(--trust-border);
+  border-radius: 999px;
+  background: var(--trust-bg);
+  color: var(--trust-text);
+  font-size: clamp(12px, 1.4vw, 13.5px);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 단색 흰색 — 그러데이션이나 반짝임을 넣지 않는다. 제목 자체에는 입장 애니메이션이 없고 줄마다 따로 들어온다 */
+.intro-headline {
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 6.2vw, 80px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+  white-space: nowrap;
+}
+
+.intro-headline span {
+  display: block;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: intro-headlineFade 0.85s var(--ease) 0.12s forwards;
+}
+.intro-headline span + span {
+  animation-delay: 0.3s;
+}
+
+.intro-subhead {
+  max-width: min(500px, 92%);
+  margin-top: clamp(14px, 2.2vh, 22px);
+  color: #d0d0d0;
+  font-size: clamp(calc(13.5px + 2pt), calc(1.55vw + 2pt), calc(16.5px + 2pt));
+  font-weight: 400;
+  line-height: 1.55;
+}
+/* 명세의 불투명도 0.8 은 입장 애니메이션이 끝난 뒤의 값이다 */
+.intro-subhead.intro-anim {
+  --to-opacity: 0.8;
+}
+
+.intro-cta-wrap {
+  margin-top: clamp(18px, 3vh, 30px);
+}
+
+.intro-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(11px, 1.6vh, 13px) clamp(22px, 3vw, 28px);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 0 22px rgba(255, 255, 255, 0.32),
+    0 0 44px rgba(255, 255, 255, 0.12);
+  color: #000;
+  font-size: clamp(13.5px, 1.5vw, 14.5px);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s ease;
+}
+
+/* ── 통계 ───────────────────────────────────────────────── */
+
+.intro-stats {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(10px, 2vw, 24px);
+  width: 100%;
+  max-width: 920px;
+  text-align: center;
+}
+
+.intro-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.intro-stat-icon {
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 33px);
+  line-height: 1;
+}
+
+.intro-stat-value {
+  color: #fff;
+  font-size: clamp(18px, 2.2vw, 26px);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.intro-stat-label {
+  color: var(--muted);
+  font-size: clamp(11px, 1.2vw, 12.5px);
+  line-height: 1.4;
+}
+
+/* ── 입장 애니메이션 ─────────────────────────────────────── */
+
+.intro-anim {
+  opacity: 0;
+  transform: translateY(22px) scale(0.98);
+  filter: blur(6px);
+  animation: intro-reveal 0.85s var(--ease) var(--d, 0s) forwards;
+}
+
+.intro-anim-pulse {
+  animation-name: intro-revealPulse;
+}
+
+@keyframes intro-reveal {
+  to {
+    opacity: var(--to-opacity, 1);
+    transform: none;
+    filter: none;
+  }
+}
+
+/* reveal 과 같은 길로 들어오되 끝에서 한 번 살짝 부푼다 (CTA) */
+@keyframes intro-revealPulse {
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1.04);
+    filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes intro-headlineFade {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes intro-slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes intro-overlayIn {
+  from { opacity: 0; }
+}
+
+@keyframes intro-menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+}
+
+@keyframes intro-linkIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ── hover (마우스가 있는 기기만) ─────────────────────────── */
+
+@media (hover: hover) {
+  .intro-logo:hover {
+    transform: scale(1.04);
+  }
+  .intro-nav a:not([aria-current="page"]):hover {
+    opacity: 0.75;
+  }
+  .intro-sign-in:hover {
+    background: #323234;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .intro-trust:hover .intro-avatar {
+    transform: translateY(-2px);
+  }
+  .intro-trust:hover .intro-avatar + .intro-avatar {
+    transform: translateY(-4px);
+  }
+  .intro-trust:hover .intro-avatar + .intro-avatar + .intro-avatar {
+    transform: translateY(-2px);
+  }
+  .intro-cta:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.25),
+      0 0 30px rgba(255, 255, 255, 0.5),
+      0 0 60px rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* ── 모바일 ─────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .intro-header {
+    justify-content: space-between;
+    max-width: none;
+  }
+  .intro-nav,
+  .intro-sign-in {
+    display: none;
+  }
+  .intro-burger {
+    display: flex;
+  }
+  .intro-logo {
+    width: 48px;
+    height: 48px;
+  }
+  .intro-headline {
+    letter-spacing: -0.08em;
+    line-height: 1.05;
+  }
+  .intro-trust-pill {
+    font-size: 12px;
+  }
+  .intro-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .intro-trust {
+    --trust-size: 34px;
+  }
+  .intro-headline {
+    letter-spacing: -0.09em;
+    line-height: 1.04;
+  }
+}
+
+/* 낮은 화면: 히어로 간격을 줄여 한 화면에 모두 담는다 */
+@media (max-height: 700px) {
+  .intro-trust {
+    margin-bottom: 12px;
+  }
+  .intro-subhead {
+    margin-top: 10px;
+  }
+  .intro-cta-wrap {
+    margin-top: 14px;
+  }
+  .intro-stats {
+    row-gap: 10px;
+  }
+}
+
+/* ── 움직임 줄이기: 애니메이션 없이 최종 상태를 바로 보여 준다 ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-header,
+  .intro-anim,
+  .intro-headline span,
+  .intro-overlay,
+  .intro-sheet,
+  .intro-sheet > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  .intro-subhead.intro-anim {
+    opacity: 0.8;
+  }
+  .intro-logo,
+  .intro-sign-in,
+  .intro-avatar,
+  .intro-cta,
+  .intro-burger,
+  .intro-burger span {
+    transition: none;
+  }
+}

@@ -73,11 +73,11 @@
 
 ## 인트로 페이지 (`/intro`)
 
-- 한 화면을 채운 영상 위에 헤더 · 히어로 · 통계를 올린 랜딩 화면입니다. 구성 파일은 `src/app/intro/` 에 모여 있고 스타일은 `intro.module.css` 하나입니다.
+- 한 화면을 채운 영상 위에 헤더 · 히어로 · 통계를 올린 랜딩 화면입니다. 구성 파일은 `src/app/intro/` 에 모여 있고 스타일은 `intro.css` 하나입니다.
 - 디자인 수치, 글꼴, 영상 주소, 움직임, 모바일 동작은 `.claude/rules/intro-page.md` 에 고정해 두었습니다. 인트로를 고칠 때는 그 파일을 따르고, 값을 바꾸면 그 파일도 함께 고칩니다.
 - 외부에 기대는 것: 배경 영상(CloudFront), 헤드라인 글꼴(OnlineWebFonts), 아이콘(cdnjs 의 Font Awesome). 글꼴 CDN 이 응답하지 않으면 Geist Pixel Circle(`src/app/fonts`)로 대체됩니다.
 - 통계 숫자는 `getAllPosts()`, `getCategories()` 에서 계산하므로 글 캐시 태그를 따라 갱신됩니다.
-- `globals.css` 의 `html:has([data-intro])` 규칙이 이 화면에서만 바탕을 검게 하고 스크롤과 색 번짐을 끕니다.
+- 인트로가 보이는 동안 `StageLock` 이 `html` 에 `data-intro` 를 붙이고, `globals.css` 의 `html[data-intro]` 규칙이 바탕을 검게 하고 스크롤과 색 번짐을 끕니다. `:has()` 로 화면 안의 표식을 찾으면 안 됩니다 — cacheComponents 는 떠난 화면의 DOM 을 숨긴 채 남겨 두므로 블로그 화면까지 잠깁니다.
 
 ## 데이터 (Supabase)
 

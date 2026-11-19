@@ -167,6 +167,11 @@ body {
 /* 유리 뒤에 비칠 색 번짐 — 화면에 고정되어 스크롤해도 움직이지 않는다 */
 body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--ambient); pointer-events: none; }
 
+/* 인트로(/intro)는 화면 하나를 채운 검은 무대다 — 바탕을 검게 하고 스크롤과 색 번짐을 끈다.
+   data-intro 는 인트로가 보이는 동안만 app/intro/StageLock 이 붙인다 (나머지 스타일은 app/intro/intro.css) */
+html[data-intro], html[data-intro] body { background: #000; overflow: hidden; }
+html[data-intro] body::before { display: none; }
+
 :focus-visible { outline: 2px solid var(--strong); outline-offset: 2px; }
 /* 관리자 화면(.admin-ui)의 글 입력 요소는 포커스해도 테두리·외곽선이 바뀌지 않는다 — 글자 커서로 충분하다.
    버튼과 링크의 키보드 포커스 표시는 그대로 둔다 */

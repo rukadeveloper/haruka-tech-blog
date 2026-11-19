@@ -12,7 +12,7 @@
 - **반응은 누르는 순간에**: 누를 수 있는 요소는 `:active` 에서 바로 살짝 줄어듭니다. hover 스타일은 `@media (hover: hover)` 안에만 둡니다.
 - **들어온 길로 나간다**: 메뉴와 팝오버는 자신을 연 버튼 쪽에서 나타나고 같은 곳으로 사라집니다. 꾸미기 위한 움직임은 넣지 않습니다.
 - **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "글래스").
-- **인트로 페이지(`/intro`)는 이 문서의 토큰 체계 밖입니다.** 검은 바탕 하나에 자체 값을 쓰며, 정의는 `.claude/rules/intro-page.md` 와 `src/app/intro/intro.module.css` 에 있습니다.
+- **인트로 페이지(`/intro`)는 이 문서의 토큰 체계 밖입니다.** 검은 바탕 하나에 자체 값을 쓰며, 정의는 `.claude/rules/intro-page.md` 와 `src/app/intro/intro.css` 에 있습니다.
 
 ## 색 토큰
 
