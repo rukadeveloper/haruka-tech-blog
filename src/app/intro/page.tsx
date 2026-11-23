@@ -35,13 +35,31 @@ const STACK = [
   { name: "Python", path: siPython.path },
 ];
 
-/** 블로그 로고(src/app/icon.svg)의 H 모양을 단색으로 — 이 화면은 무지개 밑빛 말고 색을 쓰지 않는다 */
+/**
+ * 블로그 로고(src/app/icon.svg)의 점 H 를 단색으로 — 이 화면은 무지개 밑빛 말고 색을 쓰지 않는다.
+ * 16×16 칸 격자(한 칸 4)의 칸 [열, 행, 반지름]. 좌표 규칙은 DESIGN.md "로고"
+ */
+const BRAND_DOTS: [number, number, number][] = [
+  ...[3, 4, 9, 10].flatMap((c) => [4, 5, 6, 7, 8, 9, 10, 11].map((r): [number, number, number] => [c, r, 1.7])),
+  ...[7, 8].flatMap((r) =>
+    [
+      [5, 1.7],
+      [6, 1.7],
+      [7, 1.7],
+      [8, 1.7],
+      [11, 1.4],
+      [12, 1.05],
+      [13, 0.7],
+    ].map(([c, rad]): [number, number, number] => [c, r, rad]),
+  ),
+];
+
 function BrandMark() {
   return (
-    <svg width="16" height="18" viewBox="10 14 44 36" fill="currentColor" aria-hidden>
-      <path d="M12 16h8v32h-8z" />
-      <path d="M20 28h32a4 4 0 0 1 0 8H20z" />
-      <path d="M36 16h8v32h-8z" />
+    <svg width="22" height="22" viewBox="10 14 46 36" fill="currentColor" aria-hidden>
+      {BRAND_DOTS.map(([c, r, rad]) => (
+        <circle key={`${c}-${r}`} cx={c * 4 + 2} cy={r * 4 + 2} r={rad} />
+      ))}
     </svg>
   );
 }
