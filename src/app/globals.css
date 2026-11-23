@@ -36,20 +36,16 @@
   --code-bg: #f2f4f6;
   --shadow-card: 0 1px 2px rgba(0, 27, 55, 0.04), 0 6px 20px rgba(0, 27, 55, 0.06);
   --shadow-pop: 0 2px 6px rgba(0, 27, 55, 0.06), 0 12px 40px rgba(0, 27, 55, 0.14);
-  /* 글래스 — 뒤가 비쳐 보이는 유리 면. 바탕의 색 번짐(--ambient)이 있어야 유리로 보인다 */
-  --glass: rgba(255, 255, 255, 0.55);            /* 카드, 헤더 바, 푸터 */
-  --glass-thick: rgba(255, 255, 255, 0.8);       /* 팝오버, 메뉴 — 글자가 많아 더 불투명하게 */
-  --glass-tint: rgba(255, 255, 255, 0.6);        /* 칩, 보조 버튼 — blur 없이 옅게 */
-  --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-edge: rgba(255, 255, 255, 0.9);        /* 위쪽 가장자리에 맺히는 빛 */
-  --glass-filter: blur(24px) saturate(180%);
-  --shadow-glass: 0 0 0 1px rgba(0, 27, 55, 0.05), 0 1px 2px rgba(0, 27, 55, 0.04), 0 8px 32px rgba(0, 27, 55, 0.08);
-  --shadow-tint: 0 0 0 1px rgba(0, 27, 55, 0.05), 0 1px 2px rgba(0, 27, 55, 0.05);   /* 작은 유리 면 — 가로 스크롤 줄에서 잘리지 않게 얕다 */
-  --ambient:
-    radial-gradient(60vw 55vh at 8% -8%, rgba(49, 130, 246, 0.2), transparent 70%),
-    radial-gradient(50vw 50vh at 100% 5%, rgba(139, 92, 246, 0.16), transparent 70%),
-    radial-gradient(55vw 50vh at 0% 75%, rgba(56, 189, 248, 0.14), transparent 70%),
-    radial-gradient(60vw 55vh at 95% 105%, rgba(99, 102, 241, 0.16), transparent 70%);
+  /* 면 — 평평한 디자인(채널톡 기술블로그 스타일). 이름은 예전 유리 디자인의 것을 그대로 두고 값만 불투명하다.
+     라이트 · 다크 모두 아래 값이 다른 토큰(--elevated, --surface, --line)을 따라간다 (DESIGN.md "면") */
+  --glass: var(--elevated);           /* 카드, 헤더 바, 푸터, 목차 상자 */
+  --glass-thick: var(--elevated);     /* 팝오버, 메뉴 — --shadow-pop 으로 떠 보인다 */
+  --glass-tint: var(--surface);       /* 칩, 보조 버튼, 페이지 번호 */
+  --glass-border: var(--line);
+  --glass-edge: transparent;
+  --glass-filter: none;
+  --shadow-glass: none;
+  --shadow-tint: none;
   /* 움직임 — 튀지 않고 빠르게 붙는 곡선 하나를 함께 쓴다 */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-press: 100ms;
@@ -92,36 +88,11 @@
   --code-bg: #26262e;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.3);
   --shadow-pop: 0 2px 6px rgba(0, 0, 0, 0.3), 0 12px 40px rgba(0, 0, 0, 0.5);
-  --glass: rgba(255, 255, 255, 0.06);
-  --glass-thick: rgba(36, 36, 46, 0.8);
-  --glass-tint: rgba(255, 255, 255, 0.07);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-edge: rgba(255, 255, 255, 0.14);
-  --shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.35);
-  --shadow-tint: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --ambient:
-    radial-gradient(60vw 55vh at 8% -8%, rgba(69, 147, 252, 0.26), transparent 70%),
-    radial-gradient(50vw 50vh at 100% 5%, rgba(139, 92, 246, 0.2), transparent 70%),
-    radial-gradient(55vw 50vh at 0% 75%, rgba(56, 189, 248, 0.12), transparent 70%),
-    radial-gradient(60vw 55vh at 95% 105%, rgba(99, 102, 241, 0.2), transparent 70%);
 }
 
 /* 움직임 줄이기: 크기·위치 변화는 없애고 짧은 투명도 전환만 남긴다 */
 @media (prefers-reduced-motion: reduce) {
   :root { --press: 1; --press-lg: 1; --pop-from: none; --slide-from: none; --knob-stretch: 0px; }
-}
-/* 투명도 줄이기 · 대비 높이기: 유리를 불투명한 면으로, 선은 또렷하게 */
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  :root, [data-theme="dark"] {
-    --glass: var(--elevated); --glass-thick: var(--elevated); --glass-tint: var(--surface);
-    --glass-border: var(--line); --glass-edge: transparent; --glass-filter: none; --ambient: none;
-  }
-}
-/* 관리자 화면은 유리를 쓰지 않는다 — 에디터에는 카드 안에 fixed·sticky 요소가 있어 backdrop-filter 가 배치를 깨뜨리고,
-   작업 도구는 또렷한 편이 낫다. 토큰만 불투명 값으로 되돌린다 */
-.admin-ui {
-  --glass: var(--elevated); --glass-thick: var(--elevated); --glass-tint: var(--surface);
-  --glass-border: var(--line); --glass-edge: transparent; --glass-filter: none; --shadow-glass: none; --shadow-tint: none;
 }
 @media (prefers-contrast: more) {
   :root, [data-theme="dark"] { --line: var(--meta); }
@@ -164,13 +135,10 @@ body {
   word-break: keep-all;
   -webkit-tap-highlight-color: transparent;
 }
-/* 유리 뒤에 비칠 색 번짐 — 화면에 고정되어 스크롤해도 움직이지 않는다 */
-body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--ambient); pointer-events: none; }
 
-/* 인트로(/intro)는 화면 하나를 채운 점 매트릭스 무대다 — 바탕을 인트로 색(#f7f7f5)으로 바꾸고 스크롤과 색 번짐을 끈다.
+/* 인트로(/intro)는 화면 하나를 채운 점 매트릭스 무대다 — 바탕을 인트로 색(#f7f7f5)으로 바꾸고 스크롤을 끈다.
    data-intro 는 인트로가 보이는 동안만 app/intro/StageLock 이 붙인다 (나머지 스타일은 app/intro/intro.css) */
 html[data-intro], html[data-intro] body { background: #f7f7f5; overflow: hidden; }
-html[data-intro] body::before { display: none; }
 
 :focus-visible { outline: 2px solid var(--strong); outline-offset: 2px; }
 /* 관리자 화면(.admin-ui)의 글 입력 요소는 포커스해도 테두리·외곽선이 바뀌지 않는다 — 글자 커서로 충분하다.

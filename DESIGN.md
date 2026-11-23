@@ -123,7 +123,6 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
   --glass-filter: none;
   --shadow-glass: none;
   --shadow-tint: none;
-  --ambient: none;
 }
 
 .glass       { background: var(--glass); border: 1px solid var(--glass-border); }
