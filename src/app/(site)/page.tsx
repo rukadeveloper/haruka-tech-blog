@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import BlogShell from "@/components/BlogShell";
 import BlogSkeleton from "@/components/BlogSkeleton";
+import HomeSections from "@/components/HomeSections";
 
 async function Content({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
-  const { page } = await searchParams;
-  return <BlogShell page={Number(Array.isArray(page) ? page[0] : page) || 1} />;
+  const { q } = await searchParams;
+  return <HomeSections q={(Array.isArray(q) ? q[0] : q) ?? ""} />;
 }
 
 export default function Home(props: PageProps<"/">) {
