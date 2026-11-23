@@ -11,8 +11,8 @@
 - 모서리는 둥글게(12–16px), 선은 얇게, 그림자는 꼭 떠 있어야 하는 요소(팝오버, 플로팅 버튼)에만 씁니다.
 - **반응은 누르는 순간에**: 누를 수 있는 요소는 `:active` 에서 바로 살짝 줄어듭니다. hover 스타일은 `@media (hover: hover)` 안에만 둡니다.
 - **들어온 길로 나간다**: 메뉴와 팝오버는 자신을 연 버튼 쪽에서 나타나고 같은 곳으로 사라집니다. 꾸미기 위한 움직임은 넣지 않습니다.
-- **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "글래스").
-- **인트로 페이지(`/intro`)는 이 문서의 토큰 체계 밖입니다.** 검은 바탕 하나에 자체 값을 쓰며, 정의는 `.claude/rules/intro-page.md` 와 `src/app/intro/intro.css` 에 있습니다.
+- **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "면").
+- **인트로 페이지(`/intro`)는 이 문서의 토큰 체계 밖입니다.** 따뜻한 흰 바탕(#f7f7f5) 하나에 자체 값을 쓰며, 정의는 `.claude/rules/intro-page.md` 와 `src/app/intro/intro.css` 에 있습니다.
 
 ## 로고
 
@@ -107,46 +107,37 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 - 팝오버의 `transform-origin` 은 연 버튼 쪽 모서리입니다 (Select: 위/아래 방향에 따라, 목차 패널: 모바일 오른쪽 아래 · `lg` 오른쪽 위).
 - 테마 전환은 View Transitions 로 화면을 240ms 교차 페이드합니다 (`ThemeToggle`). 토글 스위치만은 교차 페이드에서 빼 손잡이가 미끄러지는 모습이 그대로 보입니다.
 
-## 글래스
+## 면 (평평한 디자인)
 
-공개 화면의 면은 뒤가 비쳐 보이는 유리입니다. 유리는 뒤에 비칠 것이 있어야 보이므로, 바탕에 강조 색 계열의 옅은 색 번짐(`--ambient`)을 화면에 고정해 깝니다 (`body::before`, 움직이지 않음).
+공개 화면과 관리자 화면 모두 **평평한 면**입니다 — 채널톡 기술블로그처럼 흰 바탕(다크는 어두운 바탕) 위에 카드 테두리 · 그림자 없이 썸네일과 글자만 놓고, 구획은 옅은 구분선(`--line`)으로 나눕니다. 바탕의 색 번짐도 쓰지 않습니다.
+
+예전 유리 디자인의 토큰 · 클래스 이름(`--glass*`, `.glass`, `.glass-thick`, `.glass-tint`)은 사용처가 많아 그대로 두고, **값만 불투명하게** 바꿨습니다.
 
 ```css
-:root {
-  --glass: rgba(255, 255, 255, 0.55);         /* 카드, 헤더 바, 푸터, 목차 상자 */
-  --glass-thick: rgba(255, 255, 255, 0.8);    /* 팝오버, 모바일 메뉴, 확인 창, 플로팅 버튼 */
-  --glass-tint: rgba(255, 255, 255, 0.6);     /* 칩, 보조 버튼, 페이지 번호 — blur 없이 옅게 */
-  --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-edge: rgba(255, 255, 255, 0.9);     /* 위쪽 가장자리에 맺히는 빛 (inset) */
-  --glass-filter: blur(24px) saturate(180%);
-  --shadow-glass: 0 0 0 1px rgba(0, 27, 55, 0.05), 0 1px 2px rgba(0, 27, 55, 0.04), 0 8px 32px rgba(0, 27, 55, 0.08);
-  --shadow-tint: 0 0 0 1px rgba(0, 27, 55, 0.05), 0 1px 2px rgba(0, 27, 55, 0.05);   /* 작은 유리 면용 얕은 그림자 */
-  --ambient: radial-gradient(…) × 4;          /* 파랑 · 보라 · 하늘 · 남색, 불투명도 0.14–0.2 */
-}
-[data-theme="dark"] {
-  --glass: rgba(255, 255, 255, 0.06);
-  --glass-thick: rgba(36, 36, 46, 0.8);
-  --glass-tint: rgba(255, 255, 255, 0.07);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-edge: rgba(255, 255, 255, 0.14);
-  --shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.35);
+:root, [data-theme="dark"] {
+  --glass: var(--elevated);          /* 카드, 헤더 바, 푸터, 목차 상자 */
+  --glass-thick: var(--elevated);    /* 팝오버, 모바일 메뉴, 확인 창, 플로팅 버튼 (그림자 --shadow-pop 으로 떠 보임) */
+  --glass-tint: var(--surface);      /* 칩, 보조 버튼, 페이지 번호 */
+  --glass-border: var(--line);
+  --glass-edge: transparent;
+  --glass-filter: none;
+  --shadow-glass: none;
+  --shadow-tint: none;
+  --ambient: none;
 }
 
-.glass       { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-filter);
-               box-shadow: inset 0 1px 0 var(--glass-edge), var(--shadow-glass); }
-.glass-thick { background: var(--glass-thick); /* 나머지는 .glass 와 같고 그림자만 */ box-shadow: …, var(--shadow-pop); }
-.glass-tint  { background: var(--glass-tint); box-shadow: inset 0 0 0 1px var(--glass-border), var(--shadow-tint); }
+.glass       { background: var(--glass); border: 1px solid var(--glass-border); }
+.glass-thick { background: var(--glass-thick); border: 1px solid var(--glass-border); box-shadow: var(--shadow-pop); }
+.glass-tint  { background: var(--glass-tint); }
 ```
 
-- **유리 위에 유리를 겹치지 않습니다.** 유리 면 안쪽의 입력(`.field`), hover, 선택 표시는 단색(`surface`, `strong-soft`)을 씁니다.
-- **글 본문(`.post-body`)은 유리에 올리지 않습니다.** 긴 글은 바탕 위에 그대로 두고, 코드 블록과 파일 트리도 불투명합니다.
-- **관리자 화면(`.admin-ui`)은 유리를 쓰지 않습니다.** 에디터에는 카드 안에 `fixed`·`sticky` 요소가 있어 `backdrop-filter` 가 배치를 깨뜨립니다. `.admin-ui` 가 글래스 토큰을 불투명 값으로 되돌리므로 같은 클래스(`.card`, `.chip` …)를 그대로 써도 됩니다.
-- `prefers-reduced-transparency`, `prefers-contrast: more` 에서도 같은 방식으로 토큰이 불투명해지고 색 번짐이 꺼집니다.
-- `backdrop-filter` 가 걸린 요소는 그 안의 `position: fixed` 요소를 자기 크기에 가두고, 안쪽 요소의 blur 가 바깥을 비추지 못하게 합니다. 그래서 헤더는 바 자체가 아니라 안쪽 `.site-header-bg` 층에 유리를 깝니다 (모바일 메뉴 딤과 메뉴의 blur 가 화면 전체에 닿도록).
+- 떠 있어야 하는 요소(팝오버, 모바일 메뉴, 플로팅 버튼)만 `--shadow-pop` 그림자를 씁니다.
+- 글 목록 카드(`PostCard`)는 `.card` 를 쓰지 않습니다. 바탕 · 테두리 없이 썸네일 + 글자입니다 (아래 "글 목록").
+- `prefers-contrast: more` 에서는 테두리를 진하게 하는 규칙만 남습니다.
 
 ### 헤더 바 (`.site-header`)
 
-화면 위에서 8px(sm: 12px) 띄운 높이 56px 의 둥근(20px) 유리 바입니다. 바깥 여백(8 / 12px) + 바 안쪽 여백(12px)이 `.container-page` 의 여백(20 / 24px)과 같아 로고가 본문과 줄이 맞습니다. 헤더 아래에 붙는 요소는 이 높이(68 / 72px)를 기준으로 잡습니다 — 본문 제목의 `scroll-margin-top`, `PostToc` 의 기준선, 에디터 툴바의 `top`.
+화면 위에서 8px(sm: 12px) 띄운 높이 56px 의 둥근(20px) 바입니다 (면은 `--glass` = 불투명). 바깥 여백(8 / 12px) + 바 안쪽 여백(12px)이 `.container-page` 의 여백(20 / 24px)과 같아 로고가 본문과 줄이 맞습니다. 헤더 아래에 붙는 요소는 이 높이(68 / 72px)를 기준으로 잡습니다 — 본문 제목의 `scroll-margin-top`, `PostToc` 의 기준선, 에디터 툴바의 `top`.
 
 ### 테마 토글 스위치 (`.theme-switch`)
 
@@ -162,6 +153,21 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 ```
 
 간격은 Tailwind 기본 단위(4px)를 씁니다. 구획 사이 40–64px, 카드 안쪽 20px(sm: 24px), 요소 사이 8–16px.
+
+### 글 목록 (홈 · 카테고리) — 채널톡 기술블로그 배치
+
+```
+BlogLayout      lg 이상: [사이드바 220px] gap 40px [본문]   lg 미만: 사이드바가 본문 위로
+BlogSidebar     sticky top 96px(헤더 기준선 + 24). 제목 .text-title → 항목(높이 36, 모서리 8, 15px)
+                현재 항목: bg-strong-soft · text-strong · 600. 현재 대분류 아래 소분류는 들여서(pl 24) 14px
+                → 구분선 → 검색창(.field, 돋보기 아이콘)
+                lg 미만: 항목이 .scroll-row 가로 줄(칩 모양), 검색창은 그 아래 한 줄
+구획            제목 .text-title + 오른쪽 "모두보기 >"(text-strong 15px) → 내용 → 아래 구분선(border-line), 구획 사이 48px(sm 56px)
+카드 그리드     1열 → sm 2열 → lg 3열, gap-x 24 · gap-y 40
+```
+
+- **카드(`PostCard`)**: 썸네일(16:9, 모서리 12px, `--line` 1px 테두리) → 제목(`.text-heading`, 2줄) → 요약(`.text-body-sm text-muted`, 2줄) → `날짜 · 카테고리`(`.text-caption`). 바탕 · 그림자 없음. hover 시 썸네일 1.03배 · 제목 `strong`, 누르면 `.pressable-lg`.
+- **큰 카드(`variant="featured"`)**: `sm` 이상에서 썸네일(3/5) + 글(2/5) 가로, 글은 세로 가운데, 제목 `.text-title` 3줄. 모바일은 일반 카드와 같습니다.
 
 ## 타이포
 
@@ -182,7 +188,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 
 ```css
 /* 카드 */
-.card     { /* .glass 와 같은 유리 면 */ border-radius: 20px; }
+.card     { /* .glass 와 같은 면 (평평, 테두리 --line) */ border-radius: 20px; }
 .card-pad { padding: 20px; }                                         /* sm: 24px */
 
 /* 버튼: .btn + 모양 하나. 작게는 .btn-sm, 가로로 꽉 채울 때 .btn-block */
@@ -190,7 +196,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 .btn-sm           { height: 36px; padding-inline: 12px; border-radius: 10px; font-size: 14px; }
 .btn-block        { width: 100%; }
 .btn-primary      { background: var(--strong);  color: var(--on-strong); }   /* 화면의 주된 행동 하나 */
-.btn-secondary    { background: var(--glass-tint); color: var(--foreground); }  /* + 유리 테두리 */
+.btn-secondary    { background: var(--glass-tint); color: var(--foreground); }  /* 옅은 회색 바탕 */
 .btn-ghost        { color: var(--muted); }                                   /* 바탕 없음, hover 시 surface */
 .btn-danger       { color: var(--danger); }                                  /* 삭제 (바탕 없음) */
 .btn-danger-solid { background: var(--danger);  color: #fff; }               /* 삭제 확인 */
