@@ -45,7 +45,7 @@
 
 - 공개 화면은 글래스(유리) 디자인이고 관리자 화면은 불투명합니다. 움직임과 유리 면은 DESIGN.md 의 토큰(`--ease-out`, `--dur*`, `--press*`, `--glass*`)과 클래스(`.glass`, `.glass-thick`, `.glass-tint`)로만 씁니다. 움직임 줄이기 · 투명도 줄이기 · 대비 높이기 설정은 그 토큰 값을 바꿔 처리하므로, 값을 직접 쓰면 설정이 무시됩니다.
 
-- 인트로 페이지(`/intro`)만 위 원칙의 예외입니다. 피치색 바탕 하나에 자체 색 · 글꼴 · 움직임 값을 쓰며, 그 값은 `.claude/rules/intro-page.md` 에 고정해 두었습니다.
+- 인트로 페이지(`/intro`)만 위 원칙의 예외입니다. 따뜻한 흰 바탕(#f7f7f5) 하나에 자체 색 · 글꼴 · 움직임 값을 쓰며, 그 값은 `.claude/rules/intro-page.md` 에 고정해 두었습니다.
 
 # 전체 규칙
 
@@ -75,12 +75,12 @@
 
 ## 인트로 페이지 (`/intro`)
 
-- Three.js 캔버스 하나에 언어 로고(`simple-icons` 의 SVG path)를 입체로 만든 오브젝트를 올린 랜딩 화면입니다. 구성 파일은 `src/app/intro/` (3D 코드는 `stage/`) 에 모여 있고 스타일은 `intro.css` 하나입니다.
-- 명세를 단계별로 옮기는 중입니다 (히어로 캐러셀 → 스토리 → 매니페스토 → 라인업). 진행 상태, 디자인 수치, 글꼴, 3D 값, 움직임, 반응형 동작은 `.claude/rules/intro-page.md` 에 고정해 두었습니다. 인트로를 고칠 때는 그 파일을 따르고, 값을 바꾸면 그 파일도 함께 고칩니다.
-- three 는 `IntroStage` 의 이펙트 안에서 동적 import 하므로 다른 화면의 번들에 들어가지 않습니다. 이펙트 정리 함수가 rAF · 리스너 · WebGL 자원을 모두 해제해야 합니다.
+- 따뜻한 흰 바탕에 제목 · CTA · 기술 로고 줄을 두고, 그 뒤에 서로를 향해 뻗는 두 손을 점 매트릭스로 매 프레임 캔버스에 그리는(`DotHands.tsx`) 랜딩 화면입니다. 구성 파일은 `src/app/intro/` 에 모여 있고 스타일은 `intro.css` 하나입니다.
+- 디자인 수치, 글꼴, 손 시트 이미지 주소, 캔버스 계산, 반응형 동작은 `.claude/rules/intro-page.md` 에 고정해 두었습니다. 인트로를 고칠 때는 그 파일을 따르고, 값을 바꾸면 그 파일도 함께 고칩니다.
+- 외부에 기대는 것: 손 시트 이미지(images.higgs.ai, CORS 필요). 로고 줄 아이콘은 `simple-icons` 의 path 입니다. 캔버스 루프는 이펙트 정리 함수에서 멈춥니다.
 - 블로그 홈(`/`)에 처음 들어오거나 홈에서 새로고침하면 `src/proxy.ts` 가 `/intro` 로 보냅니다. 사이트 안 이동은 보내지 않으며, 글 · 카테고리 · About · 방명록 · 관리자 주소는 대상이 아닙니다. 판정은 `src/lib/intro-gate.ts` (`Sec-Fetch-Dest: document`).
 - 그래서 홈으로 가는 링크는 `next/link` 로 씁니다. 문서를 새로 받는 이동(`<a href="/">`, `location.href`)은 인트로로 되돌아옵니다.
-- 인트로가 보이는 동안 `StageLock` 이 `html` 에 `data-intro` 를 붙이고, `globals.css` 의 `html[data-intro]` 규칙이 바탕을 인트로 색(#F5B39A)으로 바꾸고 스크롤과 색 번짐을 끕니다. `:has()` 로 화면 안의 표식을 찾으면 안 됩니다 — cacheComponents 는 떠난 화면의 DOM 을 숨긴 채 남겨 두므로 블로그 화면까지 잠깁니다.
+- 인트로가 보이는 동안 `StageLock` 이 `html` 에 `data-intro` 를 붙이고, `globals.css` 의 `html[data-intro]` 규칙이 바탕을 인트로 색(#f7f7f5)으로 바꾸고 스크롤과 색 번짐을 끕니다. `:has()` 로 화면 안의 표식을 찾으면 안 됩니다 — cacheComponents 는 떠난 화면의 DOM 을 숨긴 채 남겨 두므로 블로그 화면까지 잠깁니다.
 
 ## 데이터 (Supabase)
 
