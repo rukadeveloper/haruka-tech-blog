@@ -167,9 +167,9 @@ body {
 /* 유리 뒤에 비칠 색 번짐 — 화면에 고정되어 스크롤해도 움직이지 않는다 */
 body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--ambient); pointer-events: none; }
 
-/* 인트로(/intro)는 화면 하나를 채운 3D 무대다 — 바탕을 인트로 색(피치)으로 바꾸고 스크롤과 색 번짐을 끈다.
+/* 인트로(/intro)는 화면 하나를 채운 점 매트릭스 무대다 — 바탕을 인트로 색(#f7f7f5)으로 바꾸고 스크롤과 색 번짐을 끈다.
    data-intro 는 인트로가 보이는 동안만 app/intro/StageLock 이 붙인다 (나머지 스타일은 app/intro/intro.css) */
-html[data-intro], html[data-intro] body { background: #f5b39a; overflow: hidden; }
+html[data-intro], html[data-intro] body { background: #f7f7f5; overflow: hidden; }
 html[data-intro] body::before { display: none; }
 
 :focus-visible { outline: 2px solid var(--strong); outline-offset: 2px; }
