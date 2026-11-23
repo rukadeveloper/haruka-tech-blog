@@ -7,33 +7,44 @@ paths:
 
 # 인트로 페이지 (`/intro`) 규칙
 
-한 화면(스크롤 없음)을 꽉 채운 영상 위에 헤더 · 히어로 · 통계를 올린 랜딩 화면입니다. 원본은 정적 HTML + CSS + JS 명세이고, 이 저장소에서는 Next.js 라우트로 옮겼습니다. **디자인(배치 · 글꼴 · 수치 · 움직임)은 명세 그대로 두고, 내용만 블로그에 맞게 바꿨습니다.** 아래 값은 임의로 바꾸지 않습니다.
+Three.js 캔버스 하나에 언어 로고를 입체로 만든 3D 오브젝트를 올린 랜딩 화면입니다. 원본은 스크롤로 움직이는 단일 HTML 명세(히어로 캐러셀 → 뒷면 스토리 → 매니페스토 → 라인업)이고, **병 대신 언어 로고를 입체화**해 블로그에 맞게 옮깁니다. 아래 값은 명세 값이므로 임의로 바꾸지 않습니다.
+
+## 진행 단계
+
+| 단계 | 내용 | 상태 |
+|---|---|---|
+| 1 | 히어로 캐러셀 (입장 · 드래그 · 던지기 · 화살표 · 제목 굴림 · 원판 · 바닥 빛줄) | 완료 |
+| 2 | 스토리 (뒷면 · 행 하이라이트 · 디코드 문구) | 예정 |
+| 3 | 매니페스토 (구름 · 문자 텍스처 셰이더) | 예정 |
+| 4 | 라인업 (어두운 바탕 · 멀어지는 줄) + 805vh 스크롤 트랙 | 예정 |
+
+1단계에서는 스크롤이 없어 한 화면에 고정합니다 (`html[data-intro]` 가 스크롤을 끕니다). 4단계에서 스크롤 트랙을 붙일 때 이 잠금을 다시 정합니다.
 
 ## 이 화면만의 예외
 
 CLAUDE.md 와 DESIGN.md 의 디자인 규칙은 이 화면에 적용하지 않습니다.
 
-- 테마는 검은 바탕 하나뿐입니다. 라이트/다크 전환, `data-theme`, DESIGN.md 의 색 · 글래스 · 움직임 토큰과 `.glass*`, `.btn`, `.chip` 같은 클래스를 쓰지 않습니다.
-- 색과 수치는 `intro.css` 의 `.intro-root` 에 선언한 자체 변수와 명세의 값을 그대로 씁니다.
-- 분기는 모바일 퍼스트가 아니라 명세대로 `max-width: 720px`, `max-width: 420px`, `max-height: 700px` 입니다.
-- 모바일 메뉴는 `hidden` 속성으로 여닫고 나타날 때만 움직입니다 (`data-open` + `inert` 규칙을 따르지 않습니다).
+- 테마는 아래 피치 팔레트 하나뿐입니다. 라이트/다크 전환, `data-theme`, DESIGN.md 의 색 · 글래스 · 움직임 토큰과 `.glass*`, `.btn`, `.chip` 같은 클래스를 쓰지 않습니다.
+- 분기는 모바일 퍼스트가 아니라 명세대로 `max-width: 820px` 또는 세로 화면, `max-width: 360px`, 낮은 가로 화면(`max-height: 520px` + 가로)입니다. 3D 배치는 화면비 `k = smoothstep(.72, 1.25, aspect)` (0 세로, 1 가로) 로 값을 섞습니다.
+- 메뉴 시트는 `hidden` 속성으로 여닫습니다 (`data-open` + `inert` 규칙을 따르지 않습니다).
 - 블로그 헤더 · 푸터가 붙지 않도록 라우트 그룹 `(site)` 밖(`src/app/intro`)에 둡니다.
-- 그대로 지키는 규칙: 코드 주석은 한국어, 화면 문구는 한국어(도트 글꼴은 한글이 없어 헤드라인만 영어), DB 읽기는 `src/lib` 의 캐시된 함수.
+- 그대로 지키는 규칙: 코드 주석은 한국어, 화면 문구는 한국어(제목 · 워드마크 · 버튼 같은 표시 글꼴 문구는 영어 대문자).
 
 ## 파일
 
 | 파일 | 역할 |
 |---|---|
-| `page.tsx` | 서버 컴포넌트. 메타데이터, 글꼴, 외부 스타일시트, 전체 마크업, 통계 값 조회 |
+| `page.tsx` | 서버 컴포넌트. 메타데이터, 글꼴, 전체 마크업 |
 | `intro.css` | 스타일 전부. 이 저장소는 모든 `*.css` 를 Tailwind 로더로 처리해 CSS 모듈을 쓸 수 없으므로, 클래스와 키프레임에 `intro-` 접두사를 붙입니다 |
-| `IntroHeader.tsx` | 클라이언트. 로고 · 내비 · 우측 필 · 모바일 메뉴 |
-| `CountUp.tsx` | 클라이언트. 통계 숫자 카운트업 |
-| `BgVideo.tsx` | 클라이언트. 배경 영상 (자동 재생 보장) |
+| `IntroNav.tsx` | 클라이언트. 워드마크 · MENU · BLOG 알약 · 메뉴 시트 |
+| `IntroStage.tsx` | 클라이언트. 캔버스와 히어로 오버레이(제목 · 화살표 · 빛줄). three 는 이펙트 안에서 동적 import |
+| `stage/languages.ts` | 언어 표 · 칸별 기울기 |
+| `stage/scene.ts` | 렌더러 · 카메라 · 환경 조명 · 배경 셰이더 |
+| `stage/logo-mesh.ts` | SVG path → 입체 지오메트리 · 재질 |
+| `stage/carousel.ts` | 스프링 · 히어로 배치 함수 · 입장 진행 |
 | `StageLock.tsx` | 클라이언트. 인트로가 보이는 동안만 `html` 에 `data-intro` 를 붙임 |
 
-인트로가 보이는 동안 `StageLock` 이 `html` 에 `data-intro` 를 붙이고, `src/app/globals.css` 의 `html[data-intro]` 규칙이 바탕을 검게 하고 스크롤과 색 번짐(`body::before`)을 끕니다.
-
-cacheComponents 에서는 다른 화면으로 넘어가도 인트로의 DOM 이 숨겨진 채 남습니다. 그래서 화면에 묶인 것은 CSS 선택자(`:has()`)가 아니라 이펙트로 켜고 정리 함수에서 끕니다 — 바탕 잠금(`StageLock`), 영상 재생(`BgVideo`), 카운트업(`CountUp`)이 그렇게 되어 있습니다.
+cacheComponents 에서는 다른 화면으로 넘어가도 인트로의 DOM 이 숨겨진 채 남습니다. 그래서 화면에 묶인 것은 CSS 선택자(`:has()`)가 아니라 이펙트로 켜고 정리 함수에서 끕니다 — 바탕 잠금(`StageLock`), WebGL 장면(`IntroStage`: rAF 취소 · 리스너 해제 · 지오메트리 · 재질 · 렌더러 dispose)이 그렇게 되어 있습니다.
 
 ## 진입 규칙
 
@@ -60,123 +71,78 @@ cacheComponents 에서는 다른 화면으로 넘어가도 인트로의 DOM 이 
 - `/admin` 이하: 에디터에서 새로고침하면 쓰던 화면을 잃습니다.
 - GitHub 로그인 직후의 복귀(`/api/auth/github/callback` → `returnTo`): 문서를 새로 받는 이동이라, 걸리면 댓글을 쓰려던 글로 돌아오지 못합니다.
 
-## 배경 영상
+## 색 · 글꼴 (`.intro-root`)
 
-부모 `.intro-bg` 는 `#000`, `position: absolute; inset: 0; overflow: hidden`. 영상은 `position: absolute; inset: 0; object-fit: cover; pointer-events: none; z-index: 0` 이고 `autoplay muted loop playsinline` 입니다. 주소는 아래 것만 씁니다.
-
+```css
+--cocoa: #4A1E17;   /* 글자 */
+--coral: #E25B45;   /* 강조 */
+--cream: #FFF3EC;
+--peach: #FCD9C8;
+--peach2: #F5B39A;  /* html · body 바탕 (globals.css 의 html[data-intro]) */
+--ease: cubic-bezier(.22, 1, .36, 1);
+--disp: var(--font-barlow), "Barlow Condensed", Impact, sans-serif;
+--body: var(--font-manrope), var(--font-pretendard), system-ui, sans-serif;
 ```
-https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4
-```
-
-헤더 · 히어로 · 통계 · 모바일 메뉴는 `z-index: 1` 로 영상 위에 둡니다.
-
-## 글꼴
 
 | 글꼴 | 쓰임 | 불러오는 방법 |
 |---|---|---|
-| Inter 400 · 500 · 600 | UI | `next/font/google` → `--font-inter` |
-| Pretendard | UI 의 한글 | 루트 레이아웃의 `--font-pretendard` (Inter 에 한글이 없어 스택에 추가) |
-| BubbledotICG-FinePos | 헤드라인, 통계 기호 | OnlineWebFonts CDN `<link>` — **로컬 Bubbledot 파일을 쓰지 않습니다** |
-| Geist Pixel Circle | 위 글꼴의 대체 | `src/app/fonts/GeistPixel-Circle.woff2` → `next/font/local` → `--font-geist-pixel` (400, `swap`, preload 안 함) |
-| Font Awesome 6.5.2 | 신뢰 배지 아이콘 | cdnjs `<link>` + `integrity` |
+| Barlow Condensed 800 · 900 italic | 워드마크, 제목 | `next/font/google` → `--font-barlow` (`display: block`) |
+| Manrope 400–700 | 본문, 메뉴, 버튼 | `next/font/google` → `--font-manrope` |
+| Pretendard | 한글 대체 | 루트 레이아웃의 `--font-pretendard` |
 
-```
-https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos
-https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css
-integrity: sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==
-```
+## 언어 (16칸, 칸 i 는 언어 `i % 8`)
 
-BubbledotICG 는 상용 글꼴이고 이 CDN 의 권리 관계는 확인되지 않았습니다. 공개 배포 전에 라이선스를 확인합니다.
+| # | 제목 | 아이콘 (`simple-icons`, CC0) | 몸체 색 | 강조색 (원판 고리 · 빛줄) |
+|---|---|---|---|---|
+| 0 | JAVASCRIPT | `siJavascript` | #F7DF1E | #E8C400 |
+| 1 | TYPESCRIPT | `siTypescript` | #3178C6 | #2A6BB0 |
+| 2 | REACT | `siReact` | #61DAFB | #3FB8D9 |
+| 3 | NEXT.JS | `siNextdotjs` | #1A1A1A | #4A1E17 |
+| 4 | NODE.JS | `siNodedotjs` | #5FA04E | #4C8A3D |
+| 5 | PYTHON | `siPython` | #3776AB | #FFD43B |
+| 6 | JAVA | `siOpenjdk` | #E76F00 | #5382A1 |
+| 7 | HTML · CSS | `siHtml5` | #E34F26 | #D2421C |
 
-## CSS 변수 (`.intro-root`)
+칸별 기울기(rad): .10, −.15, .07, −.09, .14, −.06, .12, −.13, .08, −.11, .15, −.07, .09, −.14, .06, −.10.
 
-```css
---bg: #000000;
---text: #ffffff;
---muted: #8e8e8e;
---nav-text: #2e2e2e;
---pill-dark: #28282a;
---sign-in-text: #c8c8c8;
---nav-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
---trust-bg: #28282a;
---trust-border: rgba(255, 255, 255, 0.4);
---trust-text: #c4c2c3;
---font-sans: var(--font-inter), var(--font-pretendard), "Segoe UI", system-ui, sans-serif;
---font-display: "BubbledotICG-FinePos", var(--font-geist-pixel), monospace;
-```
+로고는 각 회사 · 재단의 상표입니다. 소개 화면에서 다루는 기술을 가리키는 용도로만 씁니다.
 
-## 배치
+## 3D 장면
 
-`.intro-page`: 세로 flex, 가운데 정렬, `padding: clamp(16px, 2.4vh, 28px) clamp(14px, 3vw, 32px)`, 높이 `100vh` / `100dvh`, `overflow: hidden`. 위에서부터 헤더(줄어들지 않음) · 히어로(`flex: 1`, 가운데) · 통계(줄어들지 않음).
+- 렌더러: antialias, pixel ratio `min(dpr, 1.5)`. 평균 프레임이 19.5ms 를 넘으면 .15 낮춤(최소 .7, 8초간 올리지 않음), 17.3ms 아래면 1.2초마다 .05 올림. ACESFilmic 노출 1.0, sRGB.
+- 카메라: fov 30, z = 10. `VH = 20·tan(15°) = 5.359`, `W = VH × aspect`.
+- 환경(PMREM, blur .035): 바탕 #2c1b17 과 원점을 향한 발광 판 — 1.0×16 흰색 ×7 (−5.5,0,4.2) / .55×16 흰색 ×5 (4.8,.5,3.6) / .35×16 #fff4ea ×3.5 (1.4,0,6.5) / 12×2.5 #fff1e6 ×2.4 (0,7.5,1.5) / 10×9 #ff9466 ×1.3 (0,−1,−8) / 7×8 #ffc6a8 ×1.1 (−8,−1,−3) / 7×8 #ffb08c ×.9 (8,−1,−2). DirectionalLight 흰색 1.1 (−3,5,6), AmbientLight #ffe8dc .35.
+- **로고 오브젝트**: 24×24 SVG path → `SVGLoader.createShapes` → `ExtrudeGeometry`(깊이 = 높이의 .16, 얇은 bevel) → 가운데 정렬, 높이 1 로 정규화. 재질은 `MeshPhysicalMaterial` 몸체 색, roughness .18, clearcoat 1 (roughness .05), envMapIntensity 2.1. `opaque_fragment` 앞에서 `fresnel = (1 − |n·v|)^2.2` 와 밝은 하이라이트를 더해 테두리가 빛나게 합니다. 명세의 병 높이(BH) 자리는 이 정규화 높이가 대신합니다.
+- **원판**: 반지름 1 · 높이 .05 투명 원기둥(.22), 가산 토러스 고리(반지름 1, 굵기 .007, 강조색을 흰색 쪽으로 .25 섞고 ×1.5), 납작한 빛 번짐 판(3.2×1.1). 전체를 `(hc·1.25, hc·1.2, hc·1.25)` 로 키워 가운데 오브젝트 아래에 둡니다.
+- **배경 셰이더**(전체 화면 쿼드): hero 팔레트 위 #EE9F84 / 아래 #F7BBA2, 빛 #FFD8C4 at (.5,.2), 양 .42, 반경 2.4. 필름 그레인 ±.0225.
 
-### 헤더 (데스크톱)
+## 히어로 캐러셀
 
-가운데 정렬한 한 줄, `max-width: 720px`, `gap: clamp(18px, 2.8vw, 28px)`. 입장: `slideDown 0.7s cubic-bezier(0.22, 1, 0.36, 1) both` (`opacity: 0; translateY(-18px)` 에서).
+- 가운데 오브젝트 높이 `lerp(.38,.5,k)·VH` (너비 ≤ `lerp(.36,.2,k)·W`), 바닥 `y = lerp(−.3,−.35,k)·VH`.
+- 칸 거리 d: `x = sign(d)·(min(|d|,1)·s1 + max(0,|d|−1)·s2)·W` (s1 = `lerp(.36,.15,k)`, s2 = `lerp(.25,.104,k)`), 크기 `hc·(1 − .3·min(|d|,1) − .035·max(0,|d|−1))`, 바닥 높이 같음(옆은 +.05·VH), `z = −min(|d|,6)·.32`, `rotZ = tilt·smoothstep(0,1,|d|)`, `rotY = −d·.2`. 유휴: `y += sin(1.1t+1.7i)·.035`, `rotZ += sin(.8t+2.3i)·.025`, `rotY += sin(.5t+i)·.06`.
+- 입장 1.9초: 칸별 진행 `(intro − .06·|d|)/.62`. 가운데는 화면 높이 75% 아래에서 easeOutCubic, 옆은 ±.85W 에서 easeOutBack(1.15) 으로 날아오며 기울기 ±.5 rad 가 풀림. 원판은 easeOutCubic 으로 솟고, 헤더는 70%, 제목 · 화살표는 75% 에 나타납니다.
+- `car` 는 임계 감쇠 스프링(k = 46)으로 목표를 따릅니다. 드래그 한 칸 = `s1·innerWidth` px. 놓으면 속도(이동마다 lerp .35, ±14칸/초, 90ms 이상 멈추면 0)로 목표 `round(car + v·.22)`. 6px 미만 이동은 클릭 → 레이캐스트로 옆 오브젝트를 가운데로. ‹ › 버튼 · ← → 키는 ±1. 가로 휠은 `deltaX/220` 을 더하고 마지막 휠 130ms 뒤 스냅.
+- hover: 옆 오브젝트가 .09 들리고 밝아짐, 커서 grab / grabbing / pointer.
+- 밝기: 가운데 1, 옆은 최대 48% 어둡게 (색 ×(.42 + .58L), 발광 .08 + .34L).
+- 가운데 언어가 바뀌면 제목이 .62초 `--ease` 로 아래에서(뒤로 가면 위에서) 굴러 들어오고, 원판 고리 · 빛 · 바닥 빛줄 색은 `exp(−4dt)` 로 강조색을 따라갑니다 (CSS 변수 `--sc`, `--sg` 를 매 프레임 씀).
 
-- **로고**: 원형 `clamp(40px, 4.4vw, 46px)`, 바탕 `#fff`, 그림자 `--nav-shadow`. 그림은 원 안에서 72% 크기(`object-fit: contain`, grid 로 가운데), hover `scale(1.04)`.
-- **내비 필**: 흰 바탕, 높이 `clamp(44px, 5.2vw, 48px)`, `max-width: 430px`, `flex: 1`, `padding: 4px 8px`, 모서리 999, 같은 그림자. 링크는 Inter 500, `clamp(13px, 1.4vw, 15px)`, 자간 `-0.01em`, 색 `#2e2e2e`, 불투명도 기본 `0.5` / hover `0.75` / 현재 `1`. 현재 표시는 글자 아래 3×3px 검은 점 세 개(`::after` + `box-shadow` `-5px` / `+5px`, `bottom: 5px`).
-- **우측 필**: 바탕 `#28282a`, 글자 `#c8c8c8`, 내비와 같은 높이 · 모서리 · 그림자. hover 는 바탕 `#323234`, 글자 `#fff`, `translateY(-1px)`.
+## 오버레이
 
-### 히어로
+- 헤더: 고정, 높이 84px, z-index 5. 처음 `opacity 0; translateY(-12px)`, `.intro-root` 에 `is-ui` 가 붙으면 .9초에 걸쳐 들어옴. 가운데 워드마크 `EUNHAA` + 위첨자 `TECH`(Manrope 600 9px): Barlow 900 italic 40px, 자간 −.01em, cream, `text-shadow 0 1px 14px rgba(120,40,20,.18)`. 오른쪽 48px 에서 34px 간격으로 MENU 버튼(4px 둥근 사각형 2×2, 간격 3px + "MENU" Manrope 700 13px 자간 .08em) 과 BLOG 알약(Manrope 800 12px, 자간 .08em, 1.5px cream 테두리, 패딩 9px 24px, hover 시 cream 채움 + cocoa 글자). BLOG 는 `next/link` 로 `/`.
+- MENU 를 누르면 cream 시트 메뉴(Home · Blog · About · 방명록 · GitHub)가 열립니다. 딤 클릭 · Esc · 링크 클릭으로 닫히고, 버튼의 `aria-expanded` 와 시트의 `hidden` 을 함께 바꿉니다.
+- 제목 h1: 왼쪽 3.4vw, 위 `max(92px, 11vh)`, Barlow 900 italic `clamp(54px, 7.4vw, 112px)`, 줄 간격 1, 자간 −.015em, cocoa, 대문자, 한 줄 높이로 잘라 세로로 굴림.
+- 화살표: 오른쪽 3.2vw, 아래 `max(40px, 6vh)`, 간격 16px. 52px 원, 2px cream 테두리(.95), cream 채움 .08, 그림자 `0 4px 18px rgba(150,60,30,.12)`, 18px 꺾쇠(선 2). hover 채움 .22 + scale 1.06, 누름 .96.
+- 바닥 빛줄 `.intro-strip`: 3px, 그러데이션 투명 → `--sc`(18%) → 흰색(50%) → `--sc`(82%) → 투명, 그림자 `0 0 22px 6px` · `0 0 70px 18px` 에 `--sg`.
+- 캔버스는 opacity 0 에서 준비가 끝나면(글꼴 · 셰이더 컴파일) 1초에 걸쳐 1.
 
-세로 배치, 가운데 정렬, `max-width: 900px`.
+## 반응형
 
-- **신뢰 배지 줄**: `--trust-size: clamp(36px, 4.5vw, 42px)` (420px 이하 34px), 아래 여백 `clamp(16px, 2.5vh, 26px)`, 지연 `0.05s`.
-  - 아바타 3개: 바깥 고리는 `--trust-size` 크기, 바탕 `#28282a`, 테두리 `1px solid rgba(255,255,255,0.4)`, **`padding: 5px`**. 그 안을 흰 원이 채웁니다. 아이콘은 `#111`, 크기 `calc(var(--trust-size) * 0.34)`.
-  - 겹침: 뒤 아바타 `margin-left: calc(var(--trust-size) * -0.42)`, `z-index` 1 / 2 / 4. hover 시 `-2px` / `-4px` / `-2px` (0.35s).
-  - 알약: 아바타와 같은 높이 · 바탕 · 테두리, 모서리 999, 왼쪽 여백 `-0.42 × trust-size`, 왼쪽 안쪽 여백 `0.58 × trust-size`. 글자는 Inter 500, `#c4c2c3`, `clamp(12px, 1.4vw, 13.5px)` (모바일 12px).
-- **헤드라인**: 줄마다 `<span>` 블록 두 개. 표시 글꼴, **단색 흰색**, `clamp(28px, 6.2vw, 80px)`, 자간 `-0.04em` (720px 이하 `-0.08em`, 420px 이하 `-0.09em`), 줄 간격 `1.12` (`1.05` / `1.04`), `white-space: nowrap`, `overflow: hidden`. 줄마다 `opacity: 0; translateY(14px)` 에서 `headlineFade 0.85s cubic-bezier(0.22, 1, 0.36, 1)`, 지연 `0.12s` / `0.3s`. 제목 요소 자체에는 입장 애니메이션을 걸지 않습니다.
-- **서브헤드**: `max-width: min(500px, 92%)`, 크기 `clamp(calc(13.5px + 2pt), calc(1.55vw + 2pt), calc(16.5px + 2pt))`, 색 `#d0d0d0`, 불투명도 `0.8`, 줄 간격 `1.55`, 굵기 400, 지연 `0.28s`.
-- **CTA**: 흰 알약에 검은 글자, Inter 600, `clamp(13.5px, 1.5vw, 14.5px)`, `padding: clamp(11px, 1.6vh, 13px) clamp(22px, 3vw, 28px)`. 빛 번짐 `0 0 0 1px rgba(255,255,255,0.15), 0 0 22px rgba(255,255,255,0.32), 0 0 44px rgba(255,255,255,0.12)`. hover 는 `translateY(-2px) scale(1.02)` + 더 강한 빛. 입장은 `revealPulse`, 지연 `0.4s`.
-
-### 통계
-
-4열 그리드(720px 이하 2×2), `max-width: 920px`. 항목마다 기호(표시 글꼴, 흰색) → 숫자 → 흐린 라벨.
-
-- 기호 `clamp(22px, 3vw, 33px)`, 숫자는 Inter 흰색 `clamp(18px, 2.2vw, 26px)` · 자간 `-0.025em` · `tabular-nums`, 라벨은 `#8e8e8e` · `clamp(11px, 1.2vw, 12.5px)`.
-- 입장 지연 `0.5s`, `0.58s`, `0.66s`, `0.74s`.
-- 카운트업: easeOutCubic, 길이 `1500 + i*80`ms, 시작 지연 `480 + i*90`ms, IntersectionObserver `threshold: 0.25` 로 한 번만.
-
-## 입장 애니메이션
-
-`.intro-anim` 은 `opacity: 0; translateY(22px) scale(0.98); blur(6px)` 에서 `reveal 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards` 로 들어오고, 지연은 인라인 `--d` 로 줍니다. `prefers-reduced-motion: reduce` 에서는 애니메이션을 모두 끄고 최종 상태를 바로 보여 줍니다 (카운트업도 최종 값으로).
-
-## 모바일 (720px 이하)
-
-- 데스크톱 내비와 우측 필을 숨깁니다. 헤더는 양 끝 정렬: 왼쪽 로고 48×48, 오른쪽 원형 버거 48×48 (`#28282a`, 흰 막대 18×1.5px 세 개).
-- 열리면 버거는 흰 원 + 검은 X (막대 `translateY(±6.5px)` + `rotate(±45deg)`).
-- 딤: 화면 전체 고정, `rgba(0,0,0,0.62)`, blur 6px, `overlayIn 0.28s`.
-- 흰 시트 메뉴: 헤더 아래 가운데, 모서리 28px, `padding: 22px 18px 20px`, 그림자 `0 20px 60px rgba(0,0,0,0.45)`, `menuIn 0.38s`. 링크 + 가로로 꽉 찬 우측 필, 차례로 `linkIn`, 현재 표시 점 세 개는 `bottom: 8px`.
-- 닫히는 조건: 딤 클릭, Esc, 링크 클릭, 창 너비가 720px 를 넘을 때. 버튼의 `aria-expanded` 와 메뉴의 `hidden` 을 함께 바꿉니다.
-- 통계는 2열.
-- 그 밖에 420px 이하에서 헤드라인 · 신뢰 배지 값을 조정하고, 높이 700px 이하에서 히어로 간격을 줄입니다.
+- 820px 이하 또는 세로: 헤더 68px, 워드마크 30px, "MENU" 글자 숨김. 제목 왼쪽 20px, 위 `max(78px, 10vh)`, `clamp(46px, 13vw, 80px)`. 화살표 48px, 오른쪽 아래 20px.
+- 360px 이하: 워드마크 25px, BLOG 패딩 7px 11px.
+- 움직임 줄이기: 입장 생략, 유휴 흔들림 끔, 전환 거의 즉시. 드래그 · 화살표는 동작.
 
 ## 하지 않는 것
 
-- 히어로에 카드를 넣지 않습니다. 화면 전체가 하나의 구성입니다.
-- 헤드라인에 그러데이션 · 반짝임 · 스캔 애니메이션을 넣지 않습니다. 단색 흰색입니다.
-- 신뢰 배지 아바타를 꽉 찬 흰 원으로 만들지 않습니다. 어두운 고리 안의 작은 흰 원입니다.
-- 로고는 글자가 아니라 실제 원형 마크입니다.
-- 내비 · 로고 그림자는 `0 4px 14px rgba(0,0,0,0.16)` 보다 무겁게 하지 않습니다.
-- 첫 화면에 헤더 · 신뢰 배지 · 헤드라인 · 서브헤드 · CTA · 통계가 모두 보여야 합니다 (데스크톱과 모바일 모두).
-
-## 블로그에 맞게 바꾼 내용
-
-| 자리 | 명세 원문 | 지금 내용 |
-|---|---|---|
-| 로고 | `assets/logo.webp` | `src/app/icon.svg` (블로그 로고) |
-| 내비 | Home / Product / Case Studies / Contact | Home(`/intro`, 현재) / Blog(`/`) / About(`/about`) / 방명록(`/guestbook`) |
-| 우측 필 | Sign in | GitHub (`github.com/rukadeveloper`, 새 탭) |
-| 신뢰 배지 | Microsoft · Amazon · Google / Trusted by 2000+ Enterprises | `fa-js` · `fa-react` · `fa-python` / FE · BE · AI 공부 기록 |
-| 헤드라인 | Intelligence / Designed To Evolve | 그대로 |
-| 서브헤드 | Build applications that reason, adapt and collaborate… | 개발과 AI를 공부하며 이해한 것을 내 말로 정리하고, 다시 꺼내 쓸 수 있게 남깁니다. |
-| CTA | Get Started | 블로그 보러 가기 (`/`) |
-
-통계 네 개는 기호와 순서를 그대로 두고 값만 실제 데이터로 바꿨습니다.
-
-| 기호 | 값 | 접미사 | 라벨 | 출처 |
-|---|---|---|---|---|
-| `<` | 카테고리 수 (대분류 + 소분류) | `개` | 다루는 주제 | `getCategories()` + `flattenCategories()` |
-| `%` | 100 | `%` | 직접 만든 블로그 | 고정값 |
-| `*` | 첫 글부터 지난 날 수 | `일` | 기록을 이어 온 날 | `getAllPosts()` 의 가장 오래된 날짜. 날 수는 브라우저에서 계산 (캐시된 화면에서도 오늘 기준) |
-| `#` | 공개 글 수 | `편` | 작성한 글 | `getAllPosts()` |
+- 로고 오브젝트에 이미지 텍스처를 붙이지 않습니다. 모양은 SVG path 를 입체화한 것뿐입니다.
+- 블로그 홈으로 가는 링크에 `<a href="/">` 나 `location.href` 를 쓰지 않습니다 (진입 규칙 참고).
+- 320px ~ 2560px 어느 폭에서도 가로 스크롤이 생기면 안 됩니다.
