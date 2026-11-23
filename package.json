@@ -32,6 +32,8 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "shiki": "^4.5.0",
+    "simple-icons": "^16.38.1",
+    "three": "^0.187.0",
     "unified": "^11.0.5"
   },
   "devDependencies": {
@@ -40,6 +42,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.187.0",
     "@types/turndown": "^5.0.6",
     "cheerio": "^1.2.0",
     "eslint": "^9",

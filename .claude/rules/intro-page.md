@@ -41,7 +41,9 @@ CLAUDE.md 와 DESIGN.md 의 디자인 규칙은 이 화면에 적용하지 않�
 | `stage/languages.ts` | 언어 표 · 칸별 기울기 |
 | `stage/scene.ts` | 렌더러 · 카메라 · 환경 조명 · 배경 셰이더 |
 | `stage/logo-mesh.ts` | SVG path → 입체 지오메트리 · 재질 |
-| `stage/carousel.ts` | 스프링 · 히어로 배치 함수 · 입장 진행 |
+| `stage/carousel.ts` | 히어로 배치 함수 · 입장 진행 |
+| `stage/math.ts` | 스프링 · 이징 · smoothstep 같은 작은 수학 함수 |
+| `stage/index.ts` | `createStage()` — 캔버스 생성, 입력, 프레임 루프, 정리 |
 | `StageLock.tsx` | 클라이언트. 인트로가 보이는 동안만 `html` 에 `data-intro` 를 붙임 |
 
 cacheComponents 에서는 다른 화면으로 넘어가도 인트로의 DOM 이 숨겨진 채 남습니다. 그래서 화면에 묶인 것은 CSS 선택자(`:has()`)가 아니라 이펙트로 켜고 정리 함수에서 끕니다 — 바탕 잠금(`StageLock`), WebGL 장면(`IntroStage`: rAF 취소 · 리스너 해제 · 지오메트리 · 재질 · 렌더러 dispose)이 그렇게 되어 있습니다.
@@ -112,18 +114,18 @@ cacheComponents 에서는 다른 화면으로 넘어가도 인트로의 DOM 이 
 - 렌더러: antialias, pixel ratio `min(dpr, 1.5)`. 평균 프레임이 19.5ms 를 넘으면 .15 낮춤(최소 .7, 8초간 올리지 않음), 17.3ms 아래면 1.2초마다 .05 올림. ACESFilmic 노출 1.0, sRGB.
 - 카메라: fov 30, z = 10. `VH = 20·tan(15°) = 5.359`, `W = VH × aspect`.
 - 환경(PMREM, blur .035): 바탕 #2c1b17 과 원점을 향한 발광 판 — 1.0×16 흰색 ×7 (−5.5,0,4.2) / .55×16 흰색 ×5 (4.8,.5,3.6) / .35×16 #fff4ea ×3.5 (1.4,0,6.5) / 12×2.5 #fff1e6 ×2.4 (0,7.5,1.5) / 10×9 #ff9466 ×1.3 (0,−1,−8) / 7×8 #ffc6a8 ×1.1 (−8,−1,−3) / 7×8 #ffb08c ×.9 (8,−1,−2). DirectionalLight 흰색 1.1 (−3,5,6), AmbientLight #ffe8dc .35.
-- **로고 오브젝트**: 24×24 SVG path → `SVGLoader.createShapes` → `ExtrudeGeometry`(깊이 = 높이의 .16, 얇은 bevel) → 가운데 정렬, 높이 1 로 정규화. 재질은 `MeshPhysicalMaterial` 몸체 색, roughness .18, clearcoat 1 (roughness .05), envMapIntensity 2.1. `opaque_fragment` 앞에서 `fresnel = (1 − |n·v|)^2.2` 와 밝은 하이라이트를 더해 테두리가 빛나게 합니다. 명세의 병 높이(BH) 자리는 이 정규화 높이가 대신합니다.
+- **로고 오브젝트**: 24×24 SVG path → `SVGLoader.createShapes` → `ExtrudeGeometry`(깊이 = 높이의 .16, 얇은 bevel) → 가운데 정렬, 긴 변 1 로 정규화. 재질은 `MeshPhysicalMaterial` 몸체 색, roughness .22, clearcoat 1 (roughness .05), envMapIntensity 1.3 (명세 2.1 은 투명 유리 기준이라 불투명한 넓은 면에서는 반사가 색을 덮음). `opaque_fragment` 앞에서 `fresnel·.3 + smoothstep(.22,1.1,maxRGB)·.05` 를 더해 테두리가 빛나게 합니다. 명세의 병 높이(BH) 자리는 이 정규화 높이가 대신합니다.
 - **원판**: 반지름 1 · 높이 .05 투명 원기둥(.22), 가산 토러스 고리(반지름 1, 굵기 .007, 강조색을 흰색 쪽으로 .25 섞고 ×1.5), 납작한 빛 번짐 판(3.2×1.1). 전체를 `(hc·1.25, hc·1.2, hc·1.25)` 로 키워 가운데 오브젝트 아래에 둡니다.
 - **배경 셰이더**(전체 화면 쿼드): hero 팔레트 위 #EE9F84 / 아래 #F7BBA2, 빛 #FFD8C4 at (.5,.2), 양 .42, 반경 2.4. 필름 그레인 ±.0225.
 
 ## 히어로 캐러셀
 
-- 가운데 오브젝트 높이 `lerp(.38,.5,k)·VH` (너비 ≤ `lerp(.36,.2,k)·W`), 바닥 `y = lerp(−.3,−.35,k)·VH`.
+- 가운데 오브젝트 크기: 명세의 병 높이 `lerp(.38,.5,k)·VH` · 너비 상한 `lerp(.36,.2,k)·W` 를 로고에 맞게 줄여, 로고의 긴 변 `size = min(lerp(.38,.5,k)·VH·lerp(.75,.6,k), lerp(.36,.2,k)·W·lerp(1.05,.75,k))`. 로고는 병보다 넓어 명세 값 그대로면 옆 오브젝트와 겹칩니다. 바닥 `y = lerp(−.3,−.35,k)·VH`, 원판 배율 `hc = size / 1.2`.
 - 칸 거리 d: `x = sign(d)·(min(|d|,1)·s1 + max(0,|d|−1)·s2)·W` (s1 = `lerp(.36,.15,k)`, s2 = `lerp(.25,.104,k)`), 크기 `hc·(1 − .3·min(|d|,1) − .035·max(0,|d|−1))`, 바닥 높이 같음(옆은 +.05·VH), `z = −min(|d|,6)·.32`, `rotZ = tilt·smoothstep(0,1,|d|)`, `rotY = −d·.2`. 유휴: `y += sin(1.1t+1.7i)·.035`, `rotZ += sin(.8t+2.3i)·.025`, `rotY += sin(.5t+i)·.06`.
 - 입장 1.9초: 칸별 진행 `(intro − .06·|d|)/.62`. 가운데는 화면 높이 75% 아래에서 easeOutCubic, 옆은 ±.85W 에서 easeOutBack(1.15) 으로 날아오며 기울기 ±.5 rad 가 풀림. 원판은 easeOutCubic 으로 솟고, 헤더는 70%, 제목 · 화살표는 75% 에 나타납니다.
 - `car` 는 임계 감쇠 스프링(k = 46)으로 목표를 따릅니다. 드래그 한 칸 = `s1·innerWidth` px. 놓으면 속도(이동마다 lerp .35, ±14칸/초, 90ms 이상 멈추면 0)로 목표 `round(car + v·.22)`. 6px 미만 이동은 클릭 → 레이캐스트로 옆 오브젝트를 가운데로. ‹ › 버튼 · ← → 키는 ±1. 가로 휠은 `deltaX/220` 을 더하고 마지막 휠 130ms 뒤 스냅.
 - hover: 옆 오브젝트가 .09 들리고 밝아짐, 커서 grab / grabbing / pointer.
-- 밝기: 가운데 1, 옆은 최대 48% 어둡게 (색 ×(.42 + .58L), 발광 .08 + .34L).
+- 밝기: 가운데 1, 옆은 최대 48% 어둡게 (색 ×(.42 + .58L), 발광 (.08 + .34L)×.2 — 로고는 몸체가 바로 보여 명세 발광 그대로면 색이 하얗게 뜸).
 - 가운데 언어가 바뀌면 제목이 .62초 `--ease` 로 아래에서(뒤로 가면 위에서) 굴러 들어오고, 원판 고리 · 빛 · 바닥 빛줄 색은 `exp(−4dt)` 로 강조색을 따라갑니다 (CSS 변수 `--sc`, `--sg` 를 매 프레임 씀).
 
 ## 오버레이
@@ -138,6 +140,7 @@ cacheComponents 에서는 다른 화면으로 넘어가도 인트로의 DOM 이 
 ## 반응형
 
 - 820px 이하 또는 세로: 헤더 68px, 워드마크 30px, "MENU" 글자 숨김. 제목 왼쪽 20px, 위 `max(78px, 10vh)`, `clamp(46px, 13vw, 80px)`. 화살표 48px, 오른쪽 아래 20px.
+- 440px 이하: 워드마크를 왼쪽 20px 로 옮깁니다 (가운데면 오른쪽 버튼과 겹침).
 - 360px 이하: 워드마크 25px, BLOG 패딩 7px 11px.
 - 움직임 줄이기: 입장 생략, 유휴 흔들림 끔, 전환 거의 즉시. 드래그 · 화살표는 동작.
 
