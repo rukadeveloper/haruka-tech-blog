@@ -11,7 +11,8 @@ import "./intro.css";
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["400", "500", "600"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Learning by Writing Code",
+  // 루트 레이아웃의 "%s | Eunhaa Tech Developer Blog" 틀을 쓰지 않고 이 제목 그대로 보인다
+  title: { absolute: "은하 테크 블로그 | Intro" },
   description: "배운 것을 내 말로 정리하고, 다시 꺼내 쓸 수 있게 남겨 두는 개발 기록장 eunhaa tech 를 소개합니다",
 };
 
