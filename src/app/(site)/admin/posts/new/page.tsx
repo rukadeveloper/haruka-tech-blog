@@ -21,6 +21,7 @@ export default async function NewPost() {
         tags: "",
         thumbnail: "",
         draft: false,
+        featured: false,
         html: "",
       }}
     />

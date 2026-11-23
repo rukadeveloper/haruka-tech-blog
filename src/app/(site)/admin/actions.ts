@@ -53,6 +53,7 @@ export async function savePost(_prev: SaveState, formData: FormData): Promise<Sa
     thumbnail: str(formData, "thumbnail"),
     format: "html",
     draft: isDraft,
+    featured: formData.get("featured") === "on",
     body: String(formData.get("content") ?? ""),
     updated_at: new Date().toISOString(),
   };

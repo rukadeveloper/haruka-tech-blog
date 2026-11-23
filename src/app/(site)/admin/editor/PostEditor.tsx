@@ -24,6 +24,8 @@ export type PostFormValues = {
   tags: string;
   thumbnail: string;
   draft: boolean;
+  /** 홈의 "추천 아티클" 구획에 표시 */
+  featured: boolean;
   html: string;
 };
 
@@ -349,7 +351,7 @@ export default function PostEditor({
         <EditorContent editor={editor} />
 
         <details className="card card-pad mt-8 bg-subtle">
-          <summary className="cursor-pointer select-none text-sm font-semibold hover:text-strong">발행 설정 (슬러그 · 날짜 · 요약 · 태그 · 썸네일)</summary>
+          <summary className="cursor-pointer select-none text-sm font-semibold hover:text-strong">발행 설정 (슬러그 · 날짜 · 요약 · 추천 · 태그 · 썸네일)</summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="block">
               <span className="field-label">슬러그 (URL)</span>
@@ -362,6 +364,10 @@ export default function PostEditor({
             <label className="block sm:col-span-2">
               <span className="field-label">요약</span>
               <input name="description" defaultValue={initial.description} className={field} />
+            </label>
+            <label className="flex items-center gap-2.5 sm:col-span-2">
+              <input type="checkbox" name="featured" defaultChecked={initial.featured} className="h-5 w-5 accent-(--strong)" />
+              <span className="text-sm font-semibold">홈의 추천 아티클에 표시</span>
             </label>
             <label className="block">
               <span className="field-label">태그 (쉼표로 구분)</span>
