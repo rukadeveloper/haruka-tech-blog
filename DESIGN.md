@@ -172,6 +172,22 @@ Pagination      ‹ 1 … 4 5 [6] 7 8 … 13 ›  (1 · 마지막 · 현재 ±2 
 
 - **행(`PostRow`)** 글 영역: 제목(700, 18 → sm 24 → lg 28px, 모바일 2줄 · sm 이상 1줄 말줄임) → 요약(`text-muted`, 15 → sm 16px / 줄 간격 28px, 모바일 2줄 · sm 이상 3줄) → 메타 13px `카테고리`(`text-strong` 600) `날짜`(`text-meta`, `YYYY.MM.DD`). 바탕 · 그림자 없음. hover 시 썸네일 1.03배 · 제목 `strong`, 누르면 `.pressable-lg`.
 
+### 관리자 화면 (글 관리 · 카테고리) — 그리드
+
+```
+통계            4칸 그리드 (모바일 2칸), gap 12. 칸마다 .card bg-subtle, 라벨 .text-caption → 숫자 .text-title
+글 목록 틀       .card 하나 안에 툴바(상태 탭 · 검색 · 보기 전환 .icon-btn ▦/≡, aria-pressed) → 내용
+  그리드 보기    (기본) 1열 → sm 2열 → lg 3열, gap 16, 틀 안쪽 p 12(sm 16)
+  AdminPostCard .card · 16:9 썸네일(bg-thumb) 위 왼쪽에 상태 배지(+ 추천 .badge-primary)
+                → p 16: 제목 600 2줄 → 카테고리 .badge · 날짜 .text-caption
+                → border-t 아래 작업 줄(미리보기 · 수정 · 삭제, .btn-sm)
+  리스트 보기    한 줄에 글 하나, divide-y (예전 모양)
+카테고리        추가 폼이 위에 가로 한 줄(sm: [상위 200px][이름 1fr][추가]) → 대분류 카드 그리드
+                1열 → sm 2열 → lg 3열, gap 16, items-start. 카드 = 대분류 행 + 소분류 행(pl 32), divide-y
+```
+
+- 고른 보기(그리드 / 리스트)는 그 브라우저의 `localStorage` `admin-post-view` 에 둡니다. 읽지 못하면 그리드입니다.
+
 ## 타이포
 
 ```css
