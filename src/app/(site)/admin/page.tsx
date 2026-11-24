@@ -43,7 +43,17 @@ export default async function AdminHome() {
         <Stat label="사용 중인 카테고리" value={categories} />
       </div>
 
-      <AdminPostTable posts={posts.map(({ slug, title, category, date, draft }) => ({ slug, title, category, date, draft }))} />
+      <AdminPostTable
+        posts={posts.map(({ slug, title, category, date, draft, featured, thumbnail }) => ({
+          slug,
+          title,
+          category,
+          date,
+          draft,
+          featured,
+          thumbnail,
+        }))}
+      />
     </div>
   );
 }

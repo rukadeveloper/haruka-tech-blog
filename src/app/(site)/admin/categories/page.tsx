@@ -14,7 +14,7 @@ const field = "field bg-background!";
 function Row({ path, label, count, sub }: { path: string; label: string; count: number; sub?: boolean }) {
   const deletable = count === 0;
   return (
-    <li className={`flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 ${sub ? "pl-10" : ""}`}>
+    <li className={`flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 ${sub ? "pl-8" : "bg-subtle"}`}>
       <div className="flex min-w-0 flex-1 items-center gap-2">
         {sub && <span aria-hidden className="text-meta">└</span>}
         <span className={`truncate ${sub ? "text-sm" : "font-semibold"}`}>{label}</span>
@@ -59,30 +59,11 @@ export default async function CategoriesPage() {
         </p>
       </div>
 
-      {/* 모바일에서는 추가 양식이 먼저 온다 */}
-      <div className="grid items-start gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="order-2 space-y-4 lg:order-1">
-          {categories.length === 0 ? (
-            <p className="empty">
-              아직 카테고리가 없습니다. 추가 양식에서 만들어 보세요.
-            </p>
-          ) : (
-            categories.map((c) => (
-              <section key={c.name} className="card overflow-hidden">
-                <ul className="divide-y divide-line">
-                  <Row path={c.name} label={c.name} count={count(c.name)} />
-                  {c.children.map((s) => (
-                    <Row key={s} path={`${c.name}/${s}`} label={s} count={count(`${c.name}/${s}`)} sub />
-                  ))}
-                </ul>
-              </section>
-            ))
-          )}
-        </div>
-
-        <form action={addCategory} className="card card-pad order-1 space-y-4 bg-subtle lg:sticky lg:top-20 lg:order-2">
-          <h2 className="text-heading">카테고리 추가</h2>
-          <label className="block">
+      {/* 추가 양식: sm 이상은 [상위][이름][추가] 가로 한 줄, 모바일은 세로 */}
+      <form action={addCategory} className="card card-pad bg-subtle">
+        <h2 className="text-heading">카테고리 추가</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-[200px_minmax(0,1fr)_auto] sm:items-end">
+          <label className="block min-w-0">
             <span className="field-label">상위 카테고리</span>
             <Select
               name="parent"
@@ -91,15 +72,31 @@ export default async function CategoriesPage() {
               className={field}
             />
           </label>
-          <label className="block">
+          <label className="block min-w-0">
             <span className="field-label">이름</span>
             <input name="name" required maxLength={40} placeholder="예: Next.js" className={field} />
           </label>
-          <button className="btn btn-primary btn-block">
-            추가
-          </button>
-        </form>
-      </div>
+          <button className="btn btn-primary btn-block sm:w-auto sm:px-6">추가</button>
+        </div>
+      </form>
+
+      {/* 대분류마다 카드 하나: 1열 → sm 2열 → lg 3열 */}
+      {categories.length === 0 ? (
+        <p className="empty">아직 카테고리가 없습니다. 위 양식에서 만들어 보세요.</p>
+      ) : (
+        <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((c) => (
+            <section key={c.name} className="card overflow-hidden" aria-label={`${c.name} 카테고리`}>
+              <ul className="divide-y divide-line">
+                <Row path={c.name} label={c.name} count={count(c.name)} />
+                {c.children.map((s) => (
+                  <Row key={s} path={`${c.name}/${s}`} label={s} count={count(`${c.name}/${s}`)} sub />
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

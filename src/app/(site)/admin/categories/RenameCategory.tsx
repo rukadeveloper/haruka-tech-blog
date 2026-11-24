@@ -25,7 +25,8 @@ export default function RenameCategory({ path, current }: { path: string; curren
   }
 
   return (
-    <form action={renameCategory} className="flex items-center gap-1.5">
+    // 좁은 카드 안에서도 넘치지 않도록 남는 폭을 입력창이 채운다
+    <form action={renameCategory} className="flex w-full min-w-0 items-center gap-1.5">
       <input type="hidden" name="category" value={path} />
       <input
         ref={inputRef}
@@ -35,7 +36,7 @@ export default function RenameCategory({ path, current }: { path: string; curren
         maxLength={40}
         aria-label={`${current} 새 이름`}
         onKeyDown={(e) => e.key === "Escape" && setEditing(false)}
-        className="field min-h-9! w-32 py-1.5! text-sm!"
+        className="field min-h-9! w-full min-w-0 flex-1 py-1.5! text-sm!"
       />
       <button className="btn btn-sm btn-primary">저장</button>
       <button type="button" onClick={() => setEditing(false)} className="btn btn-sm btn-ghost">
