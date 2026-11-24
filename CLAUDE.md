@@ -101,6 +101,7 @@
 - `format: "html"` 은 Tiptap 에디터로 저장한 글(`renderHtml`), `"markdown"` 은 티스토리에서 가져온 글(`renderMarkdown`)입니다. 마크다운 글을 에디터로 열면 `markdownToEditorHtml` 로 변환되고, 저장하면 항상 html 이 됩니다.
 - `draft: true` 인 글은 공개 조회에서 모두 빠집니다.
 - `featured: true` 는 관리자 에디터의 발행 설정에서 켜는 추천 표시입니다. DB · 관리자에는 남아 있지만 지금 공개 화면(홈)은 이 값을 쓰지 않습니다.
+- 에디터(`src/app/(site)/admin/editor/`)는 `PostEditor`(상태 · 업로드 · 자동 임시저장 · 미리보기 · 배치), `EditorToolbar`(아이콘 툴바, 아이콘은 `icons.tsx`), `EditorSidebar`(발행 · 썸네일 · 분류 · 요약 · 고급 카드)로 나뉩니다. 배치는 DESIGN.md "글 편집 화면". 폼 필드 이름(`title`, `category`, `slug`, `date`, `description`, `tags`, `thumbnail`, `featured`, `content`, `intent`, `originalSlug`)은 `savePost` 가 읽는 이름과 같아야 합니다.
 
 ## 홈 · 카테고리 화면 (G마켓 기술블로그 배치)
 
