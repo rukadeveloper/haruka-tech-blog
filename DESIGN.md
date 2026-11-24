@@ -131,7 +131,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 ```
 
 - 떠 있어야 하는 요소(팝오버, 모바일 메뉴, 플로팅 버튼)만 `--shadow-pop` 그림자를 씁니다.
-- 글 목록 카드(`PostCard`)는 `.card` 를 쓰지 않습니다. 바탕 · 테두리 없이 썸네일 + 글자입니다 (아래 "글 목록").
+- 글 목록 행(`PostRow`)은 `.card` 를 쓰지 않습니다. 바탕 · 테두리 없이 썸네일 + 글자이고, 행 사이만 구분선입니다 (아래 "글 목록").
 - `prefers-contrast: more` 에서는 테두리를 진하게 하는 규칙만 남습니다.
 
 ### 헤더 바 (`.site-header`)
@@ -153,20 +153,24 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 
 간격은 Tailwind 기본 단위(4px)를 씁니다. 구획 사이 40–64px, 카드 안쪽 20px(sm: 24px), 요소 사이 8–16px.
 
-### 글 목록 (홈 · 카테고리) — 채널톡 기술블로그 배치
+### 글 목록 (홈 · 카테고리) — G마켓 기술블로그 배치
 
 ```
-BlogLayout      lg 이상: [사이드바 220px] gap 40px [본문]   lg 미만: 사이드바가 본문 위로
-BlogSidebar     sticky top 96px(헤더 기준선 + 24). 제목 .text-title → 항목(높이 36, 모서리 8, 15px)
-                현재 항목: bg-strong-soft · text-strong · 600. 현재 대분류 아래 소분류는 들여서(pl 24) 14px
-                → 구분선 → 검색창(.field, 돋보기 아이콘)
-                lg 미만: 항목이 .scroll-row 가로 줄(칩 모양), 검색창은 그 아래 한 줄
-구획            제목 .text-title + 오른쪽 "모두보기 >"(text-strong 15px) → 내용 → 아래 구분선(border-line), 구획 사이 48px(sm 56px)
-카드 그리드     1열 → sm 2열 → lg 3열, gap-x 24 · gap-y 40
+BlogList        폭 1020px 가운데. 탭 줄 → 목록 → 페이지네이션. 사이드바 · 구획 제목 없음 (h1 은 sr-only)
+BlogTabs        "전체" + 대분류. 탭 높이 48, px 16(sm 20), 16px/500 text-meta
+                현재 탭(aria-current="page"): text-foreground · 700. hover: text-foreground
+                lg 이상: 가운데 한 줄. lg 미만: .scroll-row 가로 스크롤
+                검색창(.field, 돋보기 아이콘): sm 이상 탭 줄 오른쪽 w-56, 모바일은 탭 아래 한 줄
+                현재 대분류에 소분류가 있으면 탭 아래 .chip 줄 (현재 소분류 aria-current)
+PostRow         한 줄에 글 하나. [정사각 썸네일] gap 16 / 24 / 32 [글]. 위아래 py 24 / 32 / 36, 아래 border-line
+                썸네일 80 → sm 112 → lg 148px, 모서리 12px, --line 1px 테두리
+Pagination      ‹ 1 … 4 5 [6] 7 8 … 13 ›  (1 · 마지막 · 현재 ±2 만, 사이는 …)
+                번호 32px 모서리 8 15px text-meta, 현재 bg-strong · text-on-strong · 600
+                이전 · 다음은 32px 원(border-line) 꺾쇠, 끝 쪽에서는 흐리게(aria-disabled)
+한 페이지       8편
 ```
 
-- **카드(`PostCard`)**: 썸네일(16:9, 모서리 12px, `--line` 1px 테두리) → 제목(`.text-heading`, 2줄) → 요약(`.text-body-sm text-muted`, 2줄) → `날짜 · 카테고리`(`.text-caption`). 바탕 · 그림자 없음. hover 시 썸네일 1.03배 · 제목 `strong`, 누르면 `.pressable-lg`.
-- **큰 카드(`variant="featured"`)**: `sm` 이상에서 썸네일(3/5) + 글(2/5) 가로, 글은 세로 가운데, 제목 `.text-title` 3줄. 모바일은 일반 카드와 같습니다.
+- **행(`PostRow`)** 글 영역: 제목(700, 18 → sm 24 → lg 28px, 모바일 2줄 · sm 이상 1줄 말줄임) → 요약(`text-muted`, 15 → sm 16px / 줄 간격 28px, 모바일 2줄 · sm 이상 3줄) → 메타 13px `카테고리`(`text-strong` 600) `날짜`(`text-meta`, `YYYY.MM.DD`). 바탕 · 그림자 없음. hover 시 썸네일 1.03배 · 제목 `strong`, 누르면 `.pressable-lg`.
 
 ## 타이포
 
