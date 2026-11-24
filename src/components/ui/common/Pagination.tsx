@@ -73,7 +73,7 @@ export default function Pagination({
             key={n}
             href={href(n)}
             aria-current={n === page ? "page" : undefined}
-            className={n === page ? `${num} pointer-events-none !bg-strong font-semibold !text-on-strong` : num}
+            className={n === page ? `${num} pointer-events-none !bg-strong font-semibold !text-(--on-strong)` : num}
           >
             {n}
           </Link>

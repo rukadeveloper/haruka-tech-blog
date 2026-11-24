@@ -129,4 +129,83 @@ export const Icon = {
       <path d="M6 6l12 12M18 6 6 18" />
     </Svg>
   ),
+  /* ---- 스튜디오: 레일 · 상단 바 · 미리보기 ---- */
+  outline: () => (
+    <Svg size={18}>
+      <path d="M4 5h16M8 10h12M8 15h12M12 20h8" />
+    </Svg>
+  ),
+  blocks: () => (
+    <Svg size={18}>
+      <rect x="4" y="4" width="7" height="7" rx="1.5" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" />
+      <path d="M16.5 13.5v6M13.5 16.5h6" />
+    </Svg>
+  ),
+  settings: () => (
+    <Svg size={18}>
+      <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+      <circle cx="16" cy="7" r="2" />
+      <circle cx="10" cy="17" r="2" />
+    </Svg>
+  ),
+  eye: () => (
+    <Svg size={18}>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </Svg>
+  ),
+  pen: () => (
+    <Svg size={18}>
+      <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" />
+      <path d="m13.5 6.5 4 4" />
+    </Svg>
+  ),
+  doc: () => (
+    <Svg size={18}>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5M9 13h6M9 17h4" />
+    </Svg>
+  ),
+  menu: () => (
+    <Svg size={18}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </Svg>
+  ),
+  chevronDown: () => (
+    <Svg size={14}>
+      <path d="m6 9 6 6 6-6" />
+    </Svg>
+  ),
+  fit: () => (
+    <Svg>
+      <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
+    </Svg>
+  ),
+  plus: () => (
+    <Svg>
+      <path d="M12 5v14M5 12h14" />
+    </Svg>
+  ),
+  minus: () => (
+    <Svg>
+      <path d="M5 12h14" />
+    </Svg>
+  ),
+  grip: () => (
+    <svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden>
+      <circle cx="4" cy="3" r="1.3" />
+      <circle cx="8" cy="3" r="1.3" />
+      <circle cx="4" cy="8" r="1.3" />
+      <circle cx="8" cy="8" r="1.3" />
+      <circle cx="4" cy="13" r="1.3" />
+      <circle cx="8" cy="13" r="1.3" />
+    </svg>
+  ),
+  logout: () => (
+    <Svg size={18}>
+      <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10" />
+    </Svg>
+  ),
 };
