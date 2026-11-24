@@ -7,13 +7,12 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
 import PostArticleBody from "@/components/ui/post/PostArticleBody";
-import Select from "@/components/ui/common/Select";
-import Spinner from "@/components/ui/common/Spinner";
-import { CODE_LANGUAGES } from "@/lib/code-languages";
 import { previewHtml, savePost } from "../actions";
 import { ResizableImage } from "./ResizableImage";
 import { FileTree } from "./FileTree";
-import { FILE_TREE_SAMPLE } from "@/lib/file-tree";
+import EditorToolbar from "./EditorToolbar";
+import EditorSidebar, { SaveStatus, StateBadge, type PostState } from "./EditorSidebar";
+import { Icon } from "./icons";
 
 export type PostFormValues = {
   slug: string;
@@ -24,12 +23,10 @@ export type PostFormValues = {
   tags: string;
   thumbnail: string;
   draft: boolean;
-  /** 홈의 "추천 아티클" 구획에 표시 */
+  /** 추천 표시 (관리자 목록 배지) */
   featured: boolean;
   html: string;
 };
-
-const field = "field";
 
 async function uploadImage(file: File): Promise<string> {
   const fd = new FormData();
@@ -38,115 +35,6 @@ async function uploadImage(file: File): Promise<string> {
   const json = await res.json().catch(() => ({})); // 플랫폼 오류 응답은 JSON 이 아니다
   if (!res.ok) throw new Error(json.error ?? "업로드 실패");
   return json.url as string;
-}
-
-function Btn({
-  label,
-  title,
-  active,
-  disabled,
-  onClick,
-}: {
-  label: React.ReactNode;
-  title: string;
-  active?: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      title={title}
-      disabled={disabled}
-      // 에디터 선택(포커스)이 풀리지 않도록
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
-      className={`h-9 min-w-9 shrink-0 rounded-lg px-2 text-sm whitespace-nowrap transition-colors disabled:opacity-30 ${
-        active ? "bg-strong-soft font-semibold text-strong" : "text-muted hover:bg-surface hover:text-foreground"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-const Sep = () => <span className="mx-1 h-5 w-px shrink-0 bg-line" />;
-
-function Toolbar({ editor, onPickImage }: { editor: Editor; onPickImage: () => void }) {
-  const c = () => editor.chain().focus();
-  const setLink = () => {
-    const prev = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("링크 주소 (비우면 링크 제거)", prev ?? "https://");
-    if (url === null) return;
-    if (url === "") c().unsetLink().run();
-    else c().extendMarkRange("link").setLink({ href: url }).run();
-  };
-  // 코드 블록: 언어를 골라 삽입하고, 코드 블록 안에서는 언어 변경·해제
-  const codeActive = editor.isActive("codeBlock");
-  const codeLang = (editor.getAttributes("codeBlock").language as string | null | undefined) ?? "";
-  const knownLang = CODE_LANGUAGES.some((l) => l.value === codeLang);
-  const onCodeLanguage = (value: string) => {
-    if (!value) return;
-    if (value === "__off") return void c().toggleCodeBlock().run();
-    if (codeActive) c().updateAttributes("codeBlock", { language: value }).run();
-    else c().toggleCodeBlock({ language: value }).run();
-  };
-  const inTable = editor.isActive("table");
-
-  return (
-    // 모바일은 한 줄 가로 스크롤(화면 끝까지), sm 부터 여러 줄로 감싼다
-    <div className="scroll-row sticky top-[68px] z-20 sm:top-[72px] items-center gap-0.5! border-y border-line bg-background/95 py-2 backdrop-blur sm:mx-0 sm:flex-wrap sm:px-3">
-      {/* 삽입 묶음(코드 블록·파일 트리·사진·표)을 앞에 둔다 — 모바일 가로 스크롤에서도 바로 보이도록 */}
-      <Select
-        title="코드 블록 — 언어를 골라 삽입 (코드 안에서는 언어 변경)"
-        aria-label="코드 블록 언어"
-        placeholder="{ } 코드 블록"
-        keepFocus
-        value={codeActive ? codeLang || "plaintext" : ""}
-        onChange={onCodeLanguage}
-        options={[
-          ...(codeActive && !knownLang && codeLang ? [{ value: codeLang, label: codeLang }] : []),
-          ...CODE_LANGUAGES.map((l) => ({ value: l.value, label: l.label })),
-          ...(codeActive ? [{ value: "__off", label: "코드 블록 해제", tone: "danger" as const }] : []),
-        ]}
-        className={`h-9 shrink-0 rounded-lg border px-2 text-sm ${codeActive ? "border-transparent bg-strong-soft font-semibold text-strong" : "border-line bg-background text-muted [&>span]:text-muted"}`}
-      />
-      <Btn label="`c`" title="인라인 코드" active={editor.isActive("code")} onClick={() => c().toggleCode().run()} />
-      <Btn label="사진" title="이미지 업로드" onClick={onPickImage} />
-      <Btn label="파일 트리" title="파일 트리 삽입 — 들여쓰기로 폴더 구조를 적으면 트리로 그려집니다" onClick={() => c().insertContent({ type: "fileTree", attrs: { tree: FILE_TREE_SAMPLE } }).run()} />
-      <Btn label="표" title="표 삽입" onClick={() => c().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} />
-      <Sep />
-      <Btn label="H2" title="제목 1" active={editor.isActive("heading", { level: 2 })} onClick={() => c().toggleHeading({ level: 2 }).run()} />
-      <Btn label="H3" title="제목 2" active={editor.isActive("heading", { level: 3 })} onClick={() => c().toggleHeading({ level: 3 }).run()} />
-      <Btn label="H4" title="제목 3" active={editor.isActive("heading", { level: 4 })} onClick={() => c().toggleHeading({ level: 4 }).run()} />
-      <Btn label="본문" title="본문" active={editor.isActive("paragraph")} onClick={() => c().setParagraph().run()} />
-      <Sep />
-      <Btn label={<b>B</b>} title="굵게" active={editor.isActive("bold")} onClick={() => c().toggleBold().run()} />
-      <Btn label={<i>I</i>} title="기울임" active={editor.isActive("italic")} onClick={() => c().toggleItalic().run()} />
-      <Btn label={<u>U</u>} title="밑줄" active={editor.isActive("underline")} onClick={() => c().toggleUnderline().run()} />
-      <Btn label={<s>S</s>} title="취소선" active={editor.isActive("strike")} onClick={() => c().toggleStrike().run()} />
-      <Btn label="링크" title="링크" active={editor.isActive("link")} onClick={setLink} />
-      <Sep />
-      <Btn label="• 목록" title="글머리 기호" active={editor.isActive("bulletList")} onClick={() => c().toggleBulletList().run()} />
-      <Btn label="1. 목록" title="번호 목록" active={editor.isActive("orderedList")} onClick={() => c().toggleOrderedList().run()} />
-      <Btn label="❝" title="인용구" active={editor.isActive("blockquote")} onClick={() => c().toggleBlockquote().run()} />
-      <Btn label="―" title="구분선" onClick={() => c().setHorizontalRule().run()} />
-      <Sep />
-      {inTable && (
-        <>
-          <Btn label="+열" title="오른쪽에 열 추가" onClick={() => c().addColumnAfter().run()} />
-          <Btn label="+행" title="아래에 행 추가" onClick={() => c().addRowAfter().run()} />
-          <Btn label="−열" title="열 삭제" onClick={() => c().deleteColumn().run()} />
-          <Btn label="−행" title="행 삭제" onClick={() => c().deleteRow().run()} />
-          <Btn label="표 삭제" title="표 삭제" onClick={() => c().deleteTable().run()} />
-        </>
-      )}
-      <span className="flex shrink-0 gap-0.5 sm:ml-auto">
-        <Btn label="↶" title="실행 취소" disabled={!editor.can().undo()} onClick={() => c().undo().run()} />
-        <Btn label="↷" title="다시 실행" disabled={!editor.can().redo()} onClick={() => c().redo().run()} />
-      </span>
-    </div>
-  );
 }
 
 export default function PostEditor({
@@ -175,8 +63,12 @@ export default function PostEditor({
   const formRef = useRef<HTMLFormElement>(null);
   const editorRef = useRef<Editor | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const thumbRef = useRef<HTMLInputElement>(null);
-  const thumbFileRef = useRef<HTMLInputElement>(null);
+  // 사이드바 미리보기(썸네일 · 태그 칩 · 요약 글자수)를 위해 제어 상태로 둔다
+  const [thumbnail, setThumbnail] = useState(initial.thumbnail);
+  const [tags, setTags] = useState(initial.tags);
+  const [description, setDescription] = useState(initial.description);
+  const markDirty = () => (dirtyRef.current = true);
+  const state: PostState = !currentSlug ? "new" : isEdit && !initial.draft ? "published" : "draft";
 
   const insertFiles = async (ed: Editor, files: File[]) => {
     for (const file of files) {
@@ -251,7 +143,7 @@ export default function PostEditor({
   useEffect(() => {
     if (!canDraft) return;
     const t = setInterval(() => {
-      const title = formRef.current?.elements.namedItem("title") as HTMLInputElement | null;
+      const title = formRef.current?.elements.namedItem("title") as HTMLTextAreaElement | null;
       if (dirtyRef.current && !pending && title?.value.trim()) saveDraft();
     }, 180000);
     return () => clearInterval(t);
@@ -293,43 +185,49 @@ export default function PostEditor({
     };
   }, [preview]);
 
-  const onThumbFile = async (file?: File) => {
-    if (!file) return;
+  const uploadThumbnail = async (file: File) => {
     try {
-      const url = await uploadImage(file);
-      if (thumbRef.current) thumbRef.current.value = url;
+      setStatus("썸네일 업로드 중…");
+      setThumbnail(await uploadImage(file));
+      markDirty();
+      setStatus("");
     } catch (e) {
       setStatus(e instanceof Error ? e.message : "업로드 실패");
     }
   };
 
+  const save = { chars, status, error, savedAt: saved?.savedAt, pending };
+
   return (
-    <form ref={formRef} action={action} onChange={() => (dirtyRef.current = true)} className="pt-2 pb-32">
+    <form ref={formRef} action={action} onChange={markDirty} className="pt-2 pb-32 lg:pb-16">
       <input type="hidden" name="originalSlug" value={currentSlug} />
       <input ref={intentRef} type="hidden" name="intent" defaultValue="publish" />
       <input type="hidden" name="content" value={html} />
 
-      <div className="mx-auto max-w-[768px]">
-        <Select
-          name="category"
-          aria-label="카테고리"
-          defaultValue={initial.category}
-          // 숨은 input 은 form 의 change 이벤트를 일으키지 않으므로 직접 표시한다
-          onChange={() => (dirtyRef.current = true)}
-          options={[{ value: "", label: "카테고리 없음" }, ...categories.map((c) => ({ value: c, label: c.split("/").join(" › ") }))]}
-          className="field mb-4 w-auto! max-w-full rounded-full! py-2! text-sm! font-medium"
-        />
-
-        <input
-          name="title"
-          defaultValue={initial.title}
-          required
-          placeholder="제목을 입력하세요"
-          className="text-display mb-4 w-full border-b border-line bg-transparent pb-3 outline-none placeholder:text-meta"
-        />
+      {/* 상단 줄: 목록으로 · 화면 이름 · 상태 */}
+      <div className="flex items-center gap-2 text-sm">
+        <Link href="/admin" className="pressable -ml-2 inline-flex h-9 items-center gap-1 rounded-lg px-2 text-muted hover:bg-surface hover:text-foreground">
+          <Icon.arrowLeft /> 글 관리
+        </Link>
+        <span className="text-line" aria-hidden>/</span>
+        <span className="font-semibold">{isEdit ? "글 수정" : "새 글"}</span>
+        <StateBadge state={state} />
       </div>
 
-      {editor && <Toolbar editor={editor} onPickImage={() => fileRef.current?.click()} />}
+      {/* 긴 제목이 좁은 화면에서 잘리지 않도록 줄을 바꿔 보여 주는 textarea (내용만큼 늘어난다). 줄바꿈 입력은 막는다 */}
+      <textarea
+        name="title"
+        defaultValue={initial.title}
+        required
+        rows={1}
+        placeholder="제목을 입력하세요"
+        aria-label="제목"
+        onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
+        className="text-display mt-4 mb-5 block w-full resize-none bg-transparent outline-none [field-sizing:content] placeholder:text-meta"
+      />
+
+      {/* 툴바는 그리드 위 전체 폭 — 글쓰기 열만으로는 아이콘 묶음이 한 줄에 들어가지 않는다 */}
+      {editor && <EditorToolbar editor={editor} onPickImage={() => fileRef.current?.click()} />}
       <input
         ref={fileRef}
         type="file"
@@ -342,94 +240,61 @@ export default function PostEditor({
         }}
       />
 
-      <div className="mx-auto max-w-[768px]">
-        {legacyMarkdown && (
-          <p className="mt-4 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning">
-            티스토리에서 가져온 마크다운 글입니다. 저장하면 에디터(HTML) 형식으로 변환됩니다.
-          </p>
-        )}
-        <EditorContent editor={editor} />
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start lg:gap-10">
+        <div className="min-w-0">
+          {legacyMarkdown && (
+            <p className="mt-4 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning">
+              티스토리에서 가져온 마크다운 글입니다. 저장하면 에디터(HTML) 형식으로 변환됩니다.
+            </p>
+          )}
+          <EditorContent editor={editor} />
+        </div>
 
-        <details className="card card-pad mt-8 bg-subtle">
-          <summary className="cursor-pointer select-none text-sm font-semibold hover:text-strong">발행 설정 (슬러그 · 날짜 · 요약 · 추천 · 태그 · 썸네일)</summary>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="field-label">슬러그 (URL)</span>
-              <input name="slug" defaultValue={initial.slug} placeholder="비우면 자동 생성" className={`${field} bg-background!`} />
-            </label>
-            <label className="block">
-              <span className="field-label">날짜</span>
-              <input type="date" name="date" defaultValue={initial.date} required className={field} />
-            </label>
-            <label className="block sm:col-span-2">
-              <span className="field-label">요약</span>
-              <input name="description" defaultValue={initial.description} className={field} />
-            </label>
-            <label className="flex items-center gap-2.5 sm:col-span-2">
-              <input type="checkbox" name="featured" defaultChecked={initial.featured} className="h-5 w-5 accent-(--strong)" />
-              <span className="text-sm font-semibold">홈의 추천 아티클에 표시</span>
-            </label>
-            <label className="block">
-              <span className="field-label">태그 (쉼표로 구분)</span>
-              <input name="tags" defaultValue={initial.tags} className={field} />
-            </label>
-            <div>
-              <span className="field-label">썸네일 URL</span>
-              <div className="flex gap-2">
-                <input ref={thumbRef} name="thumbnail" defaultValue={initial.thumbnail} className={field} />
-                <button
-                  type="button"
-                  onClick={() => thumbFileRef.current?.click()}
-                  className="btn btn-secondary"
-                >
-                  업로드
-                </button>
-                <input ref={thumbFileRef} type="file" accept="image/*" hidden onChange={(e) => onThumbFile(e.target.files?.[0])} />
-              </div>
-            </div>
-          </div>
-        </details>
+        {/* 설정: lg 는 툴바 아래(헤더 72 + 툴바 약 52 + 16)에서 따라오고, 넘치면 자체 스크롤 */}
+        <aside aria-label="글 설정" className="mt-8 lg:sticky lg:top-[140px] lg:mt-6 lg:max-h-[calc(100vh-156px)] lg:overflow-y-auto lg:pb-1 lg:[scrollbar-width:thin]">
+          <EditorSidebar
+            state={state}
+            save={save}
+            canDraft={canDraft}
+            onPreview={openPreview}
+            onDraft={saveDraft}
+            markDirty={markDirty}
+            categories={categories}
+            initial={initial}
+            thumbnail={thumbnail}
+            setThumbnail={(v) => {
+              setThumbnail(v);
+              markDirty();
+            }}
+            uploadThumbnail={uploadThumbnail}
+            tags={tags}
+            setTags={setTags}
+            description={description}
+            setDescription={setDescription}
+          />
+        </aside>
       </div>
 
-      {/* 티스토리처럼 하단 고정 바 */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-background/95 backdrop-blur">
+      {/* 좁은 화면: 하단 고정 바 (넓은 화면은 사이드바의 발행 카드가 대신한다) */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-background lg:hidden">
         <div className="container-page flex items-center gap-2 py-2.5 text-sm sm:gap-3">
           {/* 좁은 화면에서는 상태 문구가 줄어들고 버튼은 항상 보인다 */}
           <div className="flex min-w-0 flex-1 items-center gap-3 truncate">
-          <span className="hidden text-meta sm:inline">글자수 {chars.toLocaleString()}</span>
-          {status && (
-            <span className="inline-flex items-center gap-2 text-muted">
-              {status.endsWith("중…") && <Spinner className="h-4 w-4 border-2" />}
-              {status}
-            </span>
-          )}
-          {error && <span className="truncate text-danger">{error}</span>}
-          {!error && !pending && saved?.savedAt && (
-            <span className="text-muted">
-              임시저장됨 {new Date(saved.savedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
-            </span>
-          )}
+            <span className="hidden text-meta sm:inline">글자수 {chars.toLocaleString()}</span>
+            <SaveStatus {...save} />
           </div>
           <button type="button" onClick={openPreview} className="btn btn-sm btn-ghost">
             미리보기
           </button>
           {canDraft && (
-            <button
-              type="button"
-              disabled={pending}
-              onClick={saveDraft}
-              className="btn btn-sm btn-secondary"
-            >
+            <button type="button" disabled={pending} onClick={saveDraft} className="btn btn-sm btn-secondary">
               임시저장
             </button>
           )}
           <Link href="/admin" className="btn btn-sm btn-ghost hidden sm:inline-flex">
             취소
           </Link>
-          <button
-            disabled={pending}
-            className="btn btn-sm btn-primary px-5!"
-          >
+          <button disabled={pending} className="btn btn-sm btn-primary px-5!">
             {pending ? "저장 중…" : "완료"}
           </button>
         </div>
