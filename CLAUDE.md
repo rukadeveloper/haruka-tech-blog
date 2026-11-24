@@ -19,6 +19,8 @@
 
 - src/app/intro : 인트로 페이지(`/intro`)입니다. 헤더와 푸터가 붙지 않도록 `(site)` 밖에 둡니다.
 
+- src/app/(studio) : 헤더 · 푸터 · 관리자 메뉴 없이 화면 전체를 쓰는 관리자 도구(글 에디터 스튜디오)입니다. 라우트 그룹이라 주소는 `/admin/posts/new`, `/admin/posts/[slug]/edit` 그대로입니다.
+
 # 명령어
 
 - 개발 서버 : npm run dev
@@ -101,7 +103,7 @@
 - `format: "html"` 은 Tiptap 에디터로 저장한 글(`renderHtml`), `"markdown"` 은 티스토리에서 가져온 글(`renderMarkdown`)입니다. 마크다운 글을 에디터로 열면 `markdownToEditorHtml` 로 변환되고, 저장하면 항상 html 이 됩니다.
 - `draft: true` 인 글은 공개 조회에서 모두 빠집니다.
 - `featured: true` 는 관리자 에디터의 발행 설정에서 켜는 추천 표시입니다. DB · 관리자에는 남아 있지만 지금 공개 화면(홈)은 이 값을 쓰지 않습니다.
-- 에디터(`src/app/(site)/admin/editor/`)는 `PostEditor`(상태 · 업로드 · 자동 임시저장 · 미리보기 · 배치), `EditorToolbar`(아이콘 툴바, 아이콘은 `icons.tsx`), `EditorSidebar`(발행 · 썸네일 · 분류 · 요약 · 고급 카드)로 나뉩니다. 배치는 DESIGN.md "글 편집 화면". 폼 필드 이름(`title`, `category`, `slug`, `date`, `description`, `tags`, `thumbnail`, `featured`, `content`, `intent`, `originalSlug`)은 `savePost` 가 읽는 이름과 같아야 합니다.
+- 에디터는 전체 화면 스튜디오입니다 (`src/app/(studio)/admin/editor/`, 배치는 DESIGN.md "글 편집 화면"). `PostStudio`(폼 · 상태 · Tiptap · 업로드 · 자동 임시저장)가 `StudioTopBar`(발행 ▾ · 되돌리기 · 미리보기 켜기), `StudioRail` + `panels/`(목차 · 블록 · 설정), `StudioWriter`(커버 · 제목 · 요약 · 본문 · `FormatPill`), `StudioPreview`(실시간 미리보기)를 묶습니다. 실시간 미리보기는 `previewHtml` 을 800ms 디바운스로 불러 공개 글과 같은 하이라이팅으로 그립니다. 폼 필드 이름(`title`, `category`, `slug`, `date`, `description`, `tags`, `thumbnail`, `featured`, `content`, `intent`, `originalSlug`)은 `savePost` 가 읽는 이름과 같아야 하고, 입력칸의 Enter 는 제출하지 않습니다 (발행은 버튼으로만).
 
 ## 홈 · 카테고리 화면 (G마켓 기술블로그 배치)
 
