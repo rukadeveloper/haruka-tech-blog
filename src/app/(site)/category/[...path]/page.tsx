@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import BlogShell from "@/components/BlogShell";
+import BlogList from "@/components/BlogList";
 import BlogSkeleton from "@/components/BlogSkeleton";
 import { flattenCategories } from "@/lib/categories";
 import { getCategories } from "@/lib/posts";
@@ -23,7 +23,7 @@ async function Content({ props }: { props: PageProps<"/category/[...path]"> }) {
   const category = path.map(decode).join("/");
   if (!flattenCategories(await getCategories()).includes(category)) notFound();
   return (
-    <BlogShell category={category} page={Number(Array.isArray(page) ? page[0] : page) || 1} />
+    <BlogList category={category} page={Number(Array.isArray(page) ? page[0] : page) || 1} />
   );
 }
 

@@ -1,10 +1,12 @@
 import { Suspense } from "react";
+import BlogList from "@/components/BlogList";
 import BlogSkeleton from "@/components/BlogSkeleton";
-import HomeSections from "@/components/HomeSections";
+
+const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 async function Content({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
-  const { q } = await searchParams;
-  return <HomeSections q={(Array.isArray(q) ? q[0] : q) ?? ""} />;
+  const { q, page } = await searchParams;
+  return <BlogList q={first(q) ?? ""} page={Number(first(page)) || 1} />;
 }
 
 export default function Home(props: PageProps<"/">) {
