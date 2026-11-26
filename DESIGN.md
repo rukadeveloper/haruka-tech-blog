@@ -153,24 +153,28 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 
 간격은 Tailwind 기본 단위(4px)를 씁니다. 구획 사이 40–64px, 카드 안쪽 20px(sm: 24px), 요소 사이 8–16px.
 
-### 글 목록 (홈 · 카테고리) — G마켓 기술블로그 배치
+### 글 목록 (홈 · 카테고리) — LINE Engineering 블로그 배치
 
 ```
-BlogList        폭 1020px 가운데. 탭 줄 → 목록 → 페이지네이션. 사이드바 · 구획 제목 없음 (h1 은 sr-only)
-BlogTabs        "전체" + 대분류. 탭 높이 48, px 16(sm 20), 16px/500 text-meta
-                현재 탭(aria-current="page"): text-foreground · 700. hover: text-foreground
-                lg 이상: 가운데 한 줄. lg 미만: .scroll-row 가로 스크롤
-                검색창(.field, 돋보기 아이콘): sm 이상 탭 줄 오른쪽 w-56, 모바일은 탭 아래 한 줄
-                현재 대분류에 소분류가 있으면 탭 아래 .chip 줄 (현재 소분류 aria-current)
-PostRow         한 줄에 글 하나. [정사각 썸네일] gap 16 / 24 / 32 [글]. 위아래 py 24 / 32 / 36, 아래 border-line
-                썸네일 80 → sm 112 → lg 148px, 모서리 12px, --line 1px 테두리
+BlogList        .container-page 안. lg 이상 [목록 minmax(0,1fr)] gap 64 [사이드바 260]. lg 미만 사이드바가 목록 위 한 열로
+                카테고리 화면: 목록 위에 "FE › Next.js" 20/700 + "n편" text-meta. 검색: 결과 줄. h1 은 sr-only
+PostRow         글자만 (썸네일 없음). 위아래 py 32(sm 40), 아래 border-line
+                제목 22 → sm 26 / 700 / leading-snug / -0.02em, 2줄 · hover text-strong
+                작성자 줄 mt 12: [로고 타일 48 r12 #191f28 + 흰 BrandMark 26] gap 12
+                                 이름 15/600 · 날짜 15 text-meta (YYYY.MM.DD) / 아래 소개 13 text-meta
+                요약 mt 20: 16 / leading-relaxed / text-muted, 3줄
+                분류 칩 mt 20, gap 6: h 28 · px 8 · r 6 · bg-surface · 12 text-muted
+                                 카테고리(FE › Next.js, 링크) + 태그(#react, 최대 4개)
+BlogSidebar     lg 이상 sticky top 96:
+                  검색 — 밑줄형(border-b border-line, 16px, 돋보기, 값이 있으면 ✕ → /)
+                  "카테고리" 18/700 → "전체 글" → 대분류 15/700 링크 + 소분류 #이름 14 text-meta, 줄높이 36
+                  현재 위치(aria-current) text-foreground · 600, 대분류는 text-strong
+                lg 미만: 검색창(.field) → 대분류 .chip 가로 스크롤(첫 칩 "전체") → 현재 대분류의 소분류 칩 줄
 Pagination      ‹ 1 … 4 5 [6] 7 8 … 13 ›  (1 · 마지막 · 현재 ±2 만, 사이는 …)
-                번호 32px 모서리 8 15px text-meta, 현재 bg-strong · text-on-strong · 600
-                이전 · 다음은 32px 원(border-line) 꺾쇠, 끝 쪽에서는 흐리게(aria-disabled)
-한 페이지       8편
+                번호 32px r6 14px text-meta, 현재 bg-foreground · text-background · 600
+                이전 · 다음은 테두리 없는 꺾쇠, 끝 쪽에서는 흐리게(aria-disabled)
+한 페이지       10편
 ```
-
-- **행(`PostRow`)** 글 영역: 제목(700, 18 → sm 24 → lg 28px, 모바일 2줄 · sm 이상 1줄 말줄임) → 요약(`text-muted`, 15 → sm 16px / 줄 간격 28px, 모바일 2줄 · sm 이상 3줄) → 메타 13px `카테고리`(`text-strong` 600) `날짜`(`text-meta`, `YYYY.MM.DD`). 바탕 · 그림자 없음. hover 시 썸네일 1.03배 · 제목 `strong`, 누르면 `.pressable-lg`.
 
 ### 관리자 화면 (글 관리 · 카테고리) — 그리드
 

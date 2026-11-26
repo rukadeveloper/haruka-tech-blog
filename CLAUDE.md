@@ -108,11 +108,12 @@
 - 에디터는 벤토 블록 에디터입니다 (`src/app/(studio)/admin/editor/`, 값과 배치는 `.claude/rules/editor-bento.md`). `PostStudio`(폼 · 상태 · Tiptap · 업로드 · 자동 임시저장 · 발행 흐름)가 `BentoTopBar`(임시저장 · 미리보기 · 발행), `StudioWriter`(커버 드롭존 · 제목 카드 · 본문 블록 카드 · `BlockAddMenu` · `FormatPill`), `BentoSide`(발행 전 체크 · 통계 · 카테고리 · 목차 · URL 카드)를 묶고, 미리보기는 `PreviewOverlay` 가 `StudioPreview`(`previewHtml` 800ms 디바운스)로 그립니다. 발행 전 체크 규칙은 `checklist.ts` 이고 '필요' 항목이 있으면 발행 전에 `PublishConfirm` 으로 한 번 묻습니다. 폼 필드 이름(`title`, `category`, `slug`, `date`, `description`, `tags`, `thumbnail`, `featured`, `content`, `intent`, `originalSlug`)은 `savePost` 가 읽는 이름과 같아야 하고, 입력칸의 Enter 는 제출하지 않습니다 (발행은 버튼으로만).
 - 콜아웃 블록은 `<div data-callout="warning">` 로 저장되고(Tiptap 노드 `extensions/Callout.ts`), 공개 글에서는 `.post-body div[data-callout]` 스타일로 그립니다.
 
-## 홈 · 카테고리 화면 (G마켓 기술블로그 배치)
+## 홈 · 카테고리 화면 (LINE Engineering 블로그 배치)
 
-- 둘 다 `BlogList` 하나가 그립니다: 카테고리 탭 줄(`BlogTabs`) → 한 줄에 글 하나인 목록(`PostRow`) → 페이지네이션. 사이드바 · 구획 · 히어로는 없습니다.
-- 탭은 "전체" + 대분류이고, 현재 대분류에 소분류가 있으면 그 아래 칩 줄이 붙습니다. 검색창은 탭 줄 오른쪽(모바일은 아래)에 있고 홈의 `?q=` 로 거릅니다 (캐시된 `getAllPosts()` 를 거름).
-- 한 페이지 8편, `?page=N`. 홈(전체)은 최신순 모든 글, 카테고리 화면은 그 카테고리(하위 포함) 글입니다. 검색 중에도 검색어를 유지한 채 페이지를 넘깁니다.
+- 둘 다 `BlogList` 하나가 그립니다: [글자만 있는 목록(`PostRow`) → 페이지네이션 | 오른쪽 사이드바(`BlogSidebar`)]. 목록에는 썸네일이 없습니다 (커버는 글 화면 · 관리자 · 에디터 · 공유 이미지에서 씀).
+- 글 한 줄 = 제목 → 작성자 줄(로고 타일 · 이름 · 날짜 · 한 줄 소개, 값은 `src/lib/site.ts` 의 `AUTHOR`) → 요약 3줄 → 분류 칩(카테고리 링크 + 태그). 행 전체가 아니라 제목 · 요약만 글로 링크합니다 (칩 링크와 겹치지 않게).
+- 사이드바(lg 이상, sticky)는 밑줄형 검색창 → "카테고리" 아래 대분류 묶음 제목 + 소분류 `#이름` 링크입니다. lg 미만에서는 목록 위에 검색창 + 대분류 칩 줄(현재 대분류의 소분류 칩 줄)로 바뀝니다. 검색은 홈의 `?q=` 로 거릅니다 (캐시된 `getAllPosts()` 를 거름).
+- 한 페이지 10편, `?page=N`. 홈(전체)은 최신순 모든 글, 카테고리 화면은 그 카테고리(하위 포함) 글이고 목록 위에 카테고리 이름 · 글 수 줄이 붙습니다. 검색 중에도 검색어를 유지한 채 페이지를 넘깁니다.
 - 파일 트리 블록은 `<div data-file-tree>` 로 저장되고 `src/lib/file-tree.ts` 가 트리 HTML 로 바꿉니다. 코드 블록 하이라이팅 옵션은 `src/lib/highlight.ts`, 지원 언어는 `src/lib/code-languages.ts` 입니다.
 - 본문 스타일은 `.post-body` 하나를 공개 글, 관리자 미리보기, 에디터가 함께 씁니다. `PostArticleBody` 는 에디터 미리보기(클라이언트)에서도 import 되므로 서버 전용 모듈을 끌어오면 안 됩니다.
 
