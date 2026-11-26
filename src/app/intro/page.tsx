@@ -4,6 +4,7 @@ import Link from "next/link";
 import { siJavascript, siNextdotjs, siNodedotjs, siPython, siReact, siTypescript } from "simple-icons";
 import DotHands from "./DotHands";
 import StageLock from "./StageLock";
+import BrandMark from "@/components/ui/common/BrandMark";
 import "./intro.css";
 
 // 이 화면의 수치 · 글꼴 · 문구는 .claude/rules/intro-page.md 에 고정해 둔 값이다. 바꿀 때는 그 파일도 함께 고친다
@@ -36,34 +37,7 @@ const STACK = [
   { name: "Python", path: siPython.path },
 ];
 
-/**
- * 블로그 로고(src/app/icon.svg)의 점 H 를 단색으로 — 이 화면은 무지개 밑빛 말고 색을 쓰지 않는다.
- * 16×16 칸 격자(한 칸 4)의 칸 [열, 행, 반지름]. 좌표 규칙은 DESIGN.md "로고"
- */
-const BRAND_DOTS: [number, number, number][] = [
-  ...[3, 4, 9, 10].flatMap((c) => [4, 5, 6, 7, 8, 9, 10, 11].map((r): [number, number, number] => [c, r, 1.7])),
-  ...[7, 8].flatMap((r) =>
-    [
-      [5, 1.7],
-      [6, 1.7],
-      [7, 1.7],
-      [8, 1.7],
-      [11, 1.4],
-      [12, 1.05],
-      [13, 0.7],
-    ].map(([c, rad]): [number, number, number] => [c, r, rad]),
-  ),
-];
-
-function BrandMark() {
-  return (
-    <svg width="22" height="22" viewBox="10 14 46 36" fill="currentColor" aria-hidden>
-      {BRAND_DOTS.map(([c, r, rad]) => (
-        <circle key={`${c}-${r}`} cx={c * 4 + 2} cy={r * 4 + 2} r={rad} />
-      ))}
-    </svg>
-  );
-}
+// 브랜드 마크(점 H, 단색)는 블로그 헤더와 같은 components/ui/common/BrandMark — 이 화면은 무지개 밑빛 말고 색을 쓰지 않으므로 currentColor(검정)로 그려진다
 
 export default function Intro() {
   return (

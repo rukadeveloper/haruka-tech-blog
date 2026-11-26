@@ -90,7 +90,7 @@ cacheComponents 에서는 다른 화면으로 넘어가도 인트로의 DOM 이 
 `.intro-hero`: `position: relative; height: 100vh; min-height: 660px; overflow: hidden`. 캔버스는 `absolute; inset: 0; 100% × 100%`, 나머지는 모두 `z-index: 3`.
 
 - **내비**: 가로 가운데, `gap: clamp(18px, 2.6vw, 40px)`, `padding-top: 36px`, 13.5px.
-  - 브랜드: 블로그 로고의 점 H 를 단색으로 그린 SVG(22×22, `BRAND_DOTS`) + `eunhaa tech`, 600, 15px, 자간 −.01em, 간격 8px, 오른쪽 여백 10px.
+  - 브랜드: 블로그 로고의 점 H 를 단색으로 그린 SVG(22×22, `src/components/ui/common/BrandMark.tsx` — 블로그 헤더도 같은 로고를 씀) + `eunhaa tech`, 600, 15px, 자간 −.01em, 간격 8px, 오른쪽 여백 10px.
   - 링크: 색 `#3a3a3a`, 밑줄 없음, hover `#000` (.2s).
   - 오른쪽 알약: 바탕 `#111`, 흰 글자, 패딩 10px 21px, 모서리 999, 500, 왼쪽 여백 10px, hover `translateY(-1px)` (.25s).
 - **문구**: `left: 50%; top: 24.5%; translateX(-50%)`, 가운데 정렬, `width: min(92vw, 720px)`.

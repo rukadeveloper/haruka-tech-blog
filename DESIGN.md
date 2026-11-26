@@ -28,8 +28,8 @@ viewBox 0 0 64 64          16×16 칸, 한 칸 = 4 (16px 파비콘의 1px). 점 
 
 - 점이 한 칸(4)에 하나씩이라 16px 로 줄이면 점 하나가 픽셀 하나에 딱 맞습니다. 값을 바꿀 때도 칸 격자를 지킵니다.
 - 가로획은 오른쪽 기둥(열 9 · 10)에서 끊기고 기둥 점이 그 자리를 채웁니다.
-- 색은 테마와 무관하게 고정입니다. 라이트 · 다크 어디에 올려도 같은 그림을 씁니다. 인트로 내비는 같은 점 배치를 단색(`currentColor`)으로 그립니다 (`src/app/intro/page.tsx` 의 `BRAND_DOTS`).
-- 원본은 `src/app/icon.svg` 하나입니다. 헤더, 브라우저 탭이 이 파일을 쓰고, `npm run icons` 가 여기서 `favicon.ico`(16 · 32 · 48px)와 `apple-icon.png`(180px, 모서리까지 바탕색으로 채움)를 만듭니다. 두 파일을 직접 고치지 않습니다. 점 배치를 바꾸면 인트로의 `BRAND_DOTS` 도 함께 고칩니다.
+- 색은 테마와 무관하게 고정입니다. 라이트 · 다크 어디에 올려도 같은 그림을 씁니다. 블로그 헤더와 인트로 내비는 같은 점 배치를 단색(`currentColor`)으로 그린 마크 + `eunhaa tech` 글자를 씁니다 (`src/components/ui/common/BrandMark.tsx` 의 `BRAND_DOTS`, 22px · 600 · 15px · 자간 −0.01em · 간격 8px).
+- 원본은 `src/app/icon.svg` 하나입니다. 브라우저 탭이 이 파일을 쓰고, `npm run icons` 가 여기서 `favicon.ico`(16 · 32 · 48px)와 `apple-icon.png`(180px, 모서리까지 바탕색으로 채움)를 만듭니다. 두 파일을 직접 고치지 않습니다. 점 배치를 바꾸면 `BrandMark` 의 `BRAND_DOTS` 도 함께 고칩니다.
 
 ## 색 토큰
 
