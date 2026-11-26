@@ -13,6 +13,7 @@ import { renderFileTreeHtml } from "./file-tree";
 import { loadCategories, type Category } from "./categories";
 import { LIFE, TAGS } from "./cache";
 import { db, unwrap } from "./db";
+import postCovers from "./post-covers.json";
 
 /** 글·카테고리 캐시 태그 (수명과 무효화 규칙은 lib/cache.ts) */
 export const POSTS_TAG = TAGS.posts;
@@ -49,6 +50,16 @@ type MetaRow = {
   featured: boolean | null;
 };
 
+const originalPostCovers: Readonly<Partial<Record<string, string | null>>> = postCovers;
+
+function resolveThumbnail({ slug, thumbnail }: MetaRow): string {
+  // Match the cover this design replaced so edits made in the studio take precedence.
+  if (Object.hasOwn(originalPostCovers, slug) && originalPostCovers[slug] === thumbnail) {
+    return `/images/post-covers/${slug}.webp`;
+  }
+  return thumbnail;
+}
+
 const toMeta = (r: MetaRow): PostMeta => ({
   slug: r.slug,
   title: r.title || r.slug,
@@ -56,7 +67,7 @@ const toMeta = (r: MetaRow): PostMeta => ({
   category: r.category,
   description: r.description,
   tags: r.tags ?? [],
-  thumbnail: r.thumbnail,
+  thumbnail: resolveThumbnail(r),
   draft: r.draft,
   featured: r.featured ?? false,
 });
