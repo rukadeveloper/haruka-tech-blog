@@ -1,0 +1,210 @@
+/* 인트로(/intro) 전용 스타일. 값은 .claude/rules/intro-page.md 에 고정해 둔 명세 값이다.
+   이 저장소는 모든 *.css 를 Tailwind 로더로 처리해 CSS 모듈을 쓸 수 없으므로 클래스에 intro- 접두사를 붙인다 */
+
+.intro-root {
+  --bg: #f7f7f5;
+  --ink: #111111;
+  --mute: #9a9a9a;
+  --sub: #7b7b7b;
+
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-inter), var(--font-pretendard), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.intro-root *,
+.intro-root *::before,
+.intro-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.intro-hero {
+  position: relative;
+  height: 100vh;
+  min-height: 660px;
+  overflow: hidden;
+}
+
+.intro-dots {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── 내비 ── */
+.intro-nav {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 2.6vw, 40px);
+  padding-top: 36px;
+  font-size: 13.5px;
+}
+.intro-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 10px;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.intro-link {
+  color: #3a3a3a;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.intro-link:hover {
+  color: #000;
+}
+.intro-pill {
+  margin-left: 10px;
+  padding: 10px 21px;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform 0.25s;
+}
+.intro-pill:hover {
+  transform: translateY(-1px);
+}
+
+/* ── 문구 ── */
+.intro-copy {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 24.5%;
+  transform: translateX(-50%);
+  width: min(92vw, 720px);
+  text-align: center;
+}
+.intro-copy h1 {
+  font-weight: 500;
+  font-size: clamp(38px, 3.75vw, 68px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+.intro-copy h1 span {
+  display: block;
+  color: var(--mute);
+}
+.intro-copy p {
+  max-width: 340px;
+  margin: 20px auto 0;
+  color: var(--sub);
+  font-size: clamp(13px, 1.02vw, 15.5px);
+  line-height: 1.4;
+  word-break: keep-all;
+  text-wrap: balance;
+}
+
+.intro-cta {
+  position: relative;
+  display: inline-block;
+  margin-top: clamp(34px, 3.6vw, 52px);
+}
+/* 무지개 밑빛: 알약 뒤에서 아래로 살짝 번진다 */
+.intro-cta::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -6px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #ffcf5a, #7dffa8, #5ad7ff, #9b7bff, #ff6fd8, #ffb36b);
+  filter: blur(9px);
+  opacity: 0.85;
+  transition:
+    opacity 0.3s,
+    filter 0.3s,
+    bottom 0.3s;
+}
+.intro-cta a {
+  position: relative;
+  display: inline-block;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform 0.3s;
+}
+.intro-cta:hover::before {
+  opacity: 1;
+  filter: blur(12px);
+  bottom: -9px;
+}
+.intro-cta:hover a {
+  transform: translateY(-1px);
+}
+
+.intro-brand:focus-visible,
+.intro-link:focus-visible,
+.intro-pill:focus-visible,
+.intro-cta a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* ── 로고 줄 ── */
+.intro-logos {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: clamp(28px, 6vh, 64px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(26px, 4.6vw, 66px);
+  padding: 0 16px;
+  list-style: none;
+  color: #8d8d8d;
+  font-size: clamp(14px, 1.18vw, 17px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.intro-logos li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ── 760px 이하 ── */
+@media (max-width: 760px) {
+  .intro-nav {
+    justify-content: space-between;
+    padding: 22px 18px 0;
+  }
+  .intro-link {
+    display: none;
+  }
+  .intro-copy {
+    top: 20%;
+  }
+  .intro-logos {
+    gap: 14px 24px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-root *,
+  .intro-root *::before {
+    transition: none !important;
+  }
+}

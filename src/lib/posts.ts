@@ -13,6 +13,7 @@ import { renderFileTreeHtml } from "./file-tree";
 import { loadCategories, type Category } from "./categories";
 import { LIFE, TAGS } from "./cache";
 import { db, unwrap } from "./db";
+import postCovers from "./post-covers.json";
 
 /** 글·카테고리 캐시 태그 (수명과 무효화 규칙은 lib/cache.ts) */
 export const POSTS_TAG = TAGS.posts;
@@ -27,13 +28,15 @@ export type PostMeta = {
   thumbnail: string;
   /** true 면 공개 화면에서 숨기고 관리자에서만 보인다 (티스토리 임시저장 등) */
   draft: boolean;
+  /** true 면 홈의 "추천 아티클" 구획에 나온다 */
+  featured: boolean;
 };
 
 /** markdown: 기존 가져온 글 / html: 에디터(WYSIWYG)로 저장한 글 */
 export type PostFormat = "markdown" | "html";
 export type PostSource = { meta: PostMeta; content: string; format: PostFormat };
 
-const META_COLUMNS = "slug,title,date,category,description,tags,thumbnail,draft";
+const META_COLUMNS = "slug,title,date,category,description,tags,thumbnail,draft,featured";
 
 type MetaRow = {
   slug: string;
@@ -44,7 +47,18 @@ type MetaRow = {
   tags: string[];
   thumbnail: string;
   draft: boolean;
+  featured: boolean | null;
 };
+
+const originalPostCovers: Readonly<Partial<Record<string, string | null>>> = postCovers;
+
+function resolveThumbnail({ slug, thumbnail }: MetaRow): string {
+  // Match the cover this design replaced so edits made in the studio take precedence.
+  if (Object.hasOwn(originalPostCovers, slug) && originalPostCovers[slug] === thumbnail) {
+    return `/images/post-covers/${slug}.webp`;
+  }
+  return thumbnail;
+}
 
 const toMeta = (r: MetaRow): PostMeta => ({
   slug: r.slug,
@@ -53,8 +67,9 @@ const toMeta = (r: MetaRow): PostMeta => ({
   category: r.category,
   description: r.description,
   tags: r.tags ?? [],
-  thumbnail: r.thumbnail,
+  thumbnail: resolveThumbnail(r),
   draft: r.draft,
+  featured: r.featured ?? false,
 });
 
 /** 글 하나를 DB 에서 읽는다. 없으면 오류 */

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
-import { addComment } from "@/app/posts/[slug]/comment-actions";
+import { addComment } from "@/app/(site)/posts/[slug]/comment-actions";
 import Button from "@/components/ui/common/Button";
 
 export default function CommentForm({

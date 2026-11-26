@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { addEntry } from "@/app/guestbook/actions";
+import { addEntry } from "@/app/(site)/guestbook/actions";
 import { GUESTBOOK_MAX_LEN } from "@/lib/guestbook-config";
 import Button from "@/components/ui/common/Button";
 

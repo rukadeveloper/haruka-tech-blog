@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { isAdmin } from "@/lib/auth";
-import { deletePost } from "@/app/admin/actions";
+import { deletePost } from "@/app/(site)/admin/actions";
 import { buttonClass } from "@/components/ui/common/Button";
 import ConfirmDeleteButton from "@/components/ui/common/ConfirmDeleteButton";
 

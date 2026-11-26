@@ -11,7 +11,25 @@
 - 모서리는 둥글게(12–16px), 선은 얇게, 그림자는 꼭 떠 있어야 하는 요소(팝오버, 플로팅 버튼)에만 씁니다.
 - **반응은 누르는 순간에**: 누를 수 있는 요소는 `:active` 에서 바로 살짝 줄어듭니다. hover 스타일은 `@media (hover: hover)` 안에만 둡니다.
 - **들어온 길로 나간다**: 메뉴와 팝오버는 자신을 연 버튼 쪽에서 나타나고 같은 곳으로 사라집니다. 꾸미기 위한 움직임은 넣지 않습니다.
-- **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "글래스").
+- **접근성 설정을 따른다**: `prefers-reduced-motion`, `prefers-contrast` 는 토큰 값만 바꿔 한곳에서 처리합니다 (아래 "움직임", "면").
+- **인트로 페이지(`/intro`)는 이 문서의 토큰 체계 밖입니다.** 따뜻한 흰 바탕(#f7f7f5) 하나에 자체 값을 쓰며, 정의는 `.claude/rules/intro-page.md` 와 `src/app/intro/intro.css` 에 있습니다.
+
+## 로고
+
+Haruka 의 **점 H 모노그램**입니다. 인트로의 LED 하프톤처럼 점으로 찍은 기둥 두 개 사이를 점 가로획이 지나고, 오른쪽 기둥 밖으로 나가면서 점이 점점 작아져 사라집니다 (멀리 뻗는 지평선 — 遥か). 헤더 · 인트로의 단색 마크와 맞춰 **한 가지 색(흰 점)** 만 씁니다.
+
+```
+viewBox 0 0 64 64          16×16 칸, 한 칸 = 4 (16px 파비콘의 1px). 점 중심 = 칸 × 4 + 2
+바탕     64×64, rx 14                         #191f28 (라이트 --foreground)
+기둥     열 3 · 4 · 9 · 10, 행 4–11, r 1.7       #fff
+가로획   열 5–8, 행 7 · 8, r 1.7                  #fff
+지평선   열 11 · 12 · 13, 행 7 · 8, r 1.4 · 1.05 · .7   #fff — 오른쪽으로 갈수록 작아진다
+```
+
+- 점이 한 칸(4)에 하나씩이라 16px 로 줄이면 점 하나가 픽셀 하나에 딱 맞습니다. 값을 바꿀 때도 칸 격자를 지킵니다.
+- 가로획은 오른쪽 기둥(열 9 · 10)에서 끊기고 기둥 점이 그 자리를 채웁니다.
+- 색은 테마와 무관하게 고정입니다. 진한 바탕이라 밝은 탭 줄 · 어두운 탭 줄 어디서나 보이고, 라이트 · 다크 어디에 올려도 같은 그림을 씁니다. 블로그 헤더와 인트로 내비는 같은 점 배치를 단색(`currentColor`)으로 그린 마크 + `eunhaa tech` 글자를 씁니다 (`src/components/ui/common/BrandMark.tsx` 의 `BRAND_DOTS`, 22px · 600 · 15px · 자간 −0.01em · 간격 8px).
+- 원본은 `src/app/icon.svg` 하나입니다. 브라우저 탭이 이 파일을 쓰고, `npm run icons` 가 여기서 `favicon.ico`(16 · 32 · 48px)와 `apple-icon.png`(180px, 모서리까지 바탕색으로 채움)를 만듭니다. 두 파일을 직접 고치지 않습니다. 점 배치를 바꾸면 `BrandMark` 의 `BRAND_DOTS` 도 함께 고칩니다.
 
 ## 색 토큰
 
@@ -89,46 +107,36 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 - 팝오버의 `transform-origin` 은 연 버튼 쪽 모서리입니다 (Select: 위/아래 방향에 따라, 목차 패널: 모바일 오른쪽 아래 · `lg` 오른쪽 위).
 - 테마 전환은 View Transitions 로 화면을 240ms 교차 페이드합니다 (`ThemeToggle`). 토글 스위치만은 교차 페이드에서 빼 손잡이가 미끄러지는 모습이 그대로 보입니다.
 
-## 글래스
+## 면 (평평한 디자인)
 
-공개 화면의 면은 뒤가 비쳐 보이는 유리입니다. 유리는 뒤에 비칠 것이 있어야 보이므로, 바탕에 강조 색 계열의 옅은 색 번짐(`--ambient`)을 화면에 고정해 깝니다 (`body::before`, 움직이지 않음).
+공개 화면과 관리자 화면 모두 **평평한 면**입니다 — 채널톡 기술블로그처럼 흰 바탕(다크는 어두운 바탕) 위에 카드 테두리 · 그림자 없이 썸네일과 글자만 놓고, 구획은 옅은 구분선(`--line`)으로 나눕니다. 바탕의 색 번짐도 쓰지 않습니다.
+
+예전 유리 디자인의 토큰 · 클래스 이름(`--glass*`, `.glass`, `.glass-thick`, `.glass-tint`)은 사용처가 많아 그대로 두고, **값만 불투명하게** 바꿨습니다.
 
 ```css
-:root {
-  --glass: rgba(255, 255, 255, 0.55);         /* 카드, 헤더 바, 푸터, 목차 상자 */
-  --glass-thick: rgba(255, 255, 255, 0.8);    /* 팝오버, 모바일 메뉴, 확인 창, 플로팅 버튼 */
-  --glass-tint: rgba(255, 255, 255, 0.6);     /* 칩, 보조 버튼, 페이지 번호 — blur 없이 옅게 */
-  --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-edge: rgba(255, 255, 255, 0.9);     /* 위쪽 가장자리에 맺히는 빛 (inset) */
-  --glass-filter: blur(24px) saturate(180%);
-  --shadow-glass: 0 0 0 1px rgba(0, 27, 55, 0.05), 0 1px 2px rgba(0, 27, 55, 0.04), 0 8px 32px rgba(0, 27, 55, 0.08);
-  --shadow-tint: 0 0 0 1px rgba(0, 27, 55, 0.05), 0 1px 2px rgba(0, 27, 55, 0.05);   /* 작은 유리 면용 얕은 그림자 */
-  --ambient: radial-gradient(…) × 4;          /* 파랑 · 보라 · 하늘 · 남색, 불투명도 0.14–0.2 */
-}
-[data-theme="dark"] {
-  --glass: rgba(255, 255, 255, 0.06);
-  --glass-thick: rgba(36, 36, 46, 0.8);
-  --glass-tint: rgba(255, 255, 255, 0.07);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-edge: rgba(255, 255, 255, 0.14);
-  --shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.35);
+:root, [data-theme="dark"] {
+  --glass: var(--elevated);          /* 카드, 헤더 바, 푸터, 목차 상자 */
+  --glass-thick: var(--elevated);    /* 팝오버, 모바일 메뉴, 확인 창, 플로팅 버튼 (그림자 --shadow-pop 으로 떠 보임) */
+  --glass-tint: var(--surface);      /* 칩, 보조 버튼, 페이지 번호 */
+  --glass-border: var(--line);
+  --glass-edge: transparent;
+  --glass-filter: none;
+  --shadow-glass: none;
+  --shadow-tint: none;
 }
 
-.glass       { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-filter);
-               box-shadow: inset 0 1px 0 var(--glass-edge), var(--shadow-glass); }
-.glass-thick { background: var(--glass-thick); /* 나머지는 .glass 와 같고 그림자만 */ box-shadow: …, var(--shadow-pop); }
-.glass-tint  { background: var(--glass-tint); box-shadow: inset 0 0 0 1px var(--glass-border), var(--shadow-tint); }
+.glass       { background: var(--glass); border: 1px solid var(--glass-border); }
+.glass-thick { background: var(--glass-thick); border: 1px solid var(--glass-border); box-shadow: var(--shadow-pop); }
+.glass-tint  { background: var(--glass-tint); }
 ```
 
-- **유리 위에 유리를 겹치지 않습니다.** 유리 면 안쪽의 입력(`.field`), hover, 선택 표시는 단색(`surface`, `strong-soft`)을 씁니다.
-- **글 본문(`.post-body`)은 유리에 올리지 않습니다.** 긴 글은 바탕 위에 그대로 두고, 코드 블록과 파일 트리도 불투명합니다.
-- **관리자 화면(`.admin-ui`)은 유리를 쓰지 않습니다.** 에디터에는 카드 안에 `fixed`·`sticky` 요소가 있어 `backdrop-filter` 가 배치를 깨뜨립니다. `.admin-ui` 가 글래스 토큰을 불투명 값으로 되돌리므로 같은 클래스(`.card`, `.chip` …)를 그대로 써도 됩니다.
-- `prefers-reduced-transparency`, `prefers-contrast: more` 에서도 같은 방식으로 토큰이 불투명해지고 색 번짐이 꺼집니다.
-- `backdrop-filter` 가 걸린 요소는 그 안의 `position: fixed` 요소를 자기 크기에 가두고, 안쪽 요소의 blur 가 바깥을 비추지 못하게 합니다. 그래서 헤더는 바 자체가 아니라 안쪽 `.site-header-bg` 층에 유리를 깝니다 (모바일 메뉴 딤과 메뉴의 blur 가 화면 전체에 닿도록).
+- 떠 있어야 하는 요소(팝오버, 모바일 메뉴, 플로팅 버튼)만 `--shadow-pop` 그림자를 씁니다.
+- 글 목록 행(`PostRow`)은 `.card` 를 쓰지 않습니다. 바탕 · 테두리 없이 썸네일 + 글자이고, 행 사이만 구분선입니다 (아래 "글 목록").
+- `prefers-contrast: more` 에서는 테두리를 진하게 하는 규칙만 남습니다.
 
 ### 헤더 바 (`.site-header`)
 
-화면 위에서 8px(sm: 12px) 띄운 높이 56px 의 둥근(20px) 유리 바입니다. 바깥 여백(8 / 12px) + 바 안쪽 여백(12px)이 `.container-page` 의 여백(20 / 24px)과 같아 로고가 본문과 줄이 맞습니다. 헤더 아래에 붙는 요소는 이 높이(68 / 72px)를 기준으로 잡습니다 — 본문 제목의 `scroll-margin-top`, `PostToc` 의 기준선, 에디터 툴바의 `top`.
+화면 위에서 8px(sm: 12px) 띄운 높이 56px 의 둥근(20px) 바입니다 (면은 `--glass` = 불투명). 바깥 여백(8 / 12px) + 바 안쪽 여백(12px)이 `.container-page` 의 여백(20 / 24px)과 같아 로고가 본문과 줄이 맞습니다. 헤더 아래에 붙는 요소는 이 높이(68 / 72px)를 기준으로 잡습니다 — 본문 제목의 `scroll-margin-top`, `PostToc` 의 기준선, 에디터 툴바의 `top`.
 
 ### 테마 토글 스위치 (`.theme-switch`)
 
@@ -144,6 +152,60 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 ```
 
 간격은 Tailwind 기본 단위(4px)를 씁니다. 구획 사이 40–64px, 카드 안쪽 20px(sm: 24px), 요소 사이 8–16px.
+
+### 글 목록 (홈 · 카테고리) — LINE Engineering 블로그 배치
+
+```
+BlogList        .container-page 안. lg 이상 [목록 minmax(0,1fr)] gap 64 [사이드바 260]. lg 미만 사이드바가 목록 위 한 열로
+                카테고리 화면: 목록 위에 "FE › Next.js" 20/700 + "n편" text-meta. 검색: 결과 줄. h1 은 sr-only
+PostRow         글자만 (썸네일 없음). 위아래 py 32(sm 40), 아래 border-line
+                제목 22 → sm 26 / 700 / leading-snug / -0.02em, 2줄 · hover text-strong
+                작성자 줄 mt 12: [로고 타일 48 r12 #191f28 + 흰 BrandMark 26] gap 12
+                                 이름 15/600 · 날짜 15 text-meta (YYYY.MM.DD) / 아래 소개 13 text-meta
+                요약 mt 20: 16 / leading-relaxed / text-muted, 3줄
+                분류 칩 mt 20, gap 6: h 28 · px 8 · r 6 · bg-surface · 12 text-muted
+                                 카테고리(FE › Next.js, 링크) + 태그(#react, 최대 4개)
+BlogSidebar     lg 이상 fixed top 96 · w 260, 오른쪽 = max(24px, 50% − 536px) (그리드 오른쪽 칸과 같은 자리), 최대 높이 화면 − 120 (넘치면 자체 스크롤)
+                z-10 — 페이지 끝에서는 푸터(relative z-20)가 위로 덮는다:
+                  검색 — 밑줄형(border-b border-line, 16px, 돋보기, 값이 있으면 ✕ → /)
+                  "카테고리" 18/700 → "전체 글" → 대분류 15/700 링크 + 소분류 #이름 14 text-meta, 줄높이 36
+                  현재 위치(aria-current) text-foreground · 600, 대분류는 text-strong
+                lg 미만: 검색창(.field) → 칩 줄 묶음(sticky top 64 / sm 68 = 헤더 바로 아래, bg-background, z-30):
+                         대분류 .chip 가로 스크롤(첫 칩 "전체") → 현재 대분류의 소분류 칩 줄
+Pagination      ‹ 1 … 4 5 [6] 7 8 … 13 ›  (1 · 마지막 · 현재 ±2 만, 사이는 …)
+                번호 32px r6 14px text-meta, 현재 bg-foreground · text-background · 600
+                이전 · 다음은 테두리 없는 꺾쇠, 끝 쪽에서는 흐리게(aria-disabled)
+한 페이지       10편
+```
+
+### 관리자 화면 (글 관리 · 카테고리) — 그리드
+
+```
+통계            4칸 그리드 (모바일 2칸), gap 12. 칸마다 .card bg-subtle, 라벨 .text-caption → 숫자 .text-title
+글 목록 틀       .card 하나 안에 툴바(상태 탭 · 검색 · 보기 전환 .icon-btn ▦/≡, aria-pressed) → 내용
+  그리드 보기    (기본) 1열 → sm 2열 → lg 3열, gap 16, 틀 안쪽 p 12(sm 16)
+  AdminPostCard .card · 16:9 썸네일(bg-thumb) 위 왼쪽에 상태 배지(+ 추천 .badge-primary)
+                → p 16: 제목 600 2줄 → 카테고리 .badge · 날짜 .text-caption
+                → border-t 아래 작업 줄(미리보기 · 수정 · 삭제, .btn-sm)
+  리스트 보기    한 줄에 글 하나, divide-y (예전 모양)
+카테고리        추가 폼이 위에 가로 한 줄(sm: [상위 200px][이름 1fr][추가]) → 대분류 카드 그리드
+                1열 → sm 2열 → lg 3열, gap 16, items-start. 카드 = 대분류 행 + 소분류 행(pl 32), divide-y
+```
+
+- 고른 보기(그리드 / 리스트)는 그 브라우저의 `localStorage` `admin-post-view` 에 둡니다. 읽지 못하면 그리드입니다.
+
+### 글 편집 화면 (새 글 · 글 수정) — 벤토 블록 에디터 (예외)
+
+글 에디터(`src/app/(studio)`)는 인트로처럼 이 문서의 토큰 체계 밖입니다. 블록 하나하나를 둥근 카드로 보여 주는 "벤토 블록 에디터"이고, 색 · 글꼴 · 치수 · 배치 · 블록 카드 규칙 · 발행 전 체크 기준은 `.claude/rules/editor-bento.md` 에 고정해 두었습니다.
+
+```
+상단 바 (흰 카드)   haruka-admin-log · 새 글 / 글 수정 · 블록 N개 · 저장 상태 | [임시저장] [미리보기] [발행 →]
+메인 열             커버 드롭존(1200×630 권장) → 제목 카드(태그 칩 · 제목 34 · 리드) → 본문 블록 카드 → 블록 추가 메뉴
+사이드 열 360 · 2열  발행 전 체크(2칸) · 글자 수 · 읽는 시간 · 카테고리 · 목차 · 블록 구성 · 마지막 저장 · URL · 날짜 · 추천
+lg 미만             한 열: 상단 바 → 메인 → 사이드 그리드
+```
+
+- 블로그 토큰 이름은 그대로 두고 값만 `html[data-studio]` 에서 덮어쓰므로(`src/app/(studio)/studio.css`), 이 문서의 컴포넌트 클래스(`.btn`, `.field`, `.badge`, `.chip` …)는 에디터에서도 그대로 씁니다.
 
 ## 타이포
 
@@ -164,7 +226,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 
 ```css
 /* 카드 */
-.card     { /* .glass 와 같은 유리 면 */ border-radius: 20px; }
+.card     { /* .glass 와 같은 면 (평평, 테두리 --line) */ border-radius: 20px; }
 .card-pad { padding: 20px; }                                         /* sm: 24px */
 
 /* 버튼: .btn + 모양 하나. 작게는 .btn-sm, 가로로 꽉 채울 때 .btn-block */
@@ -172,7 +234,7 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 .btn-sm           { height: 36px; padding-inline: 12px; border-radius: 10px; font-size: 14px; }
 .btn-block        { width: 100%; }
 .btn-primary      { background: var(--strong);  color: var(--on-strong); }   /* 화면의 주된 행동 하나 */
-.btn-secondary    { background: var(--glass-tint); color: var(--foreground); }  /* + 유리 테두리 */
+.btn-secondary    { background: var(--glass-tint); color: var(--foreground); }  /* 옅은 회색 바탕 */
 .btn-ghost        { color: var(--muted); }                                   /* 바탕 없음, hover 시 surface */
 .btn-danger       { color: var(--danger); }                                  /* 삭제 (바탕 없음) */
 .btn-danger-solid { background: var(--danger);  color: #fff; }               /* 삭제 확인 */
@@ -214,5 +276,6 @@ Tailwind 에서는 `bg-surface`, `text-muted`, `border-line` 처럼 이름 그�
 - `h2` 22px / -0.015em (sm: 26px / -0.02em), `h3` 19px(sm: 21px) / -0.01em. 목차는 `h2`·`h3` 로 만듭니다.
 - 표와 코드는 좁은 화면에서 가로로 스크롤합니다.
 - **코드 블록**: 테마와 무관하게 어두운 맥 창 모양 — 상단 바(점 3개 + 언어 라벨), 줄 번호, 모서리 14px. 토큰은 `--cb-body`, `--cb-head`, `--cb-text`, `--cb-num`, `--cb-lang`. 언어 라벨은 `src/lib/code-languages.ts` 의 목록과 맞춥니다.
+- **콜아웃** (`div[data-callout]`): 주의 문단 상자 — `--warning-soft` 바탕, 모서리 12px, 안쪽 16 · 20px, 안의 첫 · 끝 블록 여백 0. 에디터의 블록 추가 메뉴로 넣습니다.
 - **파일 트리** (`.file-tree`): 코드 블록과 짝을 이루는 창 모양 — `FILES` 상단 바, 폴더(강조 색)·파일 아이콘, 가지 선, `# 설명`.
 - **목차** (`.toc-box`, `.toc-float`, `.toc-panel`): 글 위쪽 상자 + 스크롤하면 나타나는 고정 버튼. 고정 버튼은 모바일에서 오른쪽 아래, `lg` 이상에서 오른쪽 위.

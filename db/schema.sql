@@ -17,6 +17,8 @@ create table if not exists public.posts (
   updated_at  timestamptz not null default now()
 );
 create index if not exists posts_date_idx on public.posts (date desc);
+-- 홈의 "추천 아티클" 구획에 표시 (관리자 에디터의 발행 설정에서 켠다)
+alter table public.posts add column if not exists featured boolean not null default false;
 
 -- path: "FE" 또는 "FE/Next.js", position: 표시 순서
 create table if not exists public.categories (

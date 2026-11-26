@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
-import Header from "@/components/Header";
 import "./globals.css";
 
 // Pretendard 가변 글꼴 (45–920) — 굵기를 하나의 파일로 모두 쓴다
@@ -43,21 +42,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="flex min-h-full flex-col">
-        <Header />
-        <main className="container-page flex-1">{children}</main>
-        <footer className="site-footer">
-          <div className="container-page flex flex-col gap-4 py-8 sm:flex-row sm:items-end sm:justify-between sm:py-10">
-            <div>
-              <strong className="text-base font-extrabold tracking-tight">
-                eunhaa<span className="text-strong"> tech</span>
-              </strong>
-              <p className="mt-1 text-sm text-muted">공부하는 개발자의 테크 블로그</p>
-            </div>
-            <p className="text-caption">© Eunhaa. All rights reserved.</p>
-          </div>
-        </footer>
-      </body>
+      {/* 헤더와 푸터는 (site) 레이아웃이 붙인다 (components/SiteFrame). 인트로는 그 틀 없이 화면 전체를 쓴다 */}
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

@@ -1,7 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import logo from "@/app/icon.svg";
+import BrandMark from "@/components/ui/common/BrandMark";
 import AdminLink from "./AdminLink";
 import HeaderNav from "./HeaderNav";
 
@@ -11,9 +10,10 @@ export default function Header() {
     <header className="site-header">
       <div className="site-header-bar sm:justify-between">
         <div className="site-header-bg" aria-hidden />
-        {/* 글자 대신 로고(파비콘과 같은 그림)만 보이므로 이름은 alt 로 알려 준다 */}
-        <Link href="/" className="shrink-0 sm:mr-auto">
-          <Image src={logo} alt="eunhaa tech 홈" width={32} height={32} priority />
+        {/* 인트로 내비와 같은 로고: 점 H 단색 마크(22px) + eunhaa tech (600 · 15px · 자간 -0.01em · 간격 8px). 색은 글자색을 따라 다크 모드에서도 보인다 */}
+        <Link href="/" aria-label="eunhaa tech 홈" className="pressable inline-flex shrink-0 items-center gap-2 text-[15px] font-semibold tracking-[-0.01em] text-foreground sm:mr-auto">
+          <BrandMark />
+          eunhaa tech
         </Link>
         <HeaderNav
           adminLink={

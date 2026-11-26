@@ -6,8 +6,8 @@ import { Suspense, useEffect, useState } from "react";
 import ThemeToggle from "@/components/ui/common/ThemeToggle";
 
 const LINKS = [
-  { href: "/", label: "Blog", active: (p: string) => p === "/" || p.startsWith("/posts") || p.startsWith("/category") },
-  { href: "/about", label: "About", active: (p: string) => p.startsWith("/about") },
+  { href: "/", label: "블로그", active: (p: string) => p === "/" || p.startsWith("/posts") || p.startsWith("/category") },
+  { href: "/about", label: "소개", active: (p: string) => p.startsWith("/about") },
   { href: "/guestbook", label: "방명록", active: (p: string) => p.startsWith("/guestbook") },
 ];
 
