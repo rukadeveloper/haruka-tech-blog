@@ -1,3 +1,4 @@
+import { AUTHOR } from "@/lib/site";
 import Header from "./Header";
 
 /**
@@ -15,7 +16,7 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
             <strong className="text-base font-extrabold tracking-tight">
               eunhaa<span className="text-strong"> tech</span>
             </strong>
-            <p className="mt-1 text-sm text-muted">공부하는 개발자의 테크 블로그</p>
+            <p className="mt-1 text-sm text-muted">{AUTHOR.bio}</p>
           </div>
           <p className="text-caption">© Eunhaa. All rights reserved.</p>
         </div>

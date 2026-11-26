@@ -43,9 +43,9 @@ export default function Pagination({
   };
 
   const num =
-    "pressable inline-flex h-8 min-w-8 items-center justify-center rounded-lg px-1.5 text-[15px] font-medium text-meta hover:bg-surface hover:text-foreground";
+    "pressable inline-flex h-8 min-w-8 items-center justify-center rounded-md px-1.5 text-sm font-medium text-meta hover:text-foreground";
   const arrow =
-    "pressable inline-flex size-8 items-center justify-center rounded-full border border-line text-muted hover:bg-surface hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-40";
+    "pressable inline-flex size-8 items-center justify-center rounded-md text-muted hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-30";
 
   const step = (n: number, dir: "left" | "right", label: string) => {
     const disabled = n < 1 || n > total;
@@ -61,7 +61,7 @@ export default function Pagination({
   };
 
   return (
-    <nav aria-label="페이지" className="mt-12 flex items-center justify-center gap-1 sm:mt-16 sm:gap-1.5">
+    <nav aria-label="페이지" className="mt-12 flex items-center justify-center gap-1 sm:mt-14">
       <span className="mr-2 sm:mr-3">{step(page - 1, "left", "이전 페이지")}</span>
       {pages(page, total).map((n, i) =>
         n === "…" ? (
@@ -73,7 +73,7 @@ export default function Pagination({
             key={n}
             href={href(n)}
             aria-current={n === page ? "page" : undefined}
-            className={n === page ? `${num} pointer-events-none !bg-strong font-semibold !text-(--on-strong)` : num}
+            className={n === page ? `${num} pointer-events-none !bg-foreground font-semibold !text-background` : num}
           >
             {n}
           </Link>
