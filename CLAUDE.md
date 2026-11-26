@@ -47,7 +47,9 @@
 
 - 공개 화면과 관리자 화면 모두 평평한 면입니다 (채널톡 기술블로그처럼 흰 바탕 · 테두리 없는 카드 · 옅은 구분선). 면과 움직임은 DESIGN.md 의 토큰(`--ease-out`, `--dur*`, `--press*`, `--glass*`)과 클래스(`.glass`, `.glass-thick`, `.glass-tint`)로만 씁니다. `--glass*` 는 예전 유리 디자인의 이름을 남긴 것으로 지금은 불투명한 값입니다. 움직임 줄이기 · 대비 높이기 설정은 그 토큰 값을 바꿔 처리하므로, 값을 직접 쓰면 설정이 무시됩니다.
 
-- 인트로 페이지(`/intro`)만 위 원칙의 예외입니다. 따뜻한 흰 바탕(#f7f7f5) 하나에 자체 색 · 글꼴 · 움직임 값을 쓰며, 그 값은 `.claude/rules/intro-page.md` 에 고정해 두었습니다.
+- 인트로 페이지(`/intro`)와 글 에디터(`(studio)`)만 위 원칙의 예외입니다.
+  - 인트로: 따뜻한 흰 바탕(#f7f7f5) 하나에 자체 색 · 글꼴 · 움직임 값을 쓰며, 그 값은 `.claude/rules/intro-page.md` 에 고정해 두었습니다.
+  - 글 에디터: "벤토 블록 에디터" — 자체 토큰(바탕 #E9E9E4 · 포인트 #FF8A4C) · 글꼴(IBM Plex Sans KR · Space Grotesk · JetBrains Mono)을 쓰고, 라이트 · 다크를 모두 지원합니다. 값은 `.claude/rules/editor-bento.md` 에 고정해 두었습니다.
 
 # 전체 규칙
 
@@ -103,7 +105,8 @@
 - `format: "html"` 은 Tiptap 에디터로 저장한 글(`renderHtml`), `"markdown"` 은 티스토리에서 가져온 글(`renderMarkdown`)입니다. 마크다운 글을 에디터로 열면 `markdownToEditorHtml` 로 변환되고, 저장하면 항상 html 이 됩니다.
 - `draft: true` 인 글은 공개 조회에서 모두 빠집니다.
 - `featured: true` 는 관리자 에디터의 발행 설정에서 켜는 추천 표시입니다. DB · 관리자에는 남아 있지만 지금 공개 화면(홈)은 이 값을 쓰지 않습니다.
-- 에디터는 전체 화면 스튜디오입니다 (`src/app/(studio)/admin/editor/`, 배치는 DESIGN.md "글 편집 화면"). `PostStudio`(폼 · 상태 · Tiptap · 업로드 · 자동 임시저장)가 `StudioTopBar`(발행 ▾ · 되돌리기 · 미리보기 켜기), `StudioRail` + `panels/`(목차 · 블록 · 설정), `StudioWriter`(커버 · 제목 · 요약 · 본문 · `FormatPill`), `StudioPreview`(실시간 미리보기)를 묶습니다. 실시간 미리보기는 `previewHtml` 을 800ms 디바운스로 불러 공개 글과 같은 하이라이팅으로 그립니다. 폼 필드 이름(`title`, `category`, `slug`, `date`, `description`, `tags`, `thumbnail`, `featured`, `content`, `intent`, `originalSlug`)은 `savePost` 가 읽는 이름과 같아야 하고, 입력칸의 Enter 는 제출하지 않습니다 (발행은 버튼으로만).
+- 에디터는 벤토 블록 에디터입니다 (`src/app/(studio)/admin/editor/`, 값과 배치는 `.claude/rules/editor-bento.md`). `PostStudio`(폼 · 상태 · Tiptap · 업로드 · 자동 임시저장 · 발행 흐름)가 `BentoTopBar`(임시저장 · 미리보기 · 발행), `StudioWriter`(커버 드롭존 · 제목 카드 · 본문 블록 카드 · `BlockAddMenu` · `FormatPill`), `BentoSide`(발행 전 체크 · 통계 · 카테고리 · 목차 · URL 카드)를 묶고, 미리보기는 `PreviewOverlay` 가 `StudioPreview`(`previewHtml` 800ms 디바운스)로 그립니다. 발행 전 체크 규칙은 `checklist.ts` 이고 '필요' 항목이 있으면 발행 전에 `PublishConfirm` 으로 한 번 묻습니다. 폼 필드 이름(`title`, `category`, `slug`, `date`, `description`, `tags`, `thumbnail`, `featured`, `content`, `intent`, `originalSlug`)은 `savePost` 가 읽는 이름과 같아야 하고, 입력칸의 Enter 는 제출하지 않습니다 (발행은 버튼으로만).
+- 콜아웃 블록은 `<div data-callout="warning">` 로 저장되고(Tiptap 노드 `extensions/Callout.ts`), 공개 글에서는 `.post-body div[data-callout]` 스타일로 그립니다.
 
 ## 홈 · 카테고리 화면 (G마켓 기술블로그 배치)
 
