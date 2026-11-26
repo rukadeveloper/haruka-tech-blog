@@ -5,18 +5,19 @@ import Select from "@/components/ui/common/Select";
 import { CODE_LANGUAGES } from "@/lib/code-languages";
 import { Icon } from "./icons";
 
-function Btn({ label, title, active, onClick }: { label: React.ReactNode; title: string; active?: boolean; onClick: () => void }) {
+function Btn({ label, title, active, disabled, onClick }: { label: React.ReactNode; title: string; active?: boolean; disabled?: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
       title={title}
       aria-label={title}
       aria-pressed={active}
+      disabled={disabled}
       // 에디터 선택(포커스)이 풀리지 않도록
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
-      className={`pressable inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full px-1.5 text-[13px] font-semibold whitespace-nowrap ${
-        active ? "bg-background/20 text-background" : "text-background/70 hover:bg-background/10 hover:text-background"
+      className={`pressable inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full px-1.5 text-[13px] font-semibold whitespace-nowrap disabled:opacity-30 ${
+        active ? "bg-white/20 text-(--bento-on-ink)" : "text-(--bento-on-ink)/70 hover:bg-white/10 hover:text-(--bento-on-ink)"
       }`}
     >
       {label}
@@ -24,7 +25,7 @@ function Btn({ label, title, active, onClick }: { label: React.ReactNode; title:
   );
 }
 
-const Sep = () => <span className="mx-1 h-4 w-px shrink-0 bg-background/20" aria-hidden />;
+const Sep = () => <span className="mx-1 h-4 w-px shrink-0 bg-white/20" aria-hidden />;
 
 /**
  * 쓰기 영역 아래 가운데에 떠 있는 어두운 서식 알약 (DESIGN.md "글 편집 화면").
@@ -54,7 +55,7 @@ export default function FormatPill({ editor }: { editor: Editor }) {
     <div
       role="toolbar"
       aria-label="서식"
-      className="flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-foreground p-1.5 text-background shadow-pop [scrollbar-width:none]"
+      className="flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-(--bento-ink) p-1.5 text-(--bento-on-ink) shadow-pop [scrollbar-width:none]"
     >
       <Select
         title="코드 블록 — 언어를 골라 삽입 (코드 안에서는 언어 변경)"
@@ -69,7 +70,7 @@ export default function FormatPill({ editor }: { editor: Editor }) {
           ...(codeActive ? [{ value: "__off", label: "코드 블록 해제", tone: "danger" as const }] : []),
         ]}
         className={`h-8 shrink-0 rounded-full px-3 text-[13px] font-semibold ${
-          codeActive ? "bg-background/20 text-background" : "text-background/70 hover:bg-background/10 [&>span]:text-background/70"
+          codeActive ? "bg-white/20 text-(--bento-on-ink)" : "text-(--bento-on-ink)/70 hover:bg-white/10 [&>span]:text-(--bento-on-ink)/70"
         }`}
       />
       <Btn label={<Icon.inlineCode />} title="인라인 코드" active={editor.isActive("code")} onClick={() => c().toggleCode().run()} />
@@ -97,6 +98,9 @@ export default function FormatPill({ editor }: { editor: Editor }) {
           <Btn label="표 삭제" title="표 삭제" onClick={() => c().deleteTable().run()} />
         </>
       )}
+      <Sep />
+      <Btn label={<Icon.undo />} title="실행 취소" disabled={!editor.can().undo()} onClick={() => c().undo().run()} />
+      <Btn label={<Icon.redo />} title="다시 실행" disabled={!editor.can().redo()} onClick={() => c().redo().run()} />
     </div>
   );
 }

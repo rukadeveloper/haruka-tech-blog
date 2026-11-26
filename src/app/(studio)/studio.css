@@ -1,0 +1,151 @@
+/* ───────── 글 에디터 — 벤토 블록 에디터 (값은 .claude/rules/editor-bento.md) ─────────
+   StudioTheme 이 에디터가 보이는 동안만 html 에 data-studio 를 붙인다.
+   블로그 토큰 이름은 그대로 두고 값만 덮어써서, .btn · .field · .badge · Select(body 로 띄우는 목록 포함)가 그대로 벤토 색이 된다.
+   특이도: html[data-studio](0,1,1) 가 :root · [data-theme="dark"](0,1,0) 를, 다크 규칙(0,2,1)이 라이트 규칙을 이긴다. */
+
+html[data-studio] {
+  color-scheme: light;
+  --background: #e9e9e4;
+  --elevated: #ffffff;
+  --subtle: #f2f2ee;
+  --surface: #f2f2ee;
+  --surface-hover: #e6e6e0;
+  --line: #deded7;
+  --rule: #deded7;
+  --foreground: #1a1a18;
+  --muted: #3d3d38;
+  --meta: #6b6b64;
+  --strong: #ff8a4c;
+  --strong-hover: #f47a38;
+  --strong-soft: rgba(255, 138, 76, 0.16);
+  --on-strong: #1a1a18; /* 포인트 위 글자는 항상 #1A1A18 */
+  --sub: #ff8a4c;
+  --danger: #b3261e;
+  --danger-soft: rgba(179, 38, 30, 0.1);
+  --success: #2f7a3e;
+  --success-soft: rgba(47, 122, 62, 0.12);
+  --warning: #7a4e00; /* 콜아웃 바탕 위에서 읽히는 글자색 */
+  --warning-soft: #fff4d6;
+  --thumb: #f2f2ee;
+  --detail-title: #1a1a18;
+  --detail-desc: #3d3d38;
+  --code-bg: #f2f2ee;
+  --shadow-card: 0 1px 2px rgba(26, 26, 24, 0.04);
+  --shadow-pop: 0 2px 6px rgba(26, 26, 24, 0.08), 0 16px 40px rgba(26, 26, 24, 0.16);
+  /* 벤토 전용 */
+  --bento-ink: #1a1a18; /* 진한 카드 (코드 · 서식 알약) — 테마와 무관 */
+  --bento-on-ink: #f2f2ee; /* 진한 카드 위 글자 */
+  --bento-callout: #fff4d6;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", Consolas, monospace;
+}
+
+/* 다크 — 컨셉에 없어 라이트에서 끌어낸 제안값 */
+html[data-studio][data-theme="dark"] {
+  color-scheme: dark;
+  --background: #121211;
+  --elevated: #1c1c1a;
+  --subtle: #262622;
+  --surface: #262622;
+  --surface-hover: #30302b;
+  --line: #2e2e2a;
+  --rule: #2e2e2a;
+  --foreground: #ededE8;
+  --muted: #c9c9c2;
+  --meta: #9a9a92;
+  --strong-soft: rgba(255, 138, 76, 0.2);
+  --danger: #f2766b;
+  --danger-soft: rgba(242, 118, 107, 0.14);
+  --success: #6bc07b;
+  --success-soft: rgba(107, 192, 123, 0.14);
+  --warning: #ffd27a;
+  --warning-soft: #3a3220;
+  --thumb: #262622;
+  --detail-title: #ededE8;
+  --detail-desc: #c9c9c2;
+  --code-bg: #262622;
+  --shadow-card: none;
+  --shadow-pop: 0 2px 6px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.5);
+  --bento-callout: #3a3220;
+}
+@media (prefers-contrast: more) {
+  html[data-studio] { --line: var(--meta); }
+}
+
+html[data-studio] body {
+  font-family: var(--font-plex), -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background: var(--background);
+}
+.font-grotesk { font-family: var(--font-grotesk), var(--font-plex), sans-serif; }
+
+/* ───────── 블록 카드 (.bento-doc = ProseMirror 루트) ─────────
+   글 덩어리 M = h2 · p · ul · ol · h3 · h4 는 이어 붙여 한 카드로 보인다. H2 마다 새 카드.
+   그 밖의 블록(코드 · 콜아웃 · 인용 · 파일 트리 · 표 · 이미지)은 각자 카드. 간격은 margin 대신 padding. */
+.post-body.editor-body.bento-doc { max-width: none; }
+.post-body.editor-body.bento-doc > :is(h2, p, ul, ol, h3, h4) {
+  margin: 0;
+  padding: 7px 32px;
+  background: var(--elevated);
+}
+.post-body.editor-body.bento-doc > :is(ul, ol) { padding-left: 56px; }
+.post-body.editor-body.bento-doc > :is(h3, h4) { padding-top: 18px; }
+/* 카드 시작: H2, 맨 앞, 덩어리가 아닌 블록 바로 뒤 */
+.post-body.editor-body.bento-doc > h2,
+.post-body.editor-body.bento-doc > :is(p, ul, ol, h3, h4):first-child,
+.post-body.editor-body.bento-doc > :not(h2, p, ul, ol, h3, h4) + :is(p, ul, ol, h3, h4) {
+  margin-top: 12px;
+  padding-top: 28px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+.post-body.editor-body.bento-doc > :first-child { margin-top: 0; }
+/* 카드 끝: 다음 형제가 이어지는 덩어리가 아님 (형제만 보는 :has — 화면 밖 표식을 찾는 용도가 아니다) */
+.post-body.editor-body.bento-doc > :is(h2, p, ul, ol, h3, h4):not(:has(+ :is(p, ul, ol, h3, h4))) {
+  padding-bottom: 28px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+.post-body.editor-body.bento-doc > h2 { font-size: 22px; }
+
+/* 각자 카드인 블록 */
+.post-body.editor-body.bento-doc > :not(h2, p, ul, ol, h3, h4, hr) { margin: 12px 0 0; }
+.post-body.editor-body.bento-doc > :is(.react-renderer, table) {
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--elevated);
+}
+.post-body.editor-body.bento-doc > .react-renderer > [data-node-view-wrapper] { margin: 0; }
+.post-body.editor-body.bento-doc > table { display: table; width: 100%; }
+.post-body.editor-body.bento-doc > blockquote {
+  padding: 20px 24px;
+  border: 0;
+  border-left: 4px solid var(--strong);
+  border-radius: 20px;
+  background: var(--elevated);
+}
+.post-body.editor-body.bento-doc > hr { margin: 20px 12px 8px; border-top-color: var(--line); }
+
+/* 코드 = 진한 카드 (맥 창 장식은 globals.css 그대로, 모서리 · 바탕만 벤토) */
+.post-body.editor-body.bento-doc > pre {
+  --cb-body: var(--bento-ink);
+  --cb-head: #262622;
+  border-radius: 20px;
+}
+
+/* 콜아웃 = #FFF4D6 카드 */
+.post-body.editor-body.bento-doc > div[data-callout] {
+  padding: 20px 24px;
+  border-radius: 20px;
+  background: var(--bento-callout);
+  color: var(--foreground);
+}
+.post-body.editor-body.bento-doc > div[data-callout] > * { margin: 8px 0; }
+.post-body.editor-body.bento-doc > div[data-callout] > :first-child { margin-top: 0; }
+.post-body.editor-body.bento-doc > div[data-callout] > :last-child { margin-bottom: 0; }
+
+/* 노드로 선택된 블록 */
+.post-body.editor-body.bento-doc > .ProseMirror-selectednode { outline: 2px solid var(--strong); outline-offset: 2px; }
+
+@media (max-width: 639px) {
+  .post-body.editor-body.bento-doc > :is(h2, p, ul, ol, h3, h4) { padding-left: 20px; padding-right: 20px; }
+  .post-body.editor-body.bento-doc > :is(ul, ol) { padding-left: 44px; }
+}

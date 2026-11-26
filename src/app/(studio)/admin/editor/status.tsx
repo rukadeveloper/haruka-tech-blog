@@ -1,6 +1,5 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import Spinner from "@/components/ui/common/Spinner";
 
 export type PostState = "new" | "draft" | "published";
@@ -43,17 +42,4 @@ export function SaveStatus({ status, error, savedAt, pending }: SaveInfo) {
       </span>
     );
   return <span className="truncate">편집 중</span>;
-}
-
-/** 화면 폭 조건을 구독한다. 서버와 첫 하이드레이션은 false (좁은 화면 기준 — 모바일 퍼스트) */
-export function useMedia(query: string) {
-  return useSyncExternalStore(
-    (cb) => {
-      const m = window.matchMedia(query);
-      m.addEventListener("change", cb);
-      return () => m.removeEventListener("change", cb);
-    },
-    () => window.matchMedia(query).matches,
-    () => false,
-  );
 }

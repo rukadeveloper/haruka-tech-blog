@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -9,15 +9,14 @@ import Spinner from "@/components/ui/common/Spinner";
 import { savePost } from "@/app/(site)/admin/actions";
 import { ResizableImage } from "./ResizableImage";
 import { FileTree } from "./FileTree";
-import StudioTopBar from "./StudioTopBar";
-import StudioRail, { PANELS, type PanelId } from "./StudioRail";
+import { Callout } from "./extensions/Callout";
+import BentoTopBar from "./BentoTopBar";
+import BentoSide from "./BentoSide";
 import StudioWriter from "./StudioWriter";
-import StudioPreview from "./StudioPreview";
-import OutlinePanel from "./panels/OutlinePanel";
-import BlocksPanel from "./panels/BlocksPanel";
-import SettingsPanel from "./panels/SettingsPanel";
-import { Icon } from "./icons";
-import { useMedia, type PostState } from "./status";
+import PublishConfirm from "./PublishConfirm";
+import PreviewOverlay from "./PreviewOverlay";
+import { prepublishChecks, type CheckId } from "./checklist";
+import type { PostState } from "./status";
 
 export type PostFormValues = {
   slug: string;
@@ -42,10 +41,24 @@ async function uploadImage(file: File): Promise<string> {
   return json.url as string;
 }
 
+/** 최상위 블록 수(빈 문단 제외)와 구성 */
+function blockStats(editor: Editor | null) {
+  let blocks = 0;
+  const mix = { paragraphs: 0, code: 0, images: 0 };
+  editor?.state.doc.forEach((node) => {
+    if (node.type.name === "paragraph" && node.content.size === 0) return;
+    blocks++;
+    if (node.type.name === "paragraph") mix.paragraphs++;
+    else if (node.type.name === "codeBlock") mix.code++;
+    else if (node.type.name === "image") mix.images++;
+  });
+  return { blocks, mix };
+}
+
 /**
- * 글 에디터 스튜디오 (DESIGN.md "글 편집 화면"): 폼 하나가 화면 전체다.
- * 상단 바 / [레일 | 패널 | 쓰기 | 실시간 미리보기]. 각 영역이 자체 스크롤을 가진다.
- * 폼 필드 이름은 savePost 가 읽는 이름과 같아야 한다 (CLAUDE.md "글 형식").
+ * 벤토 블록 에디터 (.claude/rules/editor-bento.md): 폼 하나가 화면 전체다.
+ * 상단 바 카드 → [메인 열 | 사이드 360 벤토]. 폼 필드 이름은 savePost 가 읽는 이름과 같아야 한다.
+ * 발행 버튼은 제출 버튼이 아니라 발행 전 체크를 거쳐 requestSubmit 한다 (입력칸 Enter 로 발행되지 않음).
  */
 export default function PostStudio({
   initial,
@@ -72,7 +85,6 @@ export default function PostStudio({
   const dirtyRef = useRef(false);
   const markDirty = () => (dirtyRef.current = true);
 
-  // 미리보기 · 상단 바가 바로 따라가도록 글 정보는 제어 상태로 둔다 (슬러그 · 추천은 제출 때만 필요해 비제어)
   const [title, setTitle] = useState(initial.title);
   const [description, setDescription] = useState(initial.description);
   const [thumbnail, setThumbnail] = useState(initial.thumbnail);
@@ -82,30 +94,11 @@ export default function PostStudio({
   const [html, setHtml] = useState(initial.html);
   const [chars, setChars] = useState(0);
   const [status, setStatus] = useState("");
-  // 진행 중인 제출이 발행인지 (발행일 때만 저장 중 모달을 띄운다)
+  // 본문을 한 번이라도 눌렀는지 — 블록 추가 위치(커서 뒤 / 글 끝)를 정한다
+  const [touched, setTouched] = useState(false);
   const [lastIntent, setLastIntent] = useState<"publish" | "draft">("publish");
-
-  // 배치: xl 이상은 패널이 붙고(docked), 그보다 좁으면 겹쳐 연다(drawer). lg 미만은 쓰기 ↔ 미리보기 중 하나만
-  const isXl = useMedia("(min-width: 1280px)");
-  const isLg = useMedia("(min-width: 1024px)");
-  const [panel, setPanel] = useState<PanelId>("outline");
-  const [docked, setDocked] = useState(true);
-  const [drawer, setDrawer] = useState(false);
-  const panelOpen = isXl ? docked : drawer;
-  const [previewOn, setPreviewOn] = useState(true);
-  const [mobileView, setMobileView] = useState<"write" | "preview">("write");
-
-  const selectPanel = (id: PanelId) => {
-    if (isXl) {
-      // 고른 패널을 다시 누르면 접는다
-      if (docked && panel === id) setDocked(false);
-      else setDocked(true);
-    } else {
-      setDrawer(!(drawer && panel === id));
-    }
-    setPanel(id);
-  };
-  const closeDrawer = () => setDrawer(false);
+  const [confirming, setConfirming] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
 
   const insertFiles = async (ed: Editor, files: File[]) => {
     for (const file of files) {
@@ -139,14 +132,15 @@ export default function PostStudio({
       StarterKit.configure({ link: { openOnClick: false, autolink: true } }),
       ResizableImage,
       FileTree,
+      Callout,
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,
       TableCell,
-      Placeholder.configure({ placeholder: "본문을 입력하세요. 블록은 왼쪽 패널에서 넣거나 끌어다 놓을 수 있습니다." }),
+      Placeholder.configure({ placeholder: "본문을 입력하세요. 아래 블록 추가 메뉴로 코드 · 콜아웃 · 파일 트리를 넣을 수 있습니다." }),
     ],
     editorProps: {
-      attributes: { class: "post-body editor-body min-h-[50vh] py-8 outline-none" },
+      attributes: { class: "post-body editor-body bento-doc outline-none" },
       handlePaste: (_view, event) => {
         const files = Array.from(event.clipboardData?.files ?? []).filter((f) => f.type.startsWith("image/"));
         if (!files.length) return false;
@@ -154,7 +148,6 @@ export default function PostStudio({
         if (ed) void insertFiles(ed, files);
         return true;
       },
-      // 이미지 파일만 가로챈다 — 블록 패널에서 끌어온 text/html 은 ProseMirror 기본 드롭이 넣는다
       handleDrop: (_view, event) => {
         const files = Array.from(event.dataTransfer?.files ?? []).filter((f) => f.type.startsWith("image/"));
         if (!files.length) return false;
@@ -164,6 +157,7 @@ export default function PostStudio({
         return true;
       },
     },
+    onFocus: () => setTouched(true),
     onUpdate: ({ editor }) => {
       dirtyRef.current = true;
       setHtml(editor.getHTML());
@@ -175,13 +169,48 @@ export default function PostStudio({
     },
   });
 
-  const saveDraft = () => {
+  const submit = (intent: "publish" | "draft") => {
     const form = formRef.current;
-    if (!form || !intentRef.current || !canDraft) return;
-    dirtyRef.current = false;
-    intentRef.current.value = "draft";
+    if (!form || !intentRef.current) return;
+    if (intent === "draft") dirtyRef.current = false;
+    intentRef.current.value = intent;
     form.requestSubmit();
     intentRef.current.value = "publish";
+  };
+  const saveDraft = () => canDraft && submit("draft");
+
+  const checks = prepublishChecks({ title, tags, thumbnail, doc: editor?.state.doc });
+  const requestPublish = () => {
+    if (checks.some((c) => c.status === "fail")) setConfirming(true);
+    else submit("publish");
+  };
+
+  // 체크 항목을 누르면 그 입력으로 이동한다
+  const goToCheck = (id: CheckId) => {
+    const focus = (sel: string) => {
+      const el = document.querySelector<HTMLElement>(sel);
+      el?.scrollIntoView({ block: "center", behavior: "smooth" });
+      el?.focus({ preventScroll: true });
+    };
+    if (id === "title") focus('textarea[name="title"]');
+    else if (id === "tags") focus("#tag-input");
+    else if (id === "thumbnail") focus("#cover-drop");
+    else if (id === "code" && editor) {
+      let target = -1;
+      editor.state.doc.descendants((node, pos) => {
+        if (target >= 0) return false;
+        if (node.type.name === "codeBlock") {
+          const lang = String(node.attrs.language ?? "").trim();
+          if (!lang || lang === "plaintext") target = pos;
+          return false;
+        }
+        return true;
+      });
+      if (target < 0) return;
+      editor.chain().setTextSelection(target + 1).focus(undefined, { scrollIntoView: false }).run();
+      const dom = editor.view.nodeDOM(target);
+      if (dom instanceof HTMLElement) dom.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
   };
 
   // 새 글을 처음 임시저장하면 주소를 수정 화면으로 바꿔 새로고침해도 이어서 쓸 수 있게 한다
@@ -198,7 +227,7 @@ export default function PostStudio({
     return () => clearInterval(t);
   });
 
-  // Ctrl/⌘ + S: 임시저장 (발행된 글은 아무것도 하지 않고 브라우저 저장 창만 막는다)
+  // Ctrl/⌘ + S: 임시저장 (발행된 글은 브라우저 저장 창만 막는다)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
@@ -210,18 +239,11 @@ export default function PostStudio({
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  // 드로어가 열려 있으면 Esc 로 닫는다
-  useEffect(() => {
-    if (!drawer) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setDrawer(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [drawer]);
+  const closeConfirm = useCallback(() => setConfirming(false), []);
+  const closePreview = useCallback(() => setPreviewing(false), []);
 
+  const { blocks, mix } = blockStats(editor);
   const save = { chars, status, error: saved?.error, savedAt: saved?.savedAt, pending };
-  const showWriter = isLg || mobileView === "write";
-  const showPreview = isLg ? previewOn : mobileView === "preview";
-  const panelTitle = PANELS.find((p) => p.id === panel)?.label;
 
   return (
     <form
@@ -229,11 +251,11 @@ export default function PostStudio({
       action={action}
       onChange={markDirty}
       onSubmit={() => setLastIntent(intentRef.current?.value === "draft" ? "draft" : "publish")}
-      // 입력칸에서 Enter 를 눌러도 제출(발행)하지 않는다 — 발행은 버튼으로만
+      // 입력칸에서 Enter 를 눌러도 제출하지 않는다 (제출 버튼이 없어도 브라우저가 암묵 제출을 시도할 수 있다)
       onKeyDown={(e) => {
         if (e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.type !== "checkbox") e.preventDefault();
       }}
-      className="grid h-full grid-rows-[56px_minmax(0,1fr)]"
+      className="mx-auto max-w-[1440px] p-3 lg:p-5"
     >
       <input type="hidden" name="originalSlug" value={currentSlug} />
       <input ref={intentRef} type="hidden" name="intent" defaultValue="publish" />
@@ -250,118 +272,84 @@ export default function PostStudio({
         }}
       />
 
-      <StudioTopBar
-        editor={editor}
+      <BentoTopBar
         isEdit={isEdit}
         state={state}
+        blocks={blocks}
         save={save}
-        category={category}
-        slug={currentSlug}
         canDraft={canDraft}
         onDraft={saveDraft}
-        onMenu={() => setDrawer((v) => !v)}
-        settingsOpen={panelOpen && panel === "settings"}
-        onSettings={() => selectPanel("settings")}
-        previewOn={showPreview}
-        onPreview={() => (isLg ? setPreviewOn((v) => !v) : setMobileView((v) => (v === "write" ? "preview" : "write")))}
+        onPreview={() => setPreviewing(true)}
+        onPublish={requestPublish}
       />
 
-      <div className="relative flex min-h-0">
-        <StudioRail active={panelOpen ? panel : null} onSelect={selectPanel} />
+      <div className="mt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-4">
+        <StudioWriter
+          editor={editor}
+          legacyMarkdown={legacyMarkdown}
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          tags={tags}
+          setTags={(v) => {
+            setTags(v);
+            markDirty();
+          }}
+          thumbnail={thumbnail}
+          setThumbnail={(v) => {
+            setThumbnail(v);
+            markDirty();
+          }}
+          uploadThumbnail={uploadThumbnail}
+          touched={touched}
+          onPickImage={() => fileRef.current?.click()}
+        />
 
-        {/* 드로어 바깥 (xl 미만에서 겹쳐 열렸을 때) */}
-        {!isXl && drawer && <div className="fixed inset-0 top-14 z-30 bg-foreground/20" onClick={closeDrawer} aria-hidden />}
-
-        {/* 패널: 닫혀도 설정 입력이 폼에 남도록 항상 그려 두고 숨기기만 한다 */}
-        <aside
-          aria-label={`${panelTitle} 패널`}
-          inert={!panelOpen}
-          data-open={panelOpen ? "true" : undefined}
-          className={
-            isXl
-              ? `w-[280px] shrink-0 flex-col border-r border-line bg-background ${panelOpen ? "flex" : "hidden"}`
-              : "fixed top-14 bottom-0 left-0 z-40 flex w-[300px] max-w-[85vw] -translate-x-full flex-col border-r border-line bg-background shadow-pop transition-transform duration-(--dur-slow) ease-(--ease-out) data-open:translate-x-0 lg:left-14"
-          }
-        >
-          <div className="flex h-12 shrink-0 items-center gap-1 border-b border-line px-3">
-            {/* 레일이 없는 좁은 화면에서는 패널 위에 탭을 둔다 */}
-            <div className="flex gap-1 lg:hidden" role="tablist" aria-label="패널">
-              {PANELS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={panel === p.id}
-                  onClick={() => setPanel(p.id)}
-                  className="h-8 rounded-lg px-2.5 text-sm text-muted aria-selected:bg-foreground aria-selected:font-semibold aria-selected:text-background"
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-            <h2 className="hidden text-sm font-bold lg:block">{panelTitle}</h2>
-            {!isXl && (
-              <button type="button" onClick={closeDrawer} aria-label="패널 닫기" className="icon-btn ml-auto size-8!">
-                <Icon.x />
-              </button>
-            )}
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto p-3 [scrollbar-width:thin]">
-            <div hidden={panel !== "outline"}>{editor && <OutlinePanel editor={editor} onPick={isXl ? undefined : closeDrawer} />}</div>
-            <div hidden={panel !== "blocks"}>
-              {editor && <BlocksPanel editor={editor} onPickImage={() => fileRef.current?.click()} onPick={isXl ? undefined : closeDrawer} />}
-            </div>
-            <div hidden={panel !== "settings"}>
-              <SettingsPanel
-                categories={categories}
-                category={category}
-                setCategory={(v) => {
-                  setCategory(v);
-                  markDirty();
-                }}
-                tags={tags}
-                setTags={setTags}
-                date={date}
-                setDate={setDate}
-                initial={initial}
-              />
-            </div>
-          </div>
-        </aside>
-
-        <section aria-label="쓰기" className={`min-w-0 flex-1 ${showWriter ? "" : "hidden"}`}>
-          <StudioWriter
+        <aside aria-label="발행 정보" className="mt-4 lg:sticky lg:top-[100px] lg:mt-0 lg:max-h-[calc(100dvh-120px)] lg:overflow-y-auto lg:pb-1 lg:[scrollbar-width:thin]">
+          <BentoSide
             editor={editor}
-            legacyMarkdown={legacyMarkdown}
-            title={title}
-            setTitle={setTitle}
-            description={description}
-            setDescription={setDescription}
-            thumbnail={thumbnail}
-            setThumbnail={(v) => {
-              setThumbnail(v);
+            checks={checks}
+            onCheck={goToCheck}
+            chars={chars}
+            mix={mix}
+            savedAt={saved?.savedAt}
+            categories={categories}
+            category={category}
+            setCategory={(v) => {
+              setCategory(v);
               markDirty();
             }}
-            uploadThumbnail={uploadThumbnail}
+            date={date}
+            setDate={setDate}
+            initial={initial}
           />
-        </section>
-
-        {showPreview && (
-          <section aria-label="실시간 미리보기" className="min-w-0 flex-1 border-l border-line">
-            <StudioPreview html={html} title={title} category={category} date={date} thumbnail={thumbnail} />
-          </section>
-        )}
+        </aside>
       </div>
+
+      {confirming && (
+        <PublishConfirm
+          checks={checks}
+          updating={state === "published"}
+          onCancel={closeConfirm}
+          onConfirm={() => {
+            setConfirming(false);
+            submit("publish");
+          }}
+        />
+      )}
+
+      {previewing && <PreviewOverlay html={html} title={title} category={category} date={date} thumbnail={thumbnail} onClose={closePreview} />}
 
       {/* 저장 중 모달: 발행 · 업데이트 요청이 진행 중일 때만 (서버 액션은 중간에 취소할 수 없어 취소 버튼이 없다) */}
       {pending && lastIntent === "publish" && (
-        <div className="fixed inset-0 z-[70] grid place-items-center bg-foreground/25 p-6" role="alertdialog" aria-live="assertive" aria-label="글을 저장하는 중">
-          <div className="glass-thick w-full max-w-xs rounded-2xl px-6 py-8 text-center">
-            <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-strong-soft text-strong">
+        <div className="fixed inset-0 z-[80] grid place-items-center bg-foreground/30 p-6" role="alertdialog" aria-live="assertive" aria-label="글을 저장하는 중">
+          <div className="w-full max-w-xs rounded-[20px] bg-elevated px-6 py-8 text-center shadow-pop">
+            <span className="mx-auto grid size-14 place-items-center rounded-xl bg-strong text-(--on-strong)">
               <Spinner className="h-6 w-6 border-2" />
             </span>
             <p className="mt-4 font-bold">잠시만 기다려 주세요</p>
-            <p className="mt-1 text-sm text-muted">글을 저장하는 중입니다…</p>
+            <p className="mt-1 text-sm text-meta">글을 저장하는 중입니다…</p>
           </div>
         </div>
       )}

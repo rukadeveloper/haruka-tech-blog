@@ -370,6 +370,13 @@ html[data-intro], html[data-intro] body { background: #f7f7f5; overflow: hidden;
   padding: 12px 16px; border-radius: 0 12px 12px 0; font-size: 16px; line-height: 1.75;
 }
 .post-body blockquote > :first-child { margin-top: 0; }
+/* 콜아웃(주의) — 에디터의 콜아웃 블록 <div data-callout="warning"> (에디터 안 모양은 (studio)/studio.css) */
+.post-body div[data-callout] {
+  margin: 20px 0; padding: 16px 20px; border-radius: 12px;
+  background: var(--warning-soft); color: var(--detail-title); font-size: 16px; line-height: 1.75;
+}
+.post-body div[data-callout] > :first-child { margin-top: 0; }
+.post-body div[data-callout] > :last-child { margin-bottom: 0; }
 .post-body blockquote > :last-child { margin-bottom: 0; }
 .post-body ol, .post-body ul { color: var(--detail-desc); margin: 14px 0; padding-left: 24px; font-size: 16px; line-height: 1.8; }
 .post-body li { margin: 6px 0; }

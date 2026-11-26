@@ -74,7 +74,7 @@ export default function StudioPreview({ html, title, category, date, thumbnail }
         <div
           inert
           style={{ zoom: scale, width: SHEET }}
-          className="mx-auto overflow-hidden rounded-2xl border border-line bg-background shadow-card"
+          className="mx-auto overflow-hidden rounded-[20px] border border-line bg-elevated shadow-card"
         >
           {thumbnail && (
             // eslint-disable-next-line @next/next/no-img-element
