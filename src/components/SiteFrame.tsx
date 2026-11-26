@@ -10,7 +10,8 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
     <>
       <Header />
       <main className="container-page flex-1">{children}</main>
-      <footer className="site-footer">
+      {/* relative z-20: 홈 · 카테고리의 고정 사이드바(z-10)를 페이지 끝에서 덮는다 */}
+      <footer className="site-footer relative z-20">
         <div className="container-page flex flex-col gap-4 py-8 sm:flex-row sm:items-end sm:justify-between sm:py-10">
           <div>
             <strong className="text-base font-extrabold tracking-tight">

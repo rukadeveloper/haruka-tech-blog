@@ -58,8 +58,8 @@ const sideLink =
 
 /**
  * 홈 · 카테고리 화면의 사이드바 (DESIGN.md "글 목록" — LINE Engineering 배치).
- * lg 이상: 오른쪽에 붙는 밑줄형 검색 + 카테고리 묶음(대분류 제목 + 소분류 #이름).
- * lg 미만: 목록 위에 검색창 + 대분류 칩 줄 (현재 대분류의 소분류 칩 줄).
+ * lg 이상: 화면 오른쪽에 고정(fixed)된 밑줄형 검색 + 카테고리 묶음(대분류 제목 + 소분류 #이름).
+ * lg 미만: 목록 위에 검색창 + 헤더 아래에 붙는(sticky) 대분류 칩 줄 (현재 대분류의 소분류 칩 줄).
  */
 export default function BlogSidebar({ categories, category = "", q = "" }: Props) {
   const [top] = category.split("/");
@@ -68,10 +68,13 @@ export default function BlogSidebar({ categories, category = "", q = "" }: Props
 
   return (
     <>
-      {/* 좁은 화면 */}
+      {/* 좁은 화면: 검색창 → 카테고리 칩 줄. 칩 줄은 BlogList 의 바깥 틀(목록 전체 높이)에 바로 놓여야
+          스크롤해도 헤더 바로 아래(64 / 68px — 헤더 위 여백 8 / 12 + 높이 56)에 붙어 있는다 — 짧은 감싸개 안에 넣으면 sticky 가 그 안에서 끝난다 */}
       <div className="lg:hidden">
         <Search q={q} />
-        <nav aria-label="카테고리" className="mt-3">
+      </div>
+      <div className="sticky top-16 z-30 -mx-5 mt-3 bg-background px-5 py-2 sm:top-[68px] sm:-mx-6 sm:px-6 lg:hidden">
+        <nav aria-label="카테고리">
           <ul className="scroll-row">
             <li>
               <Link href="/" aria-current={isAll ? "page" : undefined} className="chip">
@@ -106,8 +109,10 @@ export default function BlogSidebar({ categories, category = "", q = "" }: Props
       </div>
 
       {/* 넓은 화면 */}
-      {/* BlogList 그리드의 오른쪽 칸 (좁은 화면 블록이 앞에 있어도 자리를 고정한다) */}
-      <aside className="hidden lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:block lg:max-h-[calc(100dvh-120px)] lg:self-start lg:overflow-y-auto lg:pb-2 lg:[scrollbar-width:thin]">
+      {/* 화면에 고정 (fixed) — 목록 끝 · 페이지 끝에서도 밀려 올라가지 않는다.
+          BlogList 그리드의 오른쪽 260px 칸은 비워 두고, 그 칸과 같은 자리(.container-page 오른쪽 안쪽 여백 24px)에 붙인다:
+          right = max(24px, 50% − (1120/2 − 24)). 화면보다 길면 사이드바 안에서 스크롤하고, 페이지 끝에서는 푸터가 위로 덮는다 */}
+      <aside className="hidden lg:fixed lg:top-24 lg:right-[max(24px,calc(50%-536px))] lg:z-10 lg:block lg:max-h-[calc(100dvh-120px)] lg:w-[260px] lg:overflow-y-auto lg:pb-2 lg:[scrollbar-width:thin]">
         <Search q={q} underline />
         <nav aria-label="카테고리" className="mt-10">
           <h2 className="text-lg font-bold">카테고리</h2>

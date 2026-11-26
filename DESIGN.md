@@ -165,11 +165,13 @@ PostRow         글자만 (썸네일 없음). 위아래 py 32(sm 40), 아래 bor
                 요약 mt 20: 16 / leading-relaxed / text-muted, 3줄
                 분류 칩 mt 20, gap 6: h 28 · px 8 · r 6 · bg-surface · 12 text-muted
                                  카테고리(FE › Next.js, 링크) + 태그(#react, 최대 4개)
-BlogSidebar     lg 이상 sticky top 96:
+BlogSidebar     lg 이상 fixed top 96 · w 260, 오른쪽 = max(24px, 50% − 536px) (그리드 오른쪽 칸과 같은 자리), 최대 높이 화면 − 120 (넘치면 자체 스크롤)
+                z-10 — 페이지 끝에서는 푸터(relative z-20)가 위로 덮는다:
                   검색 — 밑줄형(border-b border-line, 16px, 돋보기, 값이 있으면 ✕ → /)
                   "카테고리" 18/700 → "전체 글" → 대분류 15/700 링크 + 소분류 #이름 14 text-meta, 줄높이 36
                   현재 위치(aria-current) text-foreground · 600, 대분류는 text-strong
-                lg 미만: 검색창(.field) → 대분류 .chip 가로 스크롤(첫 칩 "전체") → 현재 대분류의 소분류 칩 줄
+                lg 미만: 검색창(.field) → 칩 줄 묶음(sticky top 64 / sm 68 = 헤더 바로 아래, bg-background, z-30):
+                         대분류 .chip 가로 스크롤(첫 칩 "전체") → 현재 대분류의 소분류 칩 줄
 Pagination      ‹ 1 … 4 5 [6] 7 8 … 13 ›  (1 · 마지막 · 현재 ±2 만, 사이는 …)
                 번호 32px r6 14px text-meta, 현재 bg-foreground · text-background · 600
                 이전 · 다음은 테두리 없는 꺾쇠, 끝 쪽에서는 흐리게(aria-disabled)
