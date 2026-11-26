@@ -6,7 +6,7 @@ export default async function AdminLink({ className }: { className?: string }) {
   if (!(await isAdminIp())) return null;
   return (
     <Link href="/admin" className={className}>
-      Admin
+      관리자
     </Link>
   );
 }

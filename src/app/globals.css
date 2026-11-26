@@ -306,7 +306,7 @@ html[data-intro], html[data-intro] body { background: #f7f7f5; overflow: hidden;
 
   /* 헤더 — 화면 위에 살짝 띄운 둥근 유리 바. 좌우 여백 + 바 안쪽 여백이 .container-page 의 여백과 같아 로고가 본문과 줄이 맞는다 */
   .site-header { position: sticky; top: 8px; z-index: 50; width: 100%; max-width: 1120px; margin: 8px auto 0; padding-inline: 8px; }
-  .site-header-bar { position: relative; display: flex; align-items: center; height: 56px; padding-inline: 12px; }
+  .site-header-bar { position: relative; display: flex; align-items: center; height: 56px; padding-inline: 24px; }
   @media (min-width: 640px) { .site-header { top: 12px; margin-top: 12px; padding-inline: 12px; } }
   /* 유리 바탕은 따로 둔 층에 깐다. 바 자체에 backdrop-filter 를 걸면 그 안의 fixed 요소(메뉴 딤)가 바에 갇히고, 메뉴의 blur 도 바 안쪽만 비춘다 */
   .site-header-bg {
