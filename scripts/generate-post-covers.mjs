@@ -57,7 +57,7 @@ const catalog = {
   96: ["Micro Frontends", "", "table"],
   97: ["TanStack Query", "useQuery", "code"],
   98: ["TanStack Query", "useMutation", "code"],
-  1793674113730: ["Claude Code", ">_", "code"],
+  1793674113730: ["Claude Code", "기초 가이드", "typography"],
   1793752250022: ["Backend Basics", "", "stack"],
   1793859401861: ["Nest.js Setup", "nest new", "code"],
   "draft-80": ["Refs", "useRef", "code"],
@@ -110,6 +110,27 @@ const diagrams = {
 const escape = (text) => text.replace(/[&<>]/g, (part) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[part]);
 
 function artwork(label, caption, accent, title, diagram) {
+  if (diagram === "typography") {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
+      <defs>
+        <linearGradient id="background" x2="1" y2="1">
+          <stop stop-color="#342019"/>
+          <stop offset="1" stop-color="#160f10"/>
+        </linearGradient>
+        <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+          <path d="M32 0H0V32" fill="none" stroke="${accent}" stroke-opacity=".12"/>
+        </pattern>
+      </defs>
+      <rect width="640" height="640" fill="url(#background)"/>
+      <rect width="640" height="640" fill="url(#grid)"/>
+      <path d="M48 181H592M48 459H592" stroke="${accent}" stroke-opacity=".42"/>
+      <text x="51" y="236" fill="${accent}" font-family="Consolas, monospace" font-size="27">${escape("$ claude")}</text>
+      <text x="48" y="340" fill="#fff3e7" font-family="Arial, sans-serif" font-size="82" font-weight="bold" letter-spacing="-4">${escape(title)}</text>
+      <text x="51" y="413" fill="${accent}" font-family="Malgun Gothic, Noto Sans CJK KR, sans-serif" font-size="45" font-weight="bold">${escape(caption)}</text>
+      <rect x="559" y="397" width="32" height="6" fill="${accent}"/>
+    </svg>`;
+  }
+
   const motif = diagram === "code"
     ? `<g transform="translate(94 210)" color="${accent}">
         <rect width="452" height="112" rx="25" fill="currentColor" fill-opacity=".09" stroke="currentColor" stroke-opacity=".6" stroke-width="3"/>
