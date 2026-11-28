@@ -93,7 +93,7 @@
 
 ## draft · featured
 - `draft: true` — 공개 목록 · 글 상세에서 숨김, 관리자에서만 보임(`임시저장` 배지, 관리자 목록 · 카드는 수정 화면으로 링크). 티스토리 임시저장 글을 가져온 것도 draft 다.
-- `featured: true` — 관리자에서 `추천` 배지(`badge-primary`)로 표시한다. `PostMeta` 주석은 "홈의 추천 아티클 구획에 나온다" 고 하지만 현재 홈 목록(`BlogList`)에는 추천 구획이 없다 — 관리자 표시와 저장(`BentoSide` 의 체크박스, `actions.ts`)에서만 쓰인다.
+- `featured: true` — 관리자에서 `추천` 배지(`badge-primary`)로 표시한다. 공개 화면에서는 아직 쓰지 않는다 (홈 목록 `BlogList` 에 추천 구획이 없다). 공개 화면에 추천 구획을 만들면 이 줄과 `PostMeta` · `db/schema.sql` 주석을 함께 고친다.
 - 둘 다 에디터 사이드(`BentoSide`)의 체크 · 저장 액션(`admin/actions.ts`)이 정한다.
 
 ## 바꿀 때 함께 고칠 것

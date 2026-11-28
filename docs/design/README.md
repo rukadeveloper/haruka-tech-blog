@@ -25,7 +25,7 @@
 - 눌림 크기 · 팝오버 시작 모양 · 슬라이드 거리는 `var(--press)` · `var(--press-lg)` · `var(--pop-from)` · `var(--slide-from)` · `var(--knob-stretch)` 만 쓴다 — 움직임 줄이기에서 이 토큰 값이 `1` · `none` · `0px` 로 바뀌어 크기 · 위치 변화가 사라진다 (`globals.css` `@media (prefers-reduced-motion: reduce)`).
 - 눌림 반응은 `.pressable`(큰 요소는 `.pressable-lg` 를 함께)이나 `.btn` · `.chip` · `.icon-btn` 을 쓴다. `active:scale-95` 같은 값을 직접 쓰지 않는다 (`globals.css`).
 - hover 스타일은 `@media (hover: hover)` 안에만 둔다 — 터치 화면에서 hover 가 눌린 뒤에도 남는다 (`globals.css` `.btn`, `.chip`, `.nav-link`). Tailwind `hover:` 변형은 같은 처리를 하지만 새 CSS 클래스를 쓸 때는 직접 감싼다.
-- 면(카드 · 헤더 · 팝오버)은 `.card` · `.glass` · `.glass-thick` · `.glass-tint` 나 `--glass*` 토큰으로 칠한다. 새 `backdrop-filter` · 반투명 배경을 직접 쓰지 않는다 — 현재 디자인은 평평한 불투명 면이고, 값은 `--glass*` 토큰 한 곳에서 정한다 (`globals.css` "면").
+- 면(카드 · 헤더 · 팝오버)은 `.card` · `.glass` · `.glass-thick` · `.glass-tint` 나 `--glass*` 토큰으로 칠한다. 새 `backdrop-filter` · 반투명 배경을 직접 쓰지 않는다 — 현재 디자인은 평평한 불투명 면이고, 값은 `--glass*` 토큰 한 곳에서 정한다 (`globals.css` "면"). 모달 · 메뉴 뒤를 어둡게 하는 딤은 `--scrim`(Tailwind `bg-(--scrim)`) 하나만 쓰고 흐림을 더하지 않는다.
 - 면 안쪽의 입력 · hover · 선택 표시는 단색(`bg-surface` 등)을 쓴다. 면 위에 면(`.glass` 안의 `.glass`)을 겹치지 않는다 (`globals.css` `.glass` 주석).
 - 모바일 값을 기본으로 쓰고 `sm:`(640px) · `lg:`(1024px) 에서 키운다. `max-width` 미디어 쿼리나 데스크톱 우선 값을 쓰지 않는다 (`globals.css` "클래스 정의").
 - 터치 대상은 44px 이상(`.btn` 44px, `.field` min-height 44px, 아이콘 버튼 40px+)을 지킨다. 작은 버튼 `.btn-sm` 은 36px 이다 (`globals.css`).
@@ -65,6 +65,7 @@
 | `--rule` | #e5e8eb | #2c2c35 | 본문 안 구분선 · 표 선 |
 | `--code-bg` | #f2f4f6 | #26262e | 인라인 `code` 바탕 |
 | `--shadow-card` / `--shadow-pop` | 라이트용 그림자 | 더 진한 그림자 | 카드 · 선택된 탭 / 팝오버 |
+| `--scrim` | 검정 40% | 검정 60% | 모달 · 모바일 메뉴 뒤 딤 (`.menu-scrim`, `ConfirmDeleteButton`) |
 
 - `color-scheme` 은 `:root` 에서 `light`, `[data-theme="dark"]` 에서 `dark` 이다.
 - `@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *))` — Tailwind `dark:` 는 `html[data-theme="dark"]` 아래에서만 켜진다.
@@ -112,7 +113,7 @@
 - 테마 전환은 View Transitions 로 화면 전체를 240ms 교차 페이드한다. `ThemeToggle` 은 지원하지 않거나 움직임 줄이기가 켜져 있으면 바로 전환한다. `.theme-switch` 는 `view-transition-name: theme-switch` 로 교차 페이드에서 빠진다.
 - 열림 · 닫힘 요소(`.mobile-menu`, `.menu-scrim`, `.toc-panel`, `.toc-float`)는 항상 DOM 에 두고 `data-open` / `data-show` 로 여닫는다. 닫힐 때도 같은 길로 돌아가게 하려는 것이다. 숨겨진 상태에는 `visibility: hidden` + `inert` 를 쓴다.
 - `.select-pop` 은 `@starting-style` 로 `--pop-from` 에서 시작한다.
-- 알려진 예외(직접 값): `Select.tsx` 의 화살표 `transition-transform`(Tailwind 기본 시간), `ThumbImage.tsx` 의 `duration-300`, `.skeleton` 의 `pulse 2s`. 새 코드에서는 따라 쓰지 않는다.
+- 알려진 예외(직접 값): `.skeleton` 의 `pulse 2s`(반복하는 로딩 표시라 전환 토큰과 성격이 다르다). 새 코드에서는 따라 쓰지 않는다.
 
 ## 글꼴 · 타이포
 - 본문 글꼴은 Pretendard 가변(45–920, `src/app/fonts/PretendardVariable.woff2`, `localFont`, `display: swap`)이다. 굵기를 하나의 파일로 모두 쓴다. 변수 `--font-pretendard` → `--font-sans`(뒤에 시스템 한글 글꼴 대체).
