@@ -28,7 +28,7 @@ export type PostMeta = {
   thumbnail: string;
   /** true 면 공개 화면에서 숨기고 관리자에서만 보인다 (티스토리 임시저장 등) */
   draft: boolean;
-  /** true 면 홈의 "추천 아티클" 구획에 나온다 */
+  /** true 면 관리자 화면에 "추천" 배지로 표시한다 (공개 화면에서는 아직 쓰지 않는다) */
   featured: boolean;
 };
 

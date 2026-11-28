@@ -41,5 +41,7 @@ yarn-error.log*
 next-env.d.ts
 !.env.example
 
-# next dev 가 매번 다시 만드는 파일
-/AGENTS.md
+# (AGENTS.md 는 프로젝트 공통 안내라 git 에 올림. next dev 는 그 안의 nextjs-agent-rules 블록만 갱신)
+
+# 하네스 중간 산출물
+/_workspace/

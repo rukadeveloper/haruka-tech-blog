@@ -1,4 +1,4 @@
-// 로고 원본(src/app/icon.svg)에서 파비콘과 애플 아이콘을 만든다. 모양 규칙은 DESIGN.md "로고".
+// 로고 원본(src/app/icon.svg)에서 파비콘과 애플 아이콘을 만든다. 모양 규칙은 docs/design "로고".
 //   src/app/favicon.ico     16 · 32 · 48px PNG 를 묶은 ICO (모서리는 SVG 그대로 투명)
 //   src/app/apple-icon.png  180px, 모서리까지 바탕색으로 채운다 (iOS 가 직접 둥글린다. 투명하면 검게 나온다)
 // 사용: npm run icons

@@ -4,7 +4,7 @@ import { INTRO_PATH, isFullPageLoad } from "@/lib/intro-gate";
 
 /**
  * 1. 블로그 홈(/)에 처음 들어오거나 홈에서 새로고침하면 인트로로 보낸다. 사이트 안 이동은 그대로 통과한다.
- *    판정은 lib/intro-gate.ts, 규칙은 .claude/rules/intro-page.md.
+ *    판정은 lib/intro-gate.ts, 규칙은 docs/intro.
  *
  * 2. 관리자 화면은 등록한 IP 에서만 보인다. 그 밖의 IP 에는 없는 주소로 넘겨 404 를 보여 준다
  *    (로그인 화면조차 드러내지 않는다). 설정법은 lib/admin-ip.ts.

@@ -50,7 +50,7 @@ export default function ConfirmDeleteButton({ target, description, className }: 
       {open &&
         createPortal(
           <div
-            className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-4 backdrop-blur-sm sm:items-center"
+            className="fixed inset-0 z-[60] flex items-end justify-center bg-(--scrim) p-4 sm:items-center"
             onClick={() => setOpen(false)}
           >
             <div

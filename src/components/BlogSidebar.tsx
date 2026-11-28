@@ -57,7 +57,7 @@ const sideLink =
   "block leading-9 transition-colors hover:text-foreground aria-[current=page]:font-semibold aria-[current=page]:text-foreground";
 
 /**
- * 홈 · 카테고리 화면의 사이드바 (DESIGN.md "글 목록" — LINE Engineering 배치).
+ * 홈 · 카테고리 화면의 사이드바 (docs/design "글 목록" — LINE Engineering 배치).
  * lg 이상: 화면 오른쪽에 고정(fixed)된 밑줄형 검색 + 카테고리 묶음(대분류 제목 + 소분류 #이름).
  * lg 미만: 목록 위에 검색창 + 헤더 아래에 붙는(sticky) 대분류 칩 줄 (현재 대분류의 소분류 칩 줄).
  */

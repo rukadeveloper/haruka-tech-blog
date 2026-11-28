@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-// 수치는 모두 .claude/rules/intro-page.md 의 "점 매트릭스 손" 절과 같다. 바꾸면 그 파일도 함께 고친다
+// 수치는 모두 docs/intro "점 매트릭스 손" 절과 같다. 바꾸면 그 파일도 함께 고친다
 
 const SHEET_URL =
   "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20261030_025250_100df7b8-31fd-4614-aa4a-c1b7d5b6b273.png&w=1600&q=85";

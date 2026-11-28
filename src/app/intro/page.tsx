@@ -7,7 +7,7 @@ import StageLock from "./StageLock";
 import BrandMark from "@/components/ui/common/BrandMark";
 import "./intro.css";
 
-// 이 화면의 수치 · 글꼴 · 문구는 .claude/rules/intro-page.md 에 고정해 둔 값이다. 바꿀 때는 그 파일도 함께 고친다
+// 이 화면의 수치 · 글꼴 · 문구는 docs/intro 에 고정해 둔 값이다. 바꿀 때는 그 파일도 함께 고친다
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["400", "500", "600"], display: "swap" });
 

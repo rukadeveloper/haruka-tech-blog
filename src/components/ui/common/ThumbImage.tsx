@@ -29,7 +29,7 @@ export default function ThumbImage({ src, className = "" }: { src: string; class
         loading="lazy"
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
-        className={`${className} transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`${className} transition-opacity duration-(--dur-slow) ease-(--ease-out) ${loaded ? "opacity-100" : "opacity-0"}`}
       />
     </>
   );

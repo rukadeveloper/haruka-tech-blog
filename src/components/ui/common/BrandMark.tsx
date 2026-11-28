@@ -1,6 +1,6 @@
 /**
  * 블로그 로고(src/app/icon.svg)의 점 H 를 단색(currentColor)으로 그린 마크. 인트로 내비와 블로그 헤더가 함께 쓴다.
- * 16×16 칸 격자(한 칸 4)의 칸 [열, 행, 반지름]. 좌표 규칙은 DESIGN.md "로고" — icon.svg 의 점 배치를 바꾸면 여기도 함께 고친다.
+ * 16×16 칸 격자(한 칸 4)의 칸 [열, 행, 반지름]. 좌표 규칙은 docs/design "로고" — icon.svg 의 점 배치를 바꾸면 여기도 함께 고친다.
  */
 const BRAND_DOTS: [number, number, number][] = [
   // 기둥: 열 3 · 4 · 9 · 10, 행 4–11

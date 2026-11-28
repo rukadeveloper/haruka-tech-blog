@@ -1,4 +1,4 @@
-/* 인트로(/intro) 전용 스타일. 값은 .claude/rules/intro-page.md 에 고정해 둔 명세 값이다.
+/* 인트로(/intro) 전용 스타일. 값은 docs/intro 에 고정해 둔 명세 값이다.
    이 저장소는 모든 *.css 를 Tailwind 로더로 처리해 CSS 모듈을 쓸 수 없으므로 클래스에 intro- 접두사를 붙인다 */
 
 .intro-root {

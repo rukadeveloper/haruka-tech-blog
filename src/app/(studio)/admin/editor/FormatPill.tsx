@@ -28,7 +28,7 @@ function Btn({ label, title, active, disabled, onClick }: { label: React.ReactNo
 const Sep = () => <span className="mx-1 h-4 w-px shrink-0 bg-white/20" aria-hidden />;
 
 /**
- * 쓰기 영역 아래 가운데에 떠 있는 어두운 서식 알약 (DESIGN.md "글 편집 화면").
+ * 쓰기 영역 아래 가운데에 떠 있는 어두운 서식 알약 (docs/editor "레이아웃").
  * 글자 서식만 둔다 — 사진 · 파일 트리 · 표 · 구분선처럼 넣기만 하는 것은 블록 패널이 맡는다.
  */
 export default function FormatPill({ editor }: { editor: Editor }) {
