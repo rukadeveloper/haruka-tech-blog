@@ -43,3 +43,6 @@ next-env.d.ts
 
 # next dev 가 매번 다시 만드는 파일
 /AGENTS.md
+
+# 하네스 중간 산출물
+/_workspace/
