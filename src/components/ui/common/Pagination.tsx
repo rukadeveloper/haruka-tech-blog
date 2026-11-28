@@ -19,7 +19,7 @@ function Chevron({ dir }: { dir: "left" | "right" }) {
 }
 
 /**
- * 쪽 번호 줄 (DESIGN.md "글 목록"): ‹ 1 … 4 5 [6] 7 8 … 13 ›
+ * 쪽 번호 줄 (docs/design "글 목록"): ‹ 1 … 4 5 [6] 7 8 … 13 ›
  * query 는 쪽을 넘겨도 유지할 검색 조건 (예: { q: "next" }).
  */
 export default function Pagination({

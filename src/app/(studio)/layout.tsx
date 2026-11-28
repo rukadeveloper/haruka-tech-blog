@@ -3,7 +3,7 @@ import { IBM_Plex_Sans_KR, JetBrains_Mono, Space_Grotesk } from "next/font/googl
 import StudioTheme from "./StudioTheme";
 import "./studio.css";
 
-// 벤토 블록 에디터 글꼴 (.claude/rules/editor-bento.md) — 에디터 화면에서만 불러온다
+// 벤토 블록 에디터 글꼴 (docs/editor) — 에디터 화면에서만 불러온다
 const plex = IBM_Plex_Sans_KR({
   variable: "--font-plex",
   weight: ["400", "500", "600", "700"],

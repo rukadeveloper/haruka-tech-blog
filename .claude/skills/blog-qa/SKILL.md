@@ -1,59 +1,65 @@
 ---
 name: blog-qa
-description: haruka-tech-blog 의 변경을 실제로 실행해 확인한다 — npm run lint, npm run build(타입 · cacheComponents prerender 검사), 개발 서버를 띄워 바뀐 주소를 라이트/다크 · 375px/1280px 로 브라우저 확인, Server Action 의 캐시 무효화 확인. "빌드 되는지 봐줘", "화면 깨지는지 확인해줘", 기능 구현 뒤 QA 단계에서 쓴다. 코드 규칙 검토는 blog-conventions, 디자인 토큰 검사는 blog-design-check 를 쓴다.
+description: haruka-tech-blog 변경분을 실제로 실행해 확인하는 QA 절차 — lint, 타입 검사, 프로덕션 빌드(cacheComponents prerender 검증 포함), dev 서버를 띄워 계획의 완료 조건을 브라우저 또는 HTTP 요청으로 확인. qa-runner 가 따르며, "QA 해줘", "빌드 되는지 확인해줘", "화면에서 동작 확인해줘" 같은 요청에도 쓴다. 코드 검토(읽고 판단)는 code-reviewer · design-reviewer 의 일이다.
 ---
 
 # 블로그 QA 절차
 
-테스트 스위트가 없으므로 **lint → build → 실제 화면** 세 단계가 전부입니다. 앞 단계가 실패하면 뒤 단계 결과는 믿을 수 없으니, 실패를 기록하고 멈춥니다 (화면 확인은 build 실패여도 dev 서버로 할 수 있으면 하되 "build 실패 상태"라고 적습니다).
+테스트 스위트가 없으므로 build 와 실제 화면이 유일한 실행 확인이다. 특히 cacheComponents 에서는 Suspense 누락 · `Date.now()` 같은 실수가 **빌드할 때만** 드러난다.
 
-## 1. 정적 검사
+## 1. 정적 확인
 
 ```bash
 npm run lint
-npm run build      # 타입 검사 포함. 1~3분
+npx next typegen && npx tsc --noEmit -p .
 ```
 
-- build 실패에서 자주 보는 원인과 연결할 규칙:
-  - `Uncached data was accessed outside of <Suspense>` / `cookies()`·`headers()`·`searchParams` 관련 → blog-conventions 2절 (Suspense)
-  - `Date.now()` 관련 prerender 오류 → `nowMs()`
-  - `server-only` import 오류 → 클라이언트 컴포넌트가 `@/lib/db` 를 끌어옴
-- 출력은 오류 줄과 그 앞뒤 몇 줄을 그대로 옮깁니다. 요약해서 바꿔 쓰지 않습니다.
-- `.env.local` 이 없거나 Supabase 에 닿지 않아 실패하면 코드 결함이 아니라 "환경 문제"로 따로 분류합니다. 비밀 값 파일 내용은 읽거나 출력하지 않습니다.
+경고 · 오류를 바뀐 파일 기준으로 나눠 적는다 (기존 파일의 경고는 "기존" 으로 표시).
 
-## 2. 개발 서버
+## 2. 프로덕션 빌드
 
 ```bash
-npm run dev        # 백그라운드로 실행, http://localhost:3000
+npm run build 2>&1 | tee _workspace/{run}/qa_build.log
 ```
 
-- 준비 확인은 `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/about` 가 200 을 돌려줄 때까지 기다립니다 (고정 sleep 대신 조건으로 기다림).
-- **홈(`/`)은 브라우저로 처음 열면 `/intro` 로 보내집니다** (`Sec-Fetch-Dest: document`, `src/lib/intro-gate.ts`). 홈 목록을 보려면 `/intro` 에서 CTA 를 눌러 사이트 안 이동으로 들어가거나 `/about` 등에서 헤더 링크로 이동합니다. `curl` 은 이 헤더를 보내지 않아 홈 HTML 을 그대로 받습니다.
-- 개발 모드에서는 localhost 가 관리자 허용 IP 로 자동 허용됩니다. 관리자 화면은 GitHub 로그인(`ADMIN_GITHUB_LOGIN`)이 필요하므로, 로그인할 수 없으면 `/admin` 이 로그인 화면으로 가는지만 확인하고 나머지는 "미확인"으로 적습니다.
-- 끝나면 개발 서버 프로세스를 끕니다.
+- 실패하면 오류 첫 부분과 해당 파일 · 줄을 보고서에 옮긴다. 흔한 원인: Suspense 밖 동적 값(`Uncached data was accessed outside of <Suspense>`), prerender 중 `Date.now()`, 클라이언트 파일이 `server-only` 모듈을 import.
+- 빌드는 Supabase 에서 글을 읽어 prerender 한다. `.env.local` 이 없거나 네트워크가 막혀 실패하면 "환경 문제" 로 적고 다음 단계로 간다. `.env*` 파일 내용은 열거나 출력하지 않는다.
+- 빌드 출력의 라우트 표에서 바뀐 라우트가 예상한 방식(정적 ◐/○, 동적 ƒ)으로 나오는지 본다.
 
-## 3. 화면 확인
+## 3. dev 서버와 화면 확인
 
-`claude-in-chrome` 스킬을 먼저 읽고 브라우저 도구를 씁니다. 바뀐 파일에서 영향받는 주소를 고릅니다.
+```bash
+npm run dev    # 백그라운드로 띄우고 http://localhost:3000 이 응답할 때까지 기다린다
+```
 
-| 바뀐 곳 | 열어 볼 주소 |
+- 빌드와 dev 를 동시에 돌리지 않는다. 빌드가 끝난 뒤 띄운다.
+- 3000 포트가 이미 쓰이면 그 서버를 쓰지 말고 보고한다.
+
+계획의 "완료 조건" 하나마다 확인 방법을 고른다:
+
+| 확인할 것 | 방법 |
 |---|---|
-| `BlogList` · `PostRow` · `BlogSidebar` | `/`(사이트 안 이동으로), `/category/FE`, `/?q=검색어`, `/?page=2` |
-| 글 본문 · `.post-body` · `highlight` · `file-tree` | 코드 블록 · 파일 트리가 있는 글 `/posts/{slug}` |
-| `SiteFrame` · 헤더 · 푸터 · `globals.css` | `/about`, `/guestbook`, 없는 주소(404) |
-| `src/app/intro/` | `/intro` |
-| `(studio)` 에디터 | `/admin/posts/new` (로그인 필요) |
-| 관리자 화면 | `/admin`, `/admin/categories` (로그인 필요) |
+| 응답 코드, 리다이렉트, 렌더된 문구 | `curl -s -o /dev/null -w "%{http_code}" URL`, `curl -s URL \| grep` |
+| 홈 → 인트로 진입 규칙 | `curl -sI -H "Sec-Fetch-Dest: document" http://localhost:3000/` → 307 `/intro`, 헤더 없이 → 200 |
+| 배치 · 다크 모드 · 모바일 · 상호작용 | 브라우저 도구 (`claude-in-chrome` 스킬을 먼저 불러온다) |
 
-각 주소마다 확인합니다.
+브라우저로 확인할 때:
 
-1. 폭 375px 와 1280px (`resize_window`). lg(1024px) 경계를 바꿨으면 1023px · 1024px 도 봅니다.
-2. 라이트와 다크 — 헤더의 테마 토글을 누르거나 `document.documentElement.dataset.theme = "dark"` 를 설정합니다.
-3. 콘솔 오류(`read_console_messages`, 패턴 `Error|Warning|hydrat`)와 가로 스크롤이 없는지.
-4. Server Action 을 바꿨다면: 실행 → 공개 화면에서 바뀐 값이 바로 보이는지 (안 보이면 `updateTag` 누락 의심).
+1. 탭 정보를 먼저 확인하고 새 탭에서 연다.
+2. 데스크톱 폭과 모바일 폭(약 390px)을 모두 본다. `localStorage.theme` 를 `"dark"` 로 바꾸고 새로고침해 다크 모드도 본다.
+3. 콘솔 오류(`read_console_messages`, 패턴 `error|Error|hydrat`)를 확인한다. 하이드레이션 경고는 실패로 적는다.
+4. 삭제 확인 버튼처럼 브라우저 대화 상자를 띄울 수 있는 동작은 누르지 않는다.
 
-브라우저 도구를 쓸 수 없으면 `curl` 로 상태 코드와 HTML 안의 핵심 문구만 확인하고, 화면 칸은 "미확인"으로 둡니다.
+## 4. 관리자 화면 한계
 
-## 4. 보고
+dev 에서는 localhost IP 가 허용되지만 관리자 판정에는 GitHub 로그인(`ADMIN_GITHUB_LOGIN` 계정)도 필요하다. 브라우저에 그 로그인 쿠키가 없으면 `/admin/*` 는 `/admin/login` 으로 간다. 이때는:
 
-qa-runner 의 출력 형식(lint · build · 화면 표 · 실패 목록)으로 `_workspace/{run}/04_qa_report.md` 에 씁니다. 실패 항목에는 재현 단계 · 기대 · 실제 · 관련 파일 추정을 넣습니다.
+- 로그인 화면으로 가는 것(권한 확인이 살아 있음)만 확인하고,
+- 관리자 화면의 동작은 "미확인 — 로그인 필요" 로 적는다. 로그인을 시도하거나 쿠키를 만들지 않는다.
+
+DB 에 쓰는 동작(글 저장, 댓글 작성)은 실제 Supabase 에 기록되므로 계획에 명시된 경우에만 하고, 만든 데이터는 보고서에 적는다.
+
+## 5. 정리와 보고
+
+- dev 서버를 끈다 (띄운 프로세스만).
+- `qa-runner` 정의의 보고서 형식으로 `_workspace/{run}/04_qa_report.md` 를 쓴다. 확인하지 못한 항목은 통과가 아니라 "미확인" 이다.

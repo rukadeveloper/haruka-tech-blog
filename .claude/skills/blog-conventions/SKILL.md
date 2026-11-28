@@ -1,80 +1,104 @@
 ---
 name: blog-conventions
-description: haruka-tech-blog 에서 코드를 쓰는 방법 — Next.js 16 cacheComponents 페이지 형태, "use cache" + cacheTag/cacheLife 읽기 함수, updateTag 로 무효화하는 Server Action, requireAdmin, server-only db(), 레이아웃 그룹((site) · intro · (studio)), 인트로 게이트, 글 형식(html/markdown). 이 저장소의 src/ 를 고치거나 새 화면 · 액션 · 읽기 함수를 만들 때 반드시 읽는다. 디자인 토큰 검사는 blog-design-check, 실행 확인은 blog-qa 를 쓴다.
+description: haruka-tech-blog 에서 코드를 쓰는 방법 — 페이지 형태(Suspense 로 감싼 비동기 내부 컴포넌트), 공개용 캐시 읽기 함수와 관리자용 캐시 없는 읽기, Server Action 작성(권한 · 검증 · updateTag), 컴포넌트 위치, 서버 전용 모듈 경계. 이 블로그의 화면 · 액션 · lib 함수를 새로 쓰거나 고칠 때 사용한다 (blog-implementer 가 구현 전에 읽고, 검토자는 references/review-checklist.md 를 쓴다). 다른 프로젝트의 Next.js 일반 질문에는 쓰지 않는다.
 ---
 
-# 블로그 구현 규칙
+# 블로그 코드 작성 규칙
 
-CLAUDE.md "꼭 지킬 아키텍처 규칙"과 `docs/*` (목차는 AGENTS.md)가 원본입니다. 이 스킬은 그 규칙을 **코드를 쓸 때 실제로 어떻게 하는지**로 옮긴 것입니다. 둘이 다르면 원본을 따르고, 이 파일을 고쳐 맞춥니다.
+이 블로그는 Next.js 16 App Router + `cacheComponents: true` 위에서 돈다. 이 설정에서는 요청 때마다 달라지는 값(params, searchParams, cookies, headers)을 읽는 순간 그 컴포넌트가 동적이 되고, `<Suspense>` 밖에서 읽으면 빌드가 실패한다. 아래 형태는 모두 이 제약에서 나온다.
 
-## 0. 먼저 확인할 것
+주제별 상세와 이유는 `docs/{주제}/README.md` 에 있다. 지금 작업에 해당하는 것만 읽는다.
 
-- **Next.js 는 16.x 이고 학습 데이터와 다릅니다.** `cacheComponents`, `updateTag`, `cacheLife`, `PageProps<"/route">`, `src/proxy.ts`(예전 middleware) 같은 API 는 `node_modules/next/dist/docs/` 에서 확인한 뒤 씁니다.
-- 고칠 영역의 규칙 문서를 엽니다: 공개 · 관리자 화면 → `DESIGN.md`, `/intro` → `.claude/rules/intro-page.md`, 글 에디터 → `.claude/rules/editor-bento.md`.
+| 바꾸는 것 | 읽을 문서 |
+|---|---|
+| 새 화면, 라우트, 폴더 위치 | `docs/architecture` |
+| DB 읽기 · 쓰기, 새 테이블 · 액션 | `docs/data` |
+| 읽기 함수, 액션, 동적 값을 읽는 페이지 | `docs/caching` |
+| 관리자 화면 · 액션, 로그인, 댓글 · 방명록 권한 | `docs/auth-admin` |
+| 글 본문 렌더링, 코드 블록, 파일 트리, 이미지 | `docs/posts` |
+| 공개 · 관리자 화면 UI | `docs/design` |
+| 글 에디터 `src/app/(studio)/**` | `docs/editor` |
+| 인트로 `src/app/intro/**`, `src/proxy.ts`, 홈 링크 | `docs/intro` |
+| 배포, 환경 변수, scripts/ | `docs/deploy` |
 
-## 1. 규칙 문서를 먼저 고친다 (스펙 우선)
+## 1. 페이지 형태
 
-이 저장소는 **화면 배치나 동작 규칙이 바뀌는 작업이면 해당 `docs/*` · DESIGN.md · rules 를 먼저 고쳐 `[skip deploy]` 커밋**하고, 그다음 구현 커밋을 올립니다 (git log 참고). 문서가 코드보다 앞서야 검토자가 무엇을 기준으로 볼지 정해지기 때문입니다. 버그 수정처럼 규칙이 그대로인 작업은 문서를 건드리지 않습니다.
-
-## 2. 페이지 형태 (cacheComponents)
-
-`params`, `searchParams`, 쿠키, 헤더를 읽는 코드는 `<Suspense>` 안에 있어야 합니다. 그렇지 않으면 build 의 prerender 가 실패합니다.
+동기 default export 가 `<Suspense>` 로 비동기 내부 컴포넌트를 감싼다. 동적 값은 내부 컴포넌트 안에서만 `await` 한다.
 
 ```tsx
-async function Content({ props }: { props: PageProps<"/category/[...path]"> }) {
-  const { path } = await props.params;          // 동적 값은 안쪽 비동기 컴포넌트에서만 읽는다
-  return <BlogList category={path.join("/")} page={1} />;
+async function Content({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
+  const { q } = await searchParams;          // 동적 값은 Suspense 안에서
+  return <BlogList q={typeof q === "string" ? q : ""} />;
 }
 
-export default function CategoryPage(props: PageProps<"/category/[...path]">) {
+export default function Home(props: PageProps<"/">) {
   return (
-    <Suspense fallback={<BlogSkeleton />}>    {/* 동기 default export 가 감싼다 */}
-      <Content props={props} />
+    <Suspense fallback={<BlogSkeleton />}>
+      <Content searchParams={props.searchParams} />
     </Suspense>
   );
 }
 ```
 
-- prerender 되는 코드에서 `Date.now()` 대신 `src/lib/clock.ts` 의 `nowMs()` 를 씁니다.
-- 새 화면은 어느 그룹에 둘지 먼저 정합니다: 헤더 · 푸터가 붙는 블로그 화면은 `src/app/(site)/`, 전체 화면 관리자 도구는 `src/app/(studio)/`. 그룹 이름은 주소에 나타나지 않습니다.
-- 홈(`/`)으로 가는 링크는 `next/link` 로 씁니다. `<a href="/">` 는 문서를 새로 받아 인트로로 되돌아갑니다.
-- 화면 안 표식을 `:has()` 로 찾아 `html` 상태를 바꾸지 않습니다. cacheComponents 가 떠난 화면의 DOM 을 숨긴 채 남깁니다. `StageLock` · `StudioTheme` 처럼 마운트 동안만 `html` 에 data 속성을 붙입니다.
+- `PageProps<"/경로">`, `LayoutProps<"/경로">` 는 Next 가 만드는 전역 타입이다. import 하지 않는다.
+- 관리자 화면처럼 로그인 확인 · DB 조회로 매 요청 렌더링하는 페이지는 `export const instant = false;` 를 둔다 (`src/app/(site)/admin/page.tsx`).
+- 레이아웃이 쿠키를 읽는 조각(예: 관리자 메뉴)을 가지면 그 조각도 따로 `<Suspense>` 로 감싼다.
+- prerender 되는 코드(캐시 함수, 서버 컴포넌트)에서 현재 시각이 필요하면 `Date.now()` 대신 `nowMs()` (`src/lib/clock.ts`). Server Action · Route Handler 안에서는 `Date.now()` 를 써도 된다.
 
-## 3. 읽기 함수 (캐시)
+## 2. 읽기 함수
 
-- DB 접근은 `src/lib/db.ts` 의 `db()` 하나로만 합니다. `server-only` 라 클라이언트 컴포넌트가 import 하면 build 가 실패합니다. 클라이언트에서도 쓰이는 모듈(예: `PostArticleBody`)은 서버 전용 모듈을 끌어오면 안 됩니다.
-- **공개 화면용** 읽기 함수는 이렇게 씁니다. 태그 · 수명 값은 `src/lib/cache.ts` 의 `TAGS` · `LIFE` 에만 두고, 새 종류의 데이터면 거기에 먼저 추가합니다.
+| 쓰는 곳 | 형태 | 예 |
+|---|---|---|
+| 공개 화면 | `"use cache"` + `cacheTag(TAGS.x)` + `cacheLife(LIFE.x)` | `getAllPosts`, `getComments(slug)`, `getGuestbook` |
+| 관리자 화면 · 액션 내부 검증 | 캐시 없음, 이름은 `load*` / `read*` | `loadPostMetas`, `readComments` |
 
 ```ts
 export async function getGuestbook() {
   "use cache";
   cacheTag(TAGS.guestbook);
   cacheLife(LIFE.guestbook);
-  return unwrap(await db().from("guestbook").select("*"));
+  return readGuestbook();
 }
 ```
 
-- **관리자 화면용**은 `load*` 이름으로, 캐시 없이 DB 를 직접 읽습니다 (방금 저장한 값이 바로 보여야 하므로).
-- `draft: true` 글은 공개 조회 결과에서 빠져야 합니다. 새 공개 조회를 만들면 이 조건을 넣습니다.
+- 태그와 수명은 `src/lib/cache.ts` 의 `TAGS` · `LIFE` 에서만 가져온다. 문자열을 새로 쓰지 않는다. 새 데이터 종류면 거기에 먼저 추가한다.
+- 공개 읽기는 `draft: true` 글을 빼야 한다 (`getAllPosts` 가 거르고 `getPost` 가 던진다).
+- DB 는 `src/lib/db.ts` 의 `db()` 와 `unwrap()` 으로만 접근한다. `db.ts` 는 `server-only` 라 클라이언트 번들에 들어가면 빌드가 깨진다.
 
-## 4. 쓰기 (Server Actions)
+## 3. Server Action
 
-- 쓰기는 Server Action 으로만 합니다 (별도 백엔드 없음). 위치: 관리자 `src/app/(site)/admin/actions.ts`, 댓글 `src/app/(site)/posts/[slug]/comment-actions.ts`, 방명록 `src/app/(site)/guestbook/actions.ts`.
-- 관리자 액션은 **첫 줄에서 `await requireAdmin()`** 을 부릅니다. proxy 가 `/admin` 화면을 막아도 액션은 어디서든 POST 로 불릴 수 있기 때문입니다.
-- 쓴 뒤에는 영향을 받는 태그를 `updateTag(TAGS.x)` 로 바로 비웁니다. 글을 바꾸면 `TAGS.posts`, 댓글은 `TAGS.comments(slug)`. 빠뜨리면 공개 화면이 최대 `LIFE` 의 수명만큼 옛 내용을 보여 줍니다.
-- 에디터 폼 필드 이름은 `savePost` 가 읽는 이름(`title`, `category`, `slug`, `date`, `description`, `tags`, `thumbnail`, `featured`, `content`, `intent`, `originalSlug`)과 같아야 합니다. 입력칸의 Enter 는 제출하지 않습니다.
-- 사용자에게 보여 줄 오류는 한국어 문장으로 반환합니다.
+파일 맨 위 `"use server"`. 순서는 **권한 → 입력 검증 → 쓰기 → 태그 비우기 → 결과**.
 
-## 5. 글 본문
+```ts
+export async function deleteSomething(formData: FormData) {
+  await requireAdmin();                                   // 1. 권한 (관리자 액션은 반드시 스스로)
+  const slug = String(formData.get("slug") ?? "").trim();
+  if (!SLUG_RE.test(slug)) throw new Error("잘못된 슬러그입니다.");   // 2. 검증
+  unwrap(await db().from("posts").delete().eq("slug", slug));     // 3. 쓰기
+  updateTag(TAGS.posts);                                  // 4. 영향받는 태그 모두
+  redirect("/admin");                                     // 5. 결과
+}
+```
 
-- `format: "html"` → `renderHtml`, `"markdown"` → `renderMarkdown`. 에디터로 저장하면 항상 html.
-- 본문 스타일은 `.post-body` 하나를 공개 글 · 관리자 미리보기 · 에디터가 함께 씁니다. 한 곳만 바꾸려고 별도 클래스를 만들지 않습니다.
-- 특수 블록: 파일 트리 `<div data-file-tree>` (`src/lib/file-tree.ts`), 콜아웃 `<div data-callout="…">` (`extensions/Callout.ts`), 코드 하이라이트 `src/lib/highlight.ts` · 언어 목록 `src/lib/code-languages.ts`.
+- `src/proxy.ts` 가 `/admin` 이하를 IP 로 막지만, 권한의 기준은 액션 안의 `requireAdmin()` (관리자) 또는 `getUser()` (방문자) 다. 프록시에 기대지 않는다. Route Handler 도 같다 (`isAdmin()` 확인 후 401).
+- 폼에서 쓰는 액션(`useActionState`)은 사용자에게 보여 줄 실패를 `{ error: "..." }` 로 돌려주고, 예상 못 한 오류는 `console.error` 후 일반 문구로 돌려준다 (`savePost`, `addComment`).
+- 쓰기 후에는 화면에 영향을 주는 **모든** 태그를 `updateTag` 로 비운다. 글 · 카테고리 → `TAGS.posts`, 댓글 → `TAGS.comments(slug)`, 방명록 → `TAGS.guestbook`.
+- 에디터 폼 필드 이름은 `savePost` 가 `formData.get(...)` 으로 읽는 이름과 같아야 한다 (`docs/editor` "폼 필드"). 한쪽만 바꾸면 값이 조용히 빈 문자열이 된다.
+
+## 4. 컴포넌트 위치와 클라이언트 경계
+
+- `src/components/ui/{common,post,comment}/` — 여러 곳에서 다시 쓰는 조각. `src/components/` — 한 번 쓰는 화면 조각. 화면 전용 클라이언트 조각은 그 라우트 폴더 옆에 둔다 (`src/app/(site)/admin/AdminPostTable.tsx`).
+- `"use client"` 파일은 `lib/db`, `lib/posts`, `lib/auth`, `lib/session`, `lib/s3` 를 import 하지 않는다 (서버 전용 · 비밀 값). 클라이언트에 필요한 값은 서버 컴포넌트가 props 로 넘기거나, 순수 함수만 있는 모듈(`lib/format.ts`, `lib/categories.ts` 의 순수 함수처럼)로 분리한다.
+- 홈(`/`)으로 가는 링크는 `next/link` 를 쓴다. `<a href="/">` 는 문서를 새로 받아 프록시가 인트로로 보낸다 (`docs/intro` "진입 규칙").
+- `html` 의 상태를 CSS `:has()` 로 바꾸지 않는다. cacheComponents 는 떠난 화면 DOM 을 숨긴 채 남기므로 다른 화면까지 영향을 받는다. 필요하면 `useEffect` 에서 속성을 붙였다 떼는 방식(`StageLock`, `StudioTheme`)을 쓴다.
+
+## 5. 화면 디자인
+
+공개 · 관리자 화면의 색 · 움직임 · 면은 `src/app/globals.css` 의 토큰과 클래스로만 쓴다 (`docs/design`). 인트로와 글 에디터는 자체 값을 쓰는 예외다. 상세 점검은 `blog-design-check` 스킬.
 
 ## 6. 그 밖
 
-- 코드 주석 · 화면 문구 · 커밋 메시지는 한국어입니다. 커밋은 기능 하나마다, 이 저장소의 기존 메시지처럼 한국어 한 줄로 씁니다. 문서 · 설정만 바뀌면 `[skip deploy]`.
-- 재사용 컴포넌트는 `src/components/ui/{도메인}/`, 한 번만 쓰는 조각은 `src/components/`, 공통 로직은 `src/lib/`.
-- 화면 밖(스크립트)에서 DB 를 바꾸면 `POST /api/revalidate` 로 비웁니다.
-
-검토자는 같은 규칙을 `references/review-checklist.md` 의 점검 항목으로 봅니다.
+- 코드 주석과 화면 문구는 한국어.
+- Next.js API 는 `node_modules/next/dist/docs/` 에서 확인한 뒤 쓴다. 미들웨어 파일은 `src/proxy.ts` (함수 이름 `proxy`) 이다.
+- 테스트 스위트는 없다. 확인은 `npm run lint`, `npm run build`, 브라우저.
+- 비밀 값 환경 변수에 `NEXT_PUBLIC_` 을 붙이지 않는다. 새 환경 변수는 `.env.example` 에 설명과 함께 추가한다.

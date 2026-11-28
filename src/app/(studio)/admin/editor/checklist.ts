@@ -28,7 +28,7 @@ export function codeLanguageGaps(doc: PMNode | null | undefined) {
 }
 
 /**
- * 발행 전 체크 (.claude/rules/editor-bento.md "발행 전 체크"):
+ * 발행 전 체크 (docs/editor "발행 전 체크"):
  * 제목 길이 · 태그 3개 이상 · 썸네일 · 코드 블록 언어. 상태는 통과 / 주의 / 필요.
  */
 export function prepublishChecks({

@@ -167,7 +167,7 @@ const autoGrow = "[field-sizing:content] supports-[field-sizing:content]:overflo
 
 /**
  * 메인 열: 커버 드롭존 → 제목 카드(태그 칩 · 제목 · 리드) → 본문 블록 카드(.bento-doc) → 블록 추가 메뉴.
- * 아래 가운데에 진한 서식 알약이 떠 있다 (.claude/rules/editor-bento.md "레이아웃").
+ * 아래 가운데에 진한 서식 알약이 떠 있다 (docs/editor "레이아웃").
  */
 export default function StudioWriter(p: Props) {
   return (

@@ -14,7 +14,7 @@ const matches = (p: PostMeta, q: string) =>
   [p.title, p.description, p.category, ...p.tags].some((s) => s.toLowerCase().includes(q));
 
 /**
- * 홈 · 카테고리 화면: [글자만 있는 목록 → 페이지네이션 | 사이드바(검색 · 카테고리)] (DESIGN.md "글 목록").
+ * 홈 · 카테고리 화면: [글자만 있는 목록 → 페이지네이션 | 사이드바(검색 · 카테고리)] (docs/design "글 목록").
  * category 가 비면 전체 글, q 가 있으면 전체 글에서 검색한다. 글 · 카테고리는 캐시된 읽기 함수에서 가져와 거른다.
  */
 export default async function BlogList({ category = "", page = 1, q = "" }: { category?: string; page?: number; q?: string }) {

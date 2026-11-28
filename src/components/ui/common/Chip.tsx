@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-/** 카테고리 선택 칩. 선택된 칩은 aria-current 로 표시한다 (DESIGN.md .chip) */
+/** 카테고리 선택 칩. 선택된 칩은 aria-current 로 표시한다 (docs/design "클래스" .chip) */
 export default function Chip({
   href,
   active = false,

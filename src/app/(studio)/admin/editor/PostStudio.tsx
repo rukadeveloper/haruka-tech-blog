@@ -56,7 +56,7 @@ function blockStats(editor: Editor | null) {
 }
 
 /**
- * 벤토 블록 에디터 (.claude/rules/editor-bento.md): 폼 하나가 화면 전체다.
+ * 벤토 블록 에디터 (docs/editor): 폼 하나가 화면 전체다.
  * 상단 바 카드 → [메인 열 | 사이드 360 벤토]. 폼 필드 이름은 savePost 가 읽는 이름과 같아야 한다.
  * 발행 버튼은 제출 버튼이 아니라 발행 전 체크를 거쳐 requestSubmit 한다 (입력칸 Enter 로 발행되지 않음).
  */

@@ -18,7 +18,7 @@ function AuthorAvatar() {
 }
 
 /**
- * 글 목록의 한 줄 (DESIGN.md "글 목록" — LINE Engineering 배치): 제목 → 작성자 줄 → 요약 3줄 → 분류 칩.
+ * 글 목록의 한 줄 (docs/design "글 목록" — LINE Engineering 배치): 제목 → 작성자 줄 → 요약 3줄 → 분류 칩.
  * 썸네일은 없다. 칩 링크와 겹치지 않도록 행 전체가 아니라 제목 · 요약만 글로 링크한다.
  */
 export default function PostRow({ post }: { post: PostMeta }) {

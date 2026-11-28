@@ -11,7 +11,7 @@ declare module "@tiptap/core" {
 
 /**
  * 콜아웃(주의) 블록. 저장 형태는 <div data-callout="warning">…블록…</div> 이고,
- * 공개 글에서는 globals.css 의 .post-body div[data-callout] 가 그린다 (.claude/rules/editor-bento.md "콜아웃 블록").
+ * 공개 글에서는 globals.css 의 .post-body div[data-callout] 가 그린다 (docs/editor "콜아웃 블록").
  */
 export const Callout = Node.create({
   name: "callout",

@@ -19,7 +19,7 @@ export function StatusBadge({ draft }: { draft: boolean }) {
   return draft ? <span className="badge badge-warning">임시저장</span> : <span className="badge badge-success">발행됨</span>;
 }
 
-/** 관리자 글 그리드의 카드 하나: 썸네일(상태 배지) → 제목 · 카테고리 · 날짜 → 작업 줄 (DESIGN.md "관리자 화면") */
+/** 관리자 글 그리드의 카드 하나: 썸네일(상태 배지) → 제목 · 카테고리 · 날짜 → 작업 줄 (docs/design "관리자 화면") */
 export default function AdminPostCard({ post }: { post: AdminPost }) {
   const label = post.category.split("/").pop();
 
