@@ -60,7 +60,7 @@ const UTIL = "text|bg|border|ring|fill|stroke|from|via|to|outline|divide|decorat
 const RULES = [
   ["D1", "public", /#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d/, "색 값을 직접 씀 — globals.css 토큰(text-muted, bg-surface, var(--line) 등)을 쓴다", "any"],
   ["D2", "public", new RegExp(`\\b(${UTIL})-(${PALETTE})-\\d{2,3}\\b|\\b(${UTIL})-(white|black)\\b`), "Tailwind 기본 팔레트 색 — 다크 모드에서 안 바뀐다. 토큰 유틸리티를 쓴다", "any"],
-  ["D3", "public", /\bduration-(\d+|\[(?!var\(--dur))|\bease-(in|out|in-out|linear)\b|\bease-\[(?!var\(--ease)|\bdelay-\d+/, "움직임 값을 직접 씀 — var(--dur*) · var(--ease-out) 를 쓴다 (reduced-motion 이 토큰으로 처리된다)", "tsx"],
+  ["D3", "public", /\bduration-(\d+|\[(?!var\(--dur))|(?<![-(])\bease-(in|out|in-out|linear)\b|\bease-\[(?!var\(--ease)|\bdelay-\d+/, "움직임 값을 직접 씀 — var(--dur*) · var(--ease-out) 를 쓴다 (reduced-motion 이 토큰으로 처리된다)", "tsx"],
   ["D3", "public", /(transition|animation)[^;]*\b\d+(\.\d+)?m?s\b(?![^;]*var\(--dur)|cubic-bezier\(/, "움직임 값을 직접 씀 — var(--dur*) · var(--ease-out)", "css"],
   ["D4", "public", /\b(active:)?scale-(9\d|1\d\d)\b|scale\(0\.\d+\)/, "누름 크기를 직접 씀 — .pressable / .pressable-lg 또는 var(--press*)", "any"],
   ["D5", "public", /\bshadow-(sm|md|lg|xl|2xl)\b|box-shadow:\s*\d/, "그림자를 직접 씀 — shadow-card / shadow-pop 또는 .card · .glass-thick", "any"],
