@@ -48,7 +48,7 @@
 - `saveCategories` 의 `position` — 대분류 `i*1000`, 소분류 `i*1000 + j + 1`. 트리 전체를 upsert 하고 빠진 경로는 지운다.
 - 카테고리 필터: `inCategory(post, "FE")` 는 `FE` 와 `FE/*` 모두, `"FE/Next.js"` 는 정확히 일치하는 글만.
 - `draft = true` — 공개 화면에서 숨기고 관리자에서만 보인다. `getAllPosts` 가 draft 를 걸러내고 `getPost` 는 draft 면 던진다. 에디터의 임시저장(`intent=draft`)이 켠다.
-- `featured = true` — 홈의 "추천 아티클" 구획에 나온다. 에디터 발행 설정의 `featured=on` 으로 켠다.
+- `featured = true` — 관리자 글 목록에 "추천" 배지로 표시된다 (공개 화면에서는 아직 쓰지 않는다, `docs/posts` "draft · featured"). 에디터 발행 설정의 `featured=on` 으로 켠다.
 - `format` — `html`(에디터로 저장한 글, `savePost` 는 항상 `html`) / `markdown`(가져온 글). 렌더 경로가 다르다 (`renderHtml` / `renderMarkdown`).
 - 썸네일: DB 값이 `post-covers.json` 에 기록된 원본 값과 같을 때만 `/images/post-covers/{slug}.webp` 로 치환한다 (스튜디오에서 바꾼 값이 우선).
 

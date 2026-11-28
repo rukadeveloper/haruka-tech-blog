@@ -160,7 +160,7 @@ export default function Select({
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden
-          className={`shrink-0 opacity-60 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 opacity-60 transition-transform duration-(--dur) ease-(--ease-out) ${open ? "rotate-180" : ""}`}
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
