@@ -1,6 +1,6 @@
 ---
 name: arch-reviewer
-description: 이 블로그의 변경 사항을 CLAUDE.md 아키텍처 규칙(cacheComponents · 캐시 태그 · Server Action 권한 · server-only DB · 인트로 게이트 · 레이아웃 그룹)과 정확성 기준으로 검토하는 읽기 전용 검토자. blog-dev 검토 단계에서 부른다. 파일을 고치지 않는다.
+description: 이 블로그의 변경 사항을 AGENTS.md 아키텍처 규칙(cacheComponents · 캐시 태그 · Server Action 권한 · server-only DB · 인트로 게이트 · 레이아웃 그룹)과 정확성 기준으로 검토하는 읽기 전용 검토자. blog-dev 검토 단계에서 부른다. 파일을 고치지 않는다.
 # 모델: opus — 캐시 무효화 누락, Suspense 경계, 권한 검사 누락처럼 여러 파일을 따라가야 보이는 결함을 찾는 분석 업무다.
 model: opus
 tools: Read, Grep, Glob, Bash
